@@ -15,6 +15,6 @@ fetch(`/stock/${symbol}`, { method: 'POST' })
         updateTimeInfo.innerHTML = `Last Update : ${data.preOpenMarket.lastUpdateTime}`
         baseprice.innerHTML = `Base Price : ${data.priceInfo.basePrice}`
         lastprice.innerHTML = `Last Price : ${data.priceInfo.lastPrice}`
-        changeprice.innerHTML = `Last Price : ${data.priceInfo.change.toFixed(2)}`
+        changeprice.innerHTML = `Change Price : ${data.priceInfo.change.toFixed(2)}`
     })
     .catch(err => console.log(err))
