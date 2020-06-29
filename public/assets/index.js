@@ -7,9 +7,10 @@ fetch('/nifty50', {
     .then(data => {
         let stockData = data.data
         console.log(stockData)
+        stockData.shift()
         stockData.map(value => {
             tableBody.innerHTML += `
-                <td>${value.symbol}</td>
+                <td><a href="/${value.symbol}">${value.symbol}</a></td>
                 <td class="d-none d-sm-block d-xs-block">${value.previousClose}</td>
                 <td>${value.open}</td>
                 <td>${value.dayHigh}</td>
