@@ -5,6 +5,9 @@ const axios = require("axios").default;
 
 // require('events').EventEmitter.defaultMaxListeners = 0
 
+// https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2020&to=26-06-2020
+// https://www.nse-india.com/api/chart-databyindex?index=TATASTEELEQN&preopen=true
+
 const app = express()
 app.use(express.static(path.join(__dirname, '/public')));
 
