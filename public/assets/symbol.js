@@ -18,5 +18,10 @@ fetch(`/stock/${symbol}`, { method: 'POST' })
         baseprice.innerHTML = `Base Price : ${data.priceInfo.basePrice}`
         lastprice.innerHTML = `Last Price : ${data.priceInfo.lastPrice}`
         changeprice.innerHTML = `Change Price : ${data.priceInfo.change.toFixed(2)}`
+        if(data.priceInfo.change > 0){
+          changeprice.classList.add("text-success")
+        } else {
+          changeprice.classList.add("text-danger")
+        }
     })
     .catch(err => console.log(err))
