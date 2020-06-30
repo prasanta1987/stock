@@ -6,7 +6,7 @@ fetch('/nifty50', {
     .then(res => res.json())
     .then(data => {
         let stockData = data.data
-        console.log(stockData)
+        console.log(data)
         stockData.shift()
         stockData.map(value => {
             tableBody.innerHTML += `
