@@ -3,6 +3,7 @@ const updateTimeInfo = document.querySelector('.updateTimeInfo')
 const baseprice = document.querySelector('.baseprice')
 const lastprice = document.querySelector('.lastprice')
 const changeprice = document.querySelector('.changeprice')
+const industryinfo = document.querySelector('.industryinfo')
 
 
 const symbol = window.location.pathname.replace('/', '')
@@ -12,7 +13,8 @@ fetch(`/stock/${symbol}`, { method: 'POST' })
     .then(data => {
         console.log(data)
         companyName.innerHTML = data.info.companyName
-        updateTimeInfo.innerHTML = `Last Update : ${data.preOpenMarket.lastUpdateTime}`
+        industryinfo.innerHTML = `Industry : ${data.metadata.industry}`
+        updateTimeInfo.innerHTML = `Last Update : ${data.metadata.lastUpdateTime}`
         baseprice.innerHTML = `Base Price : ${data.priceInfo.basePrice}`
         lastprice.innerHTML = `Last Price : ${data.priceInfo.lastPrice}`
         changeprice.innerHTML = `Change Price : ${data.priceInfo.change.toFixed(2)}`
