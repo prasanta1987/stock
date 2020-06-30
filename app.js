@@ -29,7 +29,7 @@ app.post('/stock/:symbol', (req, res) => {
 
 })
 
-const port = process.env.PORT || 3000
+const port = 80 || process.env.PORT
 
 app.listen(port, () => {
     console.log(`Server Running at http://localhost:${port}`)
