@@ -43,8 +43,6 @@ const getChartData = (inden, companyName) => {
       grapthData.map(data => {
         let d = new Date(data[0])
 
-        console.log(d.getUTCHours())
-
         let hour = d.getUTCHours()
         let min = d.getUTCMinutes()
         let sec = d.getUTCSeconds()
@@ -53,6 +51,8 @@ const getChartData = (inden, companyName) => {
         timestamp.push(time)
         timeAmount.push(data[1])
       })
+
+      console.log(timestamp)
 
       plotChartData(timestamp,timeAmount, companyName)
     })
@@ -79,7 +79,17 @@ const getChartData = (inden, companyName) => {
       },
 
       // Configuration options go here
-      options: {}
+      options: {
+        scales : {
+          xAxes: [{
+            // type: 'bar',
+            ticks: {
+                autoSkip: true,
+                maxTicksLimit: 20
+            }
+        }]
+        }
+      }
     });
   }
 
