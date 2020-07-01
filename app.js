@@ -2,7 +2,6 @@ const express = require('express')
 const path = require("path");
 const axios = require("axios").default;
 
-
 // require('events').EventEmitter.defaultMaxListeners = 0
 
 // https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2020&to=26-06-2020
@@ -29,6 +28,21 @@ app.post('/stock/:symbol', (req, res) => {
     axios.get(`https://www.nseindia.com/api/quote-equity?symbol=${symb}`)
         .then(data => res.status(200).json(data.data))
         .catch(err => res.status(500).json(err))
+
+})
+
+app.post('/candleData/:symbol',(req,res)=>{
+
+    const symb = (req.params.symbol).toUpperCase()
+
+    // const url = `https://www.nse-india.com/api/chart-databyindex?index=${symb}`
+    const url = `https://www.nse-india.com/api/chart-databyindex?index=${symb}&preopen=true`
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(err => res.status(500).json(err))
+
+
 
 })
 
