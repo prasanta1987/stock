@@ -1,4 +1,31 @@
 const tableBody = document.querySelector('.stockdata')
+const companyname = document.querySelector('#companyname')
+const suggestionresponse = document.querySelector('.suggestionresponse')
+
+companyname.addEventListener('keyup',()=>{
+
+    let name = companyname.value
+
+    if(name.length > 1){
+        fetch(`/indexSymbol/${name}`,{method : 'POST'})
+        .then(res => res.json())
+        .then(data => {
+            suggestionresponse.innerHTML = ''
+            data.message.map(ele=>{
+                console.log(ele)
+                suggestionresponse.innerHTML += `
+                    <a class="p-1 bg-secondary text-light suggestion" href="/${ele.symbol}">
+                        <span class="name">${ele.companyName}</span>
+                        <small class="symbol">${ele.symbol}</small>
+                    </a>`
+
+            })
+        })
+        .catch(err => console.log(err))
+    } else {
+        suggestionresponse.innerHTML = ''
+    }
+})
 
 
 const getNifty50Data = ()=>{
@@ -34,4 +61,6 @@ const getNifty50Data = ()=>{
         
 }
 
-setInterval(getNifty50Data,1000);
+
+getNifty50Data()
+// setInterval(getNifty50Data,1000);
