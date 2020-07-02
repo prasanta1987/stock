@@ -6,6 +6,35 @@ const changeprice = document.querySelector('.changeprice')
 const industryinfo = document.querySelector('.industryinfo')
 const chartdatainfo = document.querySelector('.chartdatainfo')
 
+// Create Chart
+const stockChartElement = document.getElementById('myChart')
+const stockChartCanvas = stockChartElement.getContext('2d');
+
+stockChartElement.style.visibility = 'hidden'
+
+let stockChart = new Chart(stockChartCanvas, {
+  type: 'bar',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'data',
+      backgroundColor: 'rgb(0, 99, 132)',
+      borderColor: 'rgb(0, 99, 132)',
+      data: []
+    }]
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        ticks: {
+          autoSkip: true,
+          maxTicksLimit: 20
+        }
+      }]
+    }
+  }
+});
+
 
 const symbol = window.location.pathname
 
@@ -31,7 +60,6 @@ fetch(`/stock${symbol}`, { method: 'POST' })
   .catch(err => console.log(err))
 
 
-
 const getChartData = (inden, companyName) => {
   fetch(`/candleData/${inden}`, { method: 'POST' })
     .then(res => res.json())
@@ -52,45 +80,19 @@ const getChartData = (inden, companyName) => {
         timeAmount.push(data[1])
       })
 
-      console.log(timestamp)
-
-      plotChartData(timestamp,timeAmount, companyName)
+      plotChartData(timestamp, timeAmount, companyName)
     })
     .catch(err => {
       console.log(err)
     })
+}
 
-  const plotChartData = (time, data, companyName) => {
+const plotChartData = (time, data, companyName) => {
 
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var chart = new Chart(ctx, {
-      // The type of chart we want to create
-      type: 'bar',
+  stockChart.data.labels = time
+  stockChart.data.datasets[0].data = data
+  stockChart.data.datasets[0].label = companyName
 
-      // The data for our dataset
-      data: {
-        labels: time,
-        datasets: [{
-          label: companyName,
-          backgroundColor: 'rgb(0, 99, 132)',
-          borderColor: 'rgb(0, 99, 132)',
-          data: data
-        }]
-      },
-
-      // Configuration options go here
-      options: {
-        scales : {
-          xAxes: [{
-            // type: 'bar',
-            ticks: {
-                autoSkip: true,
-                maxTicksLimit: 20
-            }
-        }]
-        }
-      }
-    });
-  }
-
+  stockChart.update();
+  stockChartElement.style.visibility = 'visible'
 }

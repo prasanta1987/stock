@@ -40,17 +40,24 @@ app.post('/nifty50', (req, res) => {
 })
 
 app.post('/stock/:symbol', (req, res) => {
-    const symb = (req.params.symbol).toUpperCase()
+    let symb = (req.params.symbol).toUpperCase()
 
-    axios.get(`https://www.nseindia.com/api/quote-equity?symbol=${symb}`)
-        .then(data => res.status(200).json(data.data))
-        .catch(err => res.status(500).json(err))
-
+    symb = symb.replace('&','%26')
+    const url = `https://www.nseindia.com/api/quote-equity?symbol=${symb}`
+    
+    console.log(url)
+    
+    axios.get(url)
+    .then(data => res.status(200).json(data.data))
+    .catch(err => res.status(500).json(err))
+    
 })
 
 app.post('/candleData/:symbol',(req,res)=>{
+    
+    let symb = (req.params.symbol).toUpperCase()
+    symb = symb.replace('&','%26')
 
-    const symb = (req.params.symbol).toUpperCase()
 
     const url = `https://www.nseindia.com/api/chart-databyindex?index=${symb}`
     // const url = `https://www.nse-india.com/api/chart-databyindex?index=${symb}&preopen=true`
