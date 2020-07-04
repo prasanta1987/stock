@@ -18,8 +18,8 @@ let stockChart = new Chart(stockChartCanvas, {
     labels: [],
     datasets: [{
       label: 'data',
-      backgroundColor: 'rgb(0, 99, 132)',
-      borderColor: 'rgb(0, 99, 132)',
+      backgroundColor: 'rgba(0, 99, 132,1)',
+      borderColor: 'rgba(0, 99, 132,1)',
       data: []
     }]
   },
@@ -89,10 +89,10 @@ const getChartData = (inden, companyName) => {
 
 const plotChartData = (time, data, companyName) => {
 
+  stockChartElement.style.visibility = 'visible'
   stockChart.data.labels = time
   stockChart.data.datasets[0].data = data
   stockChart.data.datasets[0].label = companyName
 
   stockChart.update();
-  stockChartElement.style.visibility = 'visible'
 }
