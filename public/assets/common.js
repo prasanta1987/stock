@@ -1,10 +1,8 @@
-let userData = sessionStorage
+let userData = []
 
-    fetch('/getUserData',{method : 'POST'})
-    .then(res=>res.json())
-    .then(data=>{
-
-        sessionStorage.name = data.name
-        sessionStorage.watchList = data.watchList
+fetch('/getUserData', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+        userData = data
     })
-    .catch(err=>console.log(err))
+    .catch(err => console.log(err))

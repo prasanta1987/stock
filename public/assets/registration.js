@@ -8,7 +8,7 @@ btn.addEventListener('click', () => {
     fetch(`/updateName/${userName}`, { method: 'POST' })
         .then(res => {
             if (res.status == 200) {
-                setTimeout(() => { window.location = '/' }, 1000)
+                // setTimeout(() => { window.location = '/' }, 1000)
             }
         })
         .catch(err => console.log(err))
@@ -18,6 +18,7 @@ btn.addEventListener('click', () => {
 companyname.addEventListener('keyup', () => {
 
     let name = companyname.value
+    let userAddedSymbols = userData.watchList
 
     if (name.length > 1) {
         fetch(`/indexSymbol/${name}`, { method: 'POST' })
@@ -30,10 +31,22 @@ companyname.addEventListener('keyup', () => {
                     <span class="p-1 border suggestion">
                         <span class="name">${ele.companyName}</span>
                         <button id="${ele.symbol}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.symbol}')">ADD</button>
-                        <!-- <button id="${ele.symbol}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.symbol}')">ADD</button> -->
                     </span>`
 
                 })
+
+                userAddedSymbols.map(symbol => {
+                    console.log(symbol)
+                    if (document.querySelector(`#${symbol}`)) {
+
+                        let foundElement = document.querySelector(`#${symbol}`)
+                        foundElement.classList.remove('btn-outline-success')
+                        foundElement.classList.add('btn-outline-danger')
+                        foundElement.innerHTML = 'REMOVE'
+                        foundElement.setAttribute('onClick', `removeSymbolFromProfile("${symbol}")`)
+                    }
+                })
+
             })
             .catch(err => console.log(err))
     } else {
@@ -47,6 +60,7 @@ const addSymbolToprofile = (symbol) => {
         .then(res => res.json())
         .then(data => {
             console.log(data)
+            userData.watchList.push(symbol)
         })
         .catch(err => console.log(err))
 }
