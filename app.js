@@ -1,11 +1,17 @@
 const express = require('express')
 const path = require("path");
 const axios = require("axios").default;
-var HTMLParser = require('node-html-parser');
+const HTMLParser = require('node-html-parser');
+const fs = require('fs')
 
 const symbol = require('./indexSymbols')
 
-
+fs.exists('./user_profile/userProfile.json', (res) => {
+    if (!res) {
+        fs.mkdirSync('./user_profile')
+        fs.writeFileSync('./user_profile/userProfile.json', '{}')
+    }
+})
 
 // require('events').EventEmitter.defaultMaxListeners = 0
 
@@ -13,12 +19,64 @@ const symbol = require('./indexSymbols')
 // https://www.nse-india.com/api/chart-databyindex?index=TATASTEELEQN&preopen=true
 
 const app = express()
+
+
+const userProfileCheck = (req, res, next) => {
+
+    userData = JSON.parse(fs.readFileSync('./user_profile/userProfile.json').toString())
+    let keys = Object.keys(userData).length
+
+    if (keys > 0) {
+        return next()
+    } else {
+        res.sendFile(path.join(__dirname, '/public/registration.html'));
+    }
+
+}
+
+
+app.get('/', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
+app.get('/:symbol', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/symbol.html')));
+
 app.use(express.static(path.join(__dirname, '/public')));
 
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
-app.get('/:symbol', (req, res) => res.sendFile(path.join(__dirname, '/public/symbol.html')));
+app.post('/updateName/:name', (req, res) => {
 
+    const name = req.params.name
+
+    const data = {
+        name: name
+    }
+
+    try {
+        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(data))
+        res.status(200).json({ "message": "User Name Saved Successfully" })
+    } catch (error) {
+        res.status(501).json({ "error": "Something Went Wrong" })
+    }
+
+})
+
+app.post('addSymbol/:symbol', (req, res) => {
+
+    const symbol = req.params.symbol
+
+    let data = {
+        symbol: [symbol]
+    }
+
+    console.log(data)
+
+    try {
+        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(data))
+        res.status(200).json({ "message": "User Name Saved Successfully" })
+    } catch (error) {
+        res.status(501).json({ "error": "Something Went Wrong" })
+    }
+
+
+})
 
 app.post('/indexSymbol/:name', (req, res) => {
 
@@ -153,3 +211,4 @@ const port = process.env.PORT || 3000
 app.listen(port, () => {
     console.log(`Server Running at http://localhost:${port}`)
 })
+
