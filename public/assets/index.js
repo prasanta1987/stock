@@ -1,34 +1,18 @@
 const tableBody = document.querySelector('.stockdata')
-const companyname = document.querySelector('#companyname')
-const suggestionresponse = document.querySelector('.suggestionresponse')
 
-companyname.addEventListener('keyup',()=>{
+const myWatchLists = sessionStorage.watchList.split(',')
 
-    let name = companyname.value
+myWatchLists.map(symbol => {
 
-    if(name.length > 1){
-        fetch(`/indexSymbol/${name}`,{method : 'POST'})
+    fetch(`/stock/${symbol}`, { method: 'POST' })
         .then(res => res.json())
         .then(data => {
-            suggestionresponse.innerHTML = ''
-            data.message.map(ele=>{
-                console.log(ele)
-                suggestionresponse.innerHTML += `
-                    <a class="p-1 bg-secondary text-light suggestion" href="/${ele.symbol}">
-                        <span class="name">${ele.companyName}</span>
-                        <small class="symbol">${ele.symbol}</small>
-                    </a>`
-
-            })
+            console.log(data)
         })
         .catch(err => console.log(err))
-    } else {
-        suggestionresponse.innerHTML = ''
-    }
 })
 
-
-const getNifty50Data = ()=>{
+const getNifty50Data = () => {
 
     fetch('/nifty50', {
         method: 'POST'
@@ -58,9 +42,9 @@ const getNifty50Data = ()=>{
             })
         })
         .catch(err => console.log(err))
-        
+
 }
 
 
-getNifty50Data()
+// getNifty50Data()
 // setInterval(getNifty50Data,1000);
