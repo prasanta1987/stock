@@ -18,7 +18,6 @@ btn.addEventListener('click', () => {
 companyname.addEventListener('keyup', () => {
 
     let name = companyname.value
-    let userAddedSymbols = userData.watchList
 
     if (name.length > 1) {
         fetch(`/indexSymbol/${name}`, { method: 'POST' })
@@ -35,17 +34,7 @@ companyname.addEventListener('keyup', () => {
 
                 })
 
-                userAddedSymbols.map(symbol => {
-                    console.log(symbol)
-                    if (document.querySelector(`#${symbol}`)) {
-
-                        let foundElement = document.querySelector(`#${symbol}`)
-                        foundElement.classList.remove('btn-outline-success')
-                        foundElement.classList.add('btn-outline-danger')
-                        foundElement.innerHTML = 'REMOVE'
-                        foundElement.setAttribute('onClick', `removeSymbolFromProfile("${symbol}")`)
-                    }
-                })
+                filterSymbols(userData.watchList)
 
             })
             .catch(err => console.log(err))
@@ -61,6 +50,39 @@ const addSymbolToprofile = (symbol) => {
         .then(data => {
             console.log(data)
             userData.watchList.push(symbol)
+            filterSymbols(userData.watchList)
         })
         .catch(err => console.log(err))
+}
+
+const removeSymbolFromProfile = (symbol) => {
+
+    console.log(symbol)
+    fetch(`/removeSymbol/${symbol}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+            let foundElement = document.querySelector(`#${symbol}`)
+            foundElement.classList.add('btn-outline-success')
+            foundElement.classList.remove('btn-outline-danger')
+            foundElement.innerHTML = 'ADD'
+            foundElement.setAttribute('onClick', `addSymbolToprofile("${symbol}")`)
+
+        })
+        .catch(err => console.log(err))
+
+}
+
+const filterSymbols = (userAddedSymbols) => {
+
+    userAddedSymbols.map(symbol => {
+        if (document.querySelector(`#${symbol}`)) {
+            let foundElement = document.querySelector(`#${symbol}`)
+            foundElement.classList.remove('btn-outline-success')
+            foundElement.classList.add('btn-outline-danger')
+            foundElement.innerHTML = 'REMOVE'
+            foundElement.setAttribute('onClick', `removeSymbolFromProfile("${symbol}")`)
+        }
+    })
+
 }

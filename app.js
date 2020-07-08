@@ -59,6 +59,28 @@ app.post('/updateName/:name', (req, res) => {
 
 })
 
+app.post('/removeSymbol/:symbol', (req, res) => {
+
+    const symbol = req.params.symbol
+    let userData = getUserProfile()
+    let userAddedSymbols = userData.watchList || []
+
+
+    let symbolIndex = userAddedSymbols.indexOf(symbol)
+    let updatedWatchList = userAddedSymbols.splice(symbolIndex, 1)
+
+    userAddedSymbols = []
+    userAddedSymbols.push(userAddedSymbols)
+
+    try {
+        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(userData))
+        res.status(200).json({ "message": "Watchlist Updated Successfully" })
+    } catch (error) {
+        res.status(501).json({ "error": "Something Went Wrong" })
+    }
+
+})
+
 app.post('/addSymbol/:symbol', (req, res) => {
 
     const symbol = req.params.symbol
@@ -72,7 +94,7 @@ app.post('/addSymbol/:symbol', (req, res) => {
 
     try {
         fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(userData))
-        res.status(200).json({ "message": "Company added Successfully" })
+        res.status(200).json({ "message": "Watchlist Updated Successfully" })
     } catch (error) {
         res.status(501).json({ "error": "Something Went Wrong" })
     }
