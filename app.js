@@ -36,21 +36,21 @@ const userProfileCheck = (req, res, next) => {
 
 
 app.get('/', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
+app.get('/userProfile', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/registration.html')));
 app.get('/:symbol', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/symbol.html')));
 
 app.use(express.static(path.join(__dirname, '/public')));
 
 
 app.post('/updateName/:name', (req, res) => {
-
+    
     const name = req.params.name
+    let userData = getUserProfile()
 
-    const data = {
-        name: name
-    }
+    userData.name = name
 
     try {
-        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(data))
+        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(userData))
         res.status(200).json({ "message": "User Name Saved Successfully" })
     } catch (error) {
         res.status(501).json({ "error": "Something Went Wrong" })
@@ -58,18 +58,21 @@ app.post('/updateName/:name', (req, res) => {
 
 })
 
-app.post('addSymbol/:symbol', (req, res) => {
+app.post('/addSymbol/:symbol', (req, res) => {
 
     const symbol = req.params.symbol
+    let userData = getUserProfile()
 
-    let data = {
-        symbol: [symbol]
-    }
+    userWatchList = userData.watchList || []
+    userWatchList.push(symbol)
 
-    console.log(data)
+
+    userData.watchList = userWatchList
+
+    console.log(userData)
 
     try {
-        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(data))
+        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(userData))
         res.status(200).json({ "message": "User Name Saved Successfully" })
     } catch (error) {
         res.status(501).json({ "error": "Something Went Wrong" })
@@ -205,6 +208,12 @@ app.post('/historicalData/:symbol', (req, res) => {
 
 
 })
+
+const getUserProfile = ()=>{
+    let userData = JSON.parse(fs.readFileSync('./user_profile/userProfile.json').toString())
+
+    return userData
+}
 
 const port = process.env.PORT || 3000
 
