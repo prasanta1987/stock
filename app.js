@@ -13,6 +13,7 @@ fs.exists('./user_profile/userProfile.json', (res) => {
     }
 })
 
+
 // require('events').EventEmitter.defaultMaxListeners = 0
 
 // https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2020&to=26-06-2020
@@ -128,8 +129,6 @@ app.post('/stock/:symbol', (req, res) => {
 
     symb = symb.replace('&', '%26')
     const url = `https://www.nseindia.com/api/quote-equity?symbol=${symb}`
-
-    console.log(url)
 
     axios.get(url)
         .then(data => res.status(200).json(data.data))

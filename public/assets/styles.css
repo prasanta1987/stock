@@ -3,3 +3,9 @@
     justify-content: space-between;
     text-decoration: none !important;
 }
+
+.v-c-c{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

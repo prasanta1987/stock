@@ -1,16 +1,54 @@
 const tableBody = document.querySelector('.stockdata')
+const noWatchlist = document.querySelector('.noWatchlist')
+const mycardcontainer = document.querySelector('.mycardcontainer')
 
-const myWatchLists = sessionStorage.watchList.split(',')
+const getMyWatchList = () => {
 
-myWatchLists.map(symbol => {
+    console.log(userData)
 
-    fetch(`/stock/${symbol}`, { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data)
+    if (sessionStorage.watchList.length > 0 & sessionStorage.watchList != "undefined") {
+        const myWatchLists = sessionStorage.watchList.split(',')
+
+        myWatchLists.map(symbol => {
+
+            fetch(`/stock/${symbol}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data)
+                    mycardcontainer.innerHTML += `
+                                <div class="container rounded p-2 mt-3 mb-3 border border-dark ${data.info.symbol}">
+                                    <div class="row">
+                                        <div class="col-sm-2 col-md-3 col-lg-3">
+                                            <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
+                                            <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
+                                            <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-2  col-lg-2 v-c-c text-light rounded ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
+                                            <div class="text-center">
+                                            <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
+                                            <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            `
+                })
+                .catch(err => console.log(err))
         })
-        .catch(err => console.log(err))
-})
+
+    } else {
+        noWatchlist.innerHTML = "Your Watch List is Empty"
+        console.log('Watchlist Empty')
+    }
+}
+
+
+getMyWatchList()
+
+// setInterval(getMyWatchList, 1000)
+
 
 const getNifty50Data = () => {
 
