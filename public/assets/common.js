@@ -9,7 +9,6 @@ const getUserData = () => {
         .then(res => res.json())
         .then(data => {
             userData = data
-            sessionStorage.watchList = data.watchList
             if (document.querySelector('#name')) {
                 document.querySelector('#name').setAttribute('placeholder', data.name)
             }
@@ -56,25 +55,27 @@ const addSymbolToprofile = (symbol) => {
             console.log(data)
             userData.watchList.push(symbol)
             filterSymbols(userData.watchList)
-            getUserData()
         })
         .catch(err => console.log(err))
 }
 
 const removeSymbolFromProfile = (symbol) => {
 
-    console.log(symbol)
     fetch(`/removeSymbol/${symbol}`, { method: 'POST' })
         .then(res => res.json())
         .then(data => {
-            console.log(data)
+            let myWatchList = userData.watchList
+
+            let index = myWatchList.indexOf(symbol)
+            myWatchList.splice(index,1)
+
+            document.querySelector(`.${symbol}`).remove()
             let foundElement = document.querySelector(`#${symbol}`)
             foundElement.classList.add('btn-outline-success')
             foundElement.classList.remove('btn-outline-danger')
             foundElement.innerHTML = 'ADD'
             foundElement.setAttribute('onClick', `addSymbolToprofile("${symbol}")`)
 
-            getUserData()
         })
         .catch(err => console.log(err))
 
