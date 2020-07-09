@@ -64,10 +64,8 @@ const removeSymbolFromProfile = (symbol) => {
     fetch(`/removeSymbol/${symbol}`, { method: 'POST' })
         .then(res => res.json())
         .then(data => {
-            let myWatchList = userData.watchList
-
-            let index = myWatchList.indexOf(symbol)
-            myWatchList.splice(index,1)
+            let index = userData.watchList.indexOf(symbol)
+            userData.watchList.splice(index, 1)
 
             document.querySelector(`.${symbol}`).remove()
             let foundElement = document.querySelector(`#${symbol}`)
