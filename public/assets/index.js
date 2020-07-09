@@ -30,7 +30,7 @@ const getMyWatchList = () => {
                                             <div class="col-sm-12 col-md-2  col-lg-2 v-c-c text-light rounded ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
                                                 <div class="text-center">
                                                 <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
-                                                <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}</span>
+                                                <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}%</span>
                                                 </div>
                                             </div>
     
@@ -50,7 +50,7 @@ const getMyWatchList = () => {
                                             <div class="col-sm-12 col-md-2  col-lg-2 v-c-c text-light rounded ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
                                                 <div class="text-center">
                                                 <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
-                                                <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}</span>
+                                                <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}%</span>
                                                 </div>
                                             </div>
     
@@ -64,7 +64,7 @@ const getMyWatchList = () => {
     }
 }
 
-setInterval(getMyWatchList, 5000)
+setInterval(getMyWatchList, 2000)
 
 
 const getNifty50Data = () => {
