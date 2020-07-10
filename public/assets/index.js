@@ -5,37 +5,36 @@ const mycardcontainer = document.querySelector('.mycardcontainer')
 
 const getMyWatchList = () => {
 
-
     if (userData.watchList.length > 0 & userData.watchList != "undefined") {
 
         userData.watchList.map(symbol => {
 
-
             fetch(`/stock/${symbol}`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data)
 
                     if (document.querySelector(`.${symbol}`)) {
                         let existingCard = document.querySelector(`.${symbol}`)
-                        console.log(data.metadata.lastUpdateTime)
                         existingCard.innerHTML = ''
                         existingCard.innerHTML = `
-                            <div class="row" style="position:relative">
-                                <span class="close" onClick=removeSymbolFromProfile('${symbol}')>X</span>
-                                <div class="col-sm-2 col-md-3 col-lg-3">
-                                <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
-                                <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
-                                <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
+                            <div class="row p-2" style="position:relative">
+                            <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
+                                <div class="col-sm-2 col-md-3 col-lg-3 text-xs-center">
+                                    <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
+                                    <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
+                                    <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
                                 </div>
-                                
-                                <div class="col-sm-12 col-md-2  col-lg-2 v-c-c text-light rounded">
-                                    <div class="mt-2 mb-2 w-100 text-center ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
-                                        <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
+
+                                <div class="col-sm-12 col-md-2  col-lg-2 text-light rounded">
+                                    <div class="rounded h-100 v-c-c w-100 text-center ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
+                                        <div>
+                                        <h4 class="cmp">${data.priceInfo.close}</h4>
                                         <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}%</span>
+                                        </div>
                                     </div>
-                                    </div>
-                                    
-                                    </div>
+                                </div>
+                            </div>
                                     `
                     } else {
 
@@ -52,7 +51,7 @@ const getMyWatchList = () => {
                                             <div class="col-sm-12 col-md-2  col-lg-2 text-light rounded">
                                                 <div class="rounded h-100 v-c-c w-100 text-center ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
                                                     <div>
-                                                    <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
+                                                    <h4 class="cmp">${data.priceInfo.close}</h4>
                                                     <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}%</span>
                                                     </div>
                                                 </div>
@@ -69,8 +68,8 @@ const getMyWatchList = () => {
 }
 
 
-setTimeout(getMyWatchList, 5000)
-// setInterval(getMyatchList, 2000)
+// setTimeout(getMyWatchList, 2000)
+setInterval(getMyWatchList, 2000)
 
 
 const getNifty50Data = () => {
