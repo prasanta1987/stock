@@ -29,7 +29,7 @@ const getMyWatchList = () => {
                                 <div class="col-sm-12 col-md-2  col-lg-2 text-light rounded">
                                     <div class="rounded h-100 v-c-c w-100 text-center ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
                                         <div>
-                                        <h4 class="cmp">${data.priceInfo.close}</h4>
+                                        <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
                                         <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}%</span>
                                         </div>
                                     </div>
@@ -51,7 +51,7 @@ const getMyWatchList = () => {
                                             <div class="col-sm-12 col-md-2  col-lg-2 text-light rounded">
                                                 <div class="rounded h-100 v-c-c w-100 text-center ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
                                                     <div>
-                                                    <h4 class="cmp">${data.priceInfo.close}</h4>
+                                                    <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
                                                     <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}%</span>
                                                     </div>
                                                 </div>
