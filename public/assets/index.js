@@ -111,7 +111,7 @@ const fetchData = (symbols) => {
 
             if (!document.querySelector(`.${symbols}`)) {
                 tableBody.innerHTML += `
-                <tr class="${symbols}">
+                <tr class="w-10${symbols}">
                 <td>${data.info.companyName}</td>
                 <td>${data.info.identifier}</td>
                 <td>${data.info.industry}</td>
