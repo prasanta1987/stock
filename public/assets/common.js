@@ -24,7 +24,7 @@ companyname.addEventListener('keyup', () => {
     let name = companyname.value
 
     if (name.length > 2) {
-        fetch(`/indexSymbol/${name}`, { method: 'POST' })
+        fetch(`/nseSymbol/${name}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
                 suggestionresponse.innerHTML = ''
@@ -55,6 +55,7 @@ const addSymbolToprofile = (symbol) => {
             console.log(data)
             userData.watchList.push(symbol)
             filterSymbols(userData.watchList)
+            setTimeout(getMyData, 1000)
         })
         .catch(err => console.log(err))
 }

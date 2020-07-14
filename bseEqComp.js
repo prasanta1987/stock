@@ -1,5 +1,5 @@
-exports.securitySymbols = {
-  "securitySymbol": [
+exports.bseSymbolsObject = {
+  "bseSymbolData": [
     {
       "securityCode": 500002,
       "symbol": "ABB"

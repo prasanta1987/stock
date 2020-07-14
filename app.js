@@ -4,7 +4,8 @@ const axios = require("axios").default;
 const HTMLParser = require('node-html-parser');
 const fs = require('fs')
 
-const symbol = require('./indexSymbols')
+const NSESymbol = require('./indexSymbols')
+const BSESymbol = require('./bseEqComp')
 
 fs.exists('./user_profile/userProfile.json', (res) => {
     if (!res) {
@@ -39,10 +40,16 @@ const userProfileCheck = (req, res, next) => {
 
 app.get('/', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
 app.get('/userProfile', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/registration.html')));
+app.get('/historicalData', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/historicalData.html')));
 app.get('/:symbol', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/symbol.html')));
 
 app.use(express.static(path.join(__dirname, '/public')));
 
+app.post('/getUserData', (req, res) => {
+
+    let userData = JSON.parse(fs.readFileSync('./user_profile/userProfile.json').toString())
+    res.status(200).json(userData)
+})
 
 app.post('/updateName/:name', (req, res) => {
 
@@ -103,10 +110,11 @@ app.post('/addSymbol/:symbol', (req, res) => {
 
 })
 
-app.post('/indexSymbol/:name', (req, res) => {
+
+app.post('/nseSymbol/:name', (req, res) => {
 
     const name = req.params.name.toLocaleUpperCase()
-    let companySymbols = symbol.symbols.symbol
+    let companySymbols = NSESymbol.symbols.symbol
     let foundSymbols = []
     for (let i = 0; i < companySymbols.length; i++) {
         companySymbols[i].companyName.toLocaleUpperCase().includes(name) && foundSymbols.push(companySymbols[i])
@@ -116,6 +124,47 @@ app.post('/indexSymbol/:name', (req, res) => {
 
 })
 
+
+app.post('/bseSymbol/:name', (req, res) => {
+
+    const name = req.params.name.toLocaleUpperCase()
+    let companySymbols = BSESymbol.bseSymbolsObject.bseSymbolData
+    let foundSymbols
+    for (let i = 0; i < companySymbols.length; i++) {
+        if (companySymbols[i].symbol.toLocaleUpperCase().includes(name)) {
+            foundSymbols = companySymbols[i].securityCode
+        }
+    }
+
+    res.status(200).json(foundSymbols)
+
+})
+
+app.post('/getBseData/:symbol', (req, res) => {
+
+    let name = req.params.symbol.toLocaleUpperCase()
+    let companySymbols = BSESymbol.bseSymbolsObject.bseSymbolData
+    let foundSymbols
+    for (let i = 0; i < companySymbols.length; i++) {
+        if (companySymbols[i].symbol.toLocaleUpperCase().includes(name)) {
+            foundSymbols = companySymbols[i].securityCode
+        }
+    }
+
+    let url = `https://api.bseindia.com/BseIndiaAPI/api/ComHeader/w?quotetype=EQ&scripcode=${foundSymbols}&seriesid=`
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Faild Get Data" }))
+})
+
+app.post('/marketStatus', (req, res) => {
+    axios.get('https://www.nseindia.com/api/marketStatus')
+        .then(data => res.status(200).json(data.data))
+        .catch((err) => res.status(500).json(err))
+})
+
+
 app.post('/nifty50', (req, res) => {
 
     axios.get('https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%2050')
@@ -124,6 +173,8 @@ app.post('/nifty50', (req, res) => {
 
 })
 
+
+// Get Individual Stock Data
 app.post('/stock/:symbol', (req, res) => {
     let symb = (req.params.symbol).toUpperCase()
 
@@ -136,6 +187,7 @@ app.post('/stock/:symbol', (req, res) => {
 
 })
 
+// Get Individual Stock Chart Data
 app.post('/candleData/:symbol', (req, res) => {
 
     let symb = (req.params.symbol).toUpperCase()
@@ -154,6 +206,7 @@ app.post('/candleData/:symbol', (req, res) => {
 })
 
 
+// Not Working Properly Still Kept for Reference
 app.post('/historicalData/:symbol', (req, res) => {
 
     let symb = (req.params.symbol).toLowerCase()
@@ -229,13 +282,19 @@ app.post('/historicalData/:symbol', (req, res) => {
 
 })
 
-app.post('/getUserData', (req, res) => res.status(200).json(getUserProfile()))
+app.post('/getHistoricalData/:symbol/:startDate/:endDate', (req, res) => {
 
-const getUserProfile = () => {
-    let userData = JSON.parse(fs.readFileSync('./user_profile/userProfile.json').toString())
+    const symbol = req.params.symbol.toUpperCase()
+    const startDate = req.params.startDate
+    const endDate = req.params.endDate
 
-    return userData
-}
+    const url = `https://www.nse-india.com/api/historical/cm/equity?symbol=${symbol}&series=["EQ"]&from=${startDate}&to=${endDate}`
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
 
 const port = process.env.PORT || 3000
 
