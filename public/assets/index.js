@@ -103,10 +103,9 @@ const fetchData = async (symbols) => {
         let res = await fetch(`/stock/${symbols}`, { method: 'POST' })
         let data = await res.json()
 
-        // console.log(data)
+        console.log(data)
         let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
 
-        // let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.previousClose
         let ttlShare = data.securityInfo.issuedCap
         let marketCap = ((ttlShare * closePrice) / 10000000).toFixed(2)
         let preClosePrice = data.priceInfo.previousClose
@@ -162,6 +161,8 @@ const fetchData = async (symbols) => {
                 <td class="text-light ${symbols}-m6ret border">-</td>
                 <td class="text-light ${symbols}-y1ret border">-</td>
                 <td class="text-light ${symbols}-y2ret border">-</td>
+                <td class="text-light ${symbols}-y5ret border">-</td>
+                <td class="text-light ${symbols}-y10ret border">-</td>
                 </tr>
             `
 
@@ -171,7 +172,8 @@ const fetchData = async (symbols) => {
         getBseData(symbols, closePrice)
 
     } catch (error) {
-        console.log(error)
+        fetchData(symbols)
+        console.log('Last Action Failed, Retrying One More Time', error)
     }
 }
 
@@ -192,127 +194,320 @@ const getBseData = async (symbol, closePrice) => {
         pbMarkUp.innerHTML = pbValue
         roeMarkUp.innerHTML = roeValue
         bvMarkUp.innerHTML = bookValue
-        getUpto3MonthsData(symbol, closePrice)
+        getUpto2mData(symbol, closePrice)
     } catch (error) {
-        console.log(error)
+        getBseData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
     }
 }
 
 
-const getUpto3MonthsData = async (symbol, closePrice) => {
+const getUpto2mData = async (symbol, closePrice) => {
 
     const today = moment().format('DD-MM-yyyy')
-    const back70days = moment().subtract(70, 'days').format('DD-MM-yyyy')
+    const fromDate = moment().subtract(3, 'months').format('DD-MM-yyyy')
 
-    console.log(today, '=>', back70days)
 
-    const url = `/getHistoricalData/${symbol}/${back70days}/${today}`
+    const week1back = moment().subtract(1, 'week').format('yyyy-MM-DD')
+    const week1backPluse = moment().subtract(1, 'week').add(1, 'days').format('yyyy-MM-DD')
+    const week1backMinus = moment().subtract(1, 'week').subtract(1, 'days').format('yyyy-MM-DD')
 
-    const week1back = moment().subtract(5, 'days').format('yyyy-MM-DD')
-    const week1backPluse = moment().subtract(6, 'days').format('yyyy-MM-DD')
-    const week1backMinus = moment().subtract(4, 'days').format('yyyy-MM-DD')
+    const month1back = moment().subtract(1, 'months').format('yyyy-MM-DD')
+    const month1backPluse = moment().subtract(1, 'months').add(1, 'days').format('yyyy-MM-DD')
+    const month1backMinus = moment().subtract(1, 'months').subtract(1, 'days').format('yyyy-MM-DD')
 
-    const month1back = moment().subtract(20, 'days').format('yyyy-MM-DD')
-    const month1backPluse = moment().subtract(21, 'days').format('yyyy-MM-DD')
-    const month1backMinus = moment().subtract(19, 'days').format('yyyy-MM-DD')
-
-    const month3back = moment().subtract(60, 'days').format('yyyy-MM-DD')
-    const month3backPluse = moment().subtract(61, 'days').format('yyyy-MM-DD')
-    const month3backMinus = moment().subtract(59, 'days').format('yyyy-MM-DD')
+    const url = `/getHistoricalData/${symbol}/${fromDate}/${today}`
 
     try {
         let res = await fetch(url, { method: 'POST' })
         let data = await res.json()
 
+        let is1wFound = false
+        let is1mFound = false
 
-        for (let i = 0; i < data.data.length; i++) {
-            let gotdate = data.data[i].CH_TIMESTAMP
+        data.data.map(value => {
 
-            if (week1back == gotdate || week1backPluse == gotdate || week1backMinus == gotdate) {
-                let preClosePrice = data.data[i].CH_CLOSING_PRICE
-                let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
-                const w1ret = document.querySelector(`.${symbol}-w1ret`)
-                if (stockReturn < 0) {
-                    w1ret.classList.add('bg-danger')
-                } else {
-                    w1ret.classList.add('bg-success')
+            if (!is1wFound) {
+                let gotdate = value.CH_TIMESTAMP
+
+                if (week1back == gotdate || week1backPluse == gotdate || week1backMinus == gotdate) {
+
+                    let preClosePrice = value.CH_CLOSING_PRICE
+
+                    let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+                    const w1ret = document.querySelector(`.${symbol}-w1ret`);
+                    (stockReturn < 0) ? w1ret.classList.add('bg-danger') : w1ret.classList.add('bg-success')
+                    w1ret.innerHTML = `${stockReturn}%`
+                    console.log(symbol, '=>', gotdate, '=>', preClosePrice, '=>', closePrice)
+                    is1wFound = true
                 }
-                w1ret.innerHTML = `${stockReturn}%`
             }
 
-            if (month1back == gotdate || month1backPluse == gotdate || month1backMinus == gotdate) {
-                let preClosePrice = data.data[i].CH_CLOSING_PRICE
-                let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
-                const m1ret = document.querySelector(`.${symbol}-m1ret`)
-                if (stockReturn < 0) {
-                    m1ret.classList.add('bg-danger')
-                } else {
-                    m1ret.classList.add('bg-success')
-                }
-                m1ret.innerHTML = `${stockReturn}%`
-            }
 
-            if (month3back == gotdate || month3backPluse == gotdate || month3backMinus == gotdate) {
-                let preClosePrice = data.data[i].CH_CLOSING_PRICE
-                let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
-                const m3ret = document.querySelector(`.${symbol}-m3ret`)
-                if (stockReturn < 0) {
-                    m3ret.classList.add('bg-danger')
-                } else {
-                    m3ret.classList.add('bg-success')
-                }
-                m3ret.innerHTML = `${stockReturn}%`
-            }
+            if (!is1mFound) {
+                let gotdate = value.CH_TIMESTAMP
 
-        }
+                if (month1back == gotdate || month1backPluse == gotdate || month1backMinus == gotdate) {
+
+                    let preClosePrice = value.CH_CLOSING_PRICE
+
+                    let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+                    const m1ret = document.querySelector(`.${symbol}-m1ret`);
+                    (stockReturn < 0) ? m1ret.classList.add('bg-danger') : m1ret.classList.add('bg-success')
+                    m1ret.innerHTML = `${stockReturn}%`
+                    console.log(symbol, '=>', gotdate, '=>', preClosePrice, '=>', closePrice)
+                    is1mFound = true
+                }
+            }
+        })
+
+        getUpto3mData(symbol, closePrice)
+
     } catch (error) {
-        console.log(error)
+        getUpto2mData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
     }
 
 }
 
-const getUpto1YearData = (symbol, closePrice) => {
+const getUpto3mData = async (symbol, closePrice) => {
 
-    const m6ret = document.querySelector(`.${symbol}-m6ret`)
-    const y1ret = document.querySelector(`.${symbol}-y1ret`)
-    const y2ret = document.querySelector(`.${symbol}-y2ret`)
+    const fromDate = moment().subtract(4, 'months').format('DD-MM-yyyy')
+    const toDate = moment().subtract(2, 'months').format('DD-MM-yyyy')
 
-    const fromDate = moment().subtract(71, 'days').format('DD-MM-yyyy')
-    const toDate = moment().subtract(141, 'days').format('DD-MM-yyyy')
+    const month3back = moment().subtract(3, 'months').format('yyyy-MM-DD')
+    const month3backPluse = moment().subtract(3, 'months').add(1, 'dats').format('yyyy-MM-DD')
+    const month3backMinus = moment().subtract(3, 'months').subtract(1, 'days').format('yyyy-MM-DD')
 
-    const month6back = moment().subtract(120, 'days').format('yyyy-MM-DD')
-    const month6backPluse = moment().subtract(121, 'days').format('yyyy-MM-DD')
-    const month6backMinus = moment().subtract(119, 'days').format('yyyy-MM-DD')
+    const url = `/getHistoricalData/${symbol}/${fromDate}/${toDate}`
+    try {
+        let res = await fetch(url, { method: 'POST' })
+        let data = await res.json()
 
-    const year1back = moment().subtract(252, 'days').format('yyyy-MM-DD')
-    const year1backPluse = moment().subtract(253, 'days').format('yyyy-MM-DD')
-    const year1backMinus = moment().subtract(251, 'days').format('yyyy-MM-DD')
+        let is3mFound = false
 
-    const year2back = moment().subtract(504, 'days').format('yyyy-MM-DD')
-    const year2backPluse = moment().subtract(505, 'days').format('yyyy-MM-DD')
-    const year2backMinus = moment().subtract(503, 'days').format('yyyy-MM-DD')
+        data.data.map(value => {
 
-    // if (month6back == gotdate || month6backPluse == gotdate || month6backMinus == gotdate) {
-    //     let preClosePrice = data.data[i].CH_CLOSING_PRICE
-    //     let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
-    //     m6ret.innerHTML = `${stockReturn}%`
-    // }
+            if (!is3mFound) {
+                let gotdate = value.CH_TIMESTAMP
 
-    // if (year1back == gotdate || year1backPluse == gotdate || year1backMinus == gotdate) {
-    //     let preClosePrice = data.data[i].CH_CLOSING_PRICE
-    //     let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
-    //     y1ret.innerHTML = `${stockReturn}%`
-    // }
+                if (month3back == gotdate || month3backPluse == gotdate || month3backMinus == gotdate) {
 
-    // if (year2back == gotdate || year2backPluse == gotdate || year2backMinus == gotdate) {
-    //     let preClosePrice = data.data[i].CH_CLOSING_PRICE
-    //     let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
-    //     y2ret.innerHTML = `${stockReturn}%`
-    // }
+                    let preClosePrice = value.CH_CLOSING_PRICE
 
-    console.log(fromDate, '=>', toDate)
+                    let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+                    const m3ret = document.querySelector(`.${symbol}-m3ret`);
+                    (stockReturn < 0) ? m3ret.classList.add('bg-danger') : m3ret.classList.add('bg-success')
+                    m3ret.innerHTML = `${stockReturn}%`
+                    console.log(symbol, '=>', gotdate, '=>', preClosePrice, '=>', closePrice)
+                    is3mFound = true
+                }
+            }
+        })
+
+        getUpto6mData(symbol, closePrice)
+
+    } catch (error) {
+        getUpto3mData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
+    }
+}
+
+const getUpto6mData = async (symbol, closePrice) => {
+
+    const fromDate = moment().subtract(7, 'months').format('DD-MM-yyyy')
+    const toDate = moment().subtract(5, 'months').format('DD-MM-yyyy')
+
+    const month6back = moment().subtract(6, 'months').format('yyyy-MM-DD')
+    const month6backPluse = moment().subtract(6, 'months').add(1, 'days').format('yyyy-MM-DD')
+    const month6backMinus = moment().subtract(6, 'months').subtract(1, 'days').format('yyyy-MM-DD')
+
+    const url = `/getHistoricalData/${symbol}/${fromDate}/${toDate}`
+
+
+    try {
+        let res = await fetch(url, { method: 'POST' })
+        let data = await res.json()
+
+        let is6mFound = false
+
+        data.data.map(value => {
+
+            if (!is6mFound) {
+                let gotdate = value.CH_TIMESTAMP
+
+                if (month6back == gotdate || month6backPluse == gotdate || month6backMinus == gotdate) {
+                    let preClosePrice = value.CH_CLOSING_PRICE
+
+                    let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+                    const m6ret = document.querySelector(`.${symbol}-m6ret`);
+                    (stockReturn < 0) ? m6ret.classList.add('bg-danger') : m6ret.classList.add('bg-success')
+                    m6ret.innerHTML = `${stockReturn}%`
+                    console.log(symbol, '=>', gotdate, '=>', preClosePrice, '=>', closePrice)
+                    is6mFound = true
+                }
+            }
+
+        })
+
+        getUpto1YearData(symbol, closePrice)
+
+    } catch (err) {
+        getUpto6mData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
+    }
+}
+
+const getUpto1YearData = async (symbol, closePrice) => {
+
+    const fromDate = moment().subtract(13, 'months').format('DD-MM-yyyy')
+    const toDate = moment().subtract(11, 'months').format('DD-MM-yyyy')
+
+
+    const year1back = moment().subtract(1, 'years').format('yyyy-MM-DD')
+    const year1backPluse = moment().subtract(1, 'years').add(1, 'days').format('yyyy-MM-DD')
+    const year1backMinus = moment().subtract(1, 'years').subtract(1, 'days').format('yyyy-MM-DD')
+
+    const url = `/getHistoricalData/${symbol}/${fromDate}/${toDate}`
+
+    try {
+        let res = await fetch(url, { method: 'POST' })
+        let data = await res.json()
+        let is1YearFound = false
+
+        data.data.map(value => {
+            if (!is1YearFound) {
+                let gotdate = value.CH_TIMESTAMP
+                if (year1back == gotdate || year1backPluse == gotdate || year1backMinus == gotdate) {
+                    let preClosePrice = value.CH_CLOSING_PRICE
+
+                    let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+                    const y1ret = document.querySelector(`.${symbol}-y1ret`);
+                    (stockReturn < 0) ? y1ret.classList.add('bg-danger') : y1ret.classList.add('bg-success')
+                    y1ret.innerHTML = `${stockReturn}%`
+                    console.log(symbol, '=>', gotdate, '=>', preClosePrice, '=>', closePrice)
+                    is1YearFound = true
+                }
+            }
+        })
+        getUpto2YearData(symbol, closePrice)
+    } catch (error) {
+        getUpto1YearData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
+    }
+}
+
+const getUpto2YearData = async (symbol, closePrice) => {
+
+    const fromDate = moment().subtract(26, 'months').format('DD-MM-yyyy')
+    const toDate = moment().subtract(23, 'months').format('DD-MM-yyyy')
+
+    const year2back = moment().subtract(2, 'years').format('yyyy-MM-DD')
+    const year2backPluse = moment().subtract(2, 'years').add(1, 'days').format('yyyy-MM-DD')
+    const year2backMinus = moment().subtract(2, 'years').subtract(1, 'days').format('yyyy-MM-DD')
+
+    const url = `/getHistoricalData/${symbol}/${fromDate}/${toDate}`
+
+    try {
+        let res = await fetch(url, { method: 'POST' })
+        let data = await res.json()
+        let is2YearFound = false
+
+        data.data.map(value => {
+            if (!is2YearFound) {
+                let gotdate = value.CH_TIMESTAMP
+                if (year2back == gotdate || year2backPluse == gotdate || year2backMinus == gotdate) {
+                    let preClosePrice = value.CH_CLOSING_PRICE
+
+                    let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+                    const y2ret = document.querySelector(`.${symbol}-y2ret`);
+                    (stockReturn < 0) ? y2ret.classList.add('bg-danger') : y2ret.classList.add('bg-success')
+                    y2ret.innerHTML = `${stockReturn}%`
+                    console.log(symbol, '=>', gotdate, '=>', preClosePrice, '=>', closePrice)
+                    is2YearFound = true
+                }
+            }
+        })
+        getUpto5YearData(symbol, closePrice)
+    } catch (error) {
+        getUpto2YearData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
+    }
+}
+
+const getUpto5YearData = async (symbol, closePrice) => {
+
+    const fromDate = moment().subtract(5, 'years').subtract(1, 'months').format('DD-MM-yyyy')
+    const toDate = moment().subtract(5, 'years').add(1, 'months').format('DD-MM-yyyy')
+
+    const year5back = moment().subtract(5, 'years').format('yyyy-MM-DD')
+    const year5backPluse = moment().subtract(5, 'years').add(1, 'days').format('yyyy-MM-DD')
+    const year5backMinus = moment().subtract(5, 'years').subtract(1, 'days').format('yyyy-MM-DD')
+
+    const url = `/getHistoricalData/${symbol}/${fromDate}/${toDate}`
+
+    try {
+        let res = await fetch(url, { method: 'POST' })
+        let data = await res.json()
+        let is5YearFound = false
+
+        data.data.map(value => {
+            if (!is5YearFound) {
+                let gotdate = value.CH_TIMESTAMP
+                if (year5back == gotdate || year5backPluse == gotdate || year5backMinus == gotdate) {
+                    let preClosePrice = value.CH_CLOSING_PRICE
+
+                    let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+                    const y5ret = document.querySelector(`.${symbol}-y5ret`);
+                    (stockReturn < 0) ? y5ret.classList.add('bg-danger') : y5ret.classList.add('bg-success')
+                    y5ret.innerHTML = `${stockReturn}%`
+                    console.log(symbol, '=>', gotdate, '=>', preClosePrice, '=>', closePrice)
+                    is5YearFound = true
+                }
+            }
+        })
+        getUpto10YearData(symbol, closePrice)
+    } catch (error) {
+        getUpto5YearData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
+    }
 
 }
 
-getUpto1YearData()
-// moment().subtract(2, 'years').format('DD-MM-yyyy')
+const getUpto10YearData = async (symbol, closePrice) => {
+
+    const fromDate = moment().subtract(10, 'years').subtract(1, 'months').format('DD-MM-yyyy')
+    const toDate = moment().subtract(10, 'years').add(1, 'months').format('DD-MM-yyyy')
+
+    const year10back = moment().subtract(10, 'years').format('yyyy-MM-DD')
+    const year10backPluse = moment().subtract(10, 'years').add(1, 'days').format('yyyy-MM-DD')
+    const year10backMinus = moment().subtract(10, 'years').subtract(1, 'days').format('yyyy-MM-DD')
+
+    const url = `/getHistoricalData/${symbol}/${fromDate}/${toDate}`
+
+    try {
+        let res = await fetch(url, { method: 'POST' })
+        let data = await res.json()
+        let is5YearFound = false
+
+        data.data.map(value => {
+            if (!is5YearFound) {
+                let gotdate = value.CH_TIMESTAMP
+                if (year10back == gotdate || year10backPluse == gotdate || year10backMinus == gotdate) {
+                    let preClosePrice = value.CH_CLOSING_PRICE
+
+                    let stockReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+                    const y10ret = document.querySelector(`.${symbol}-y10ret`);
+                    (stockReturn < 0) ? y10ret.classList.add('bg-danger') : y10ret.classList.add('bg-success')
+                    y10ret.innerHTML = `${stockReturn}%`
+                    console.log(symbol, '=>', gotdate, '=>', preClosePrice, '=>', closePrice)
+                    is5YearFound = true
+                }
+            }
+        })
+    } catch (error) {
+        getUpto10YearData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
+    }
+
+}
