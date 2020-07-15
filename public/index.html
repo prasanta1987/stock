@@ -13,6 +13,7 @@
 </head>
 
 <body>
+
     <div class="sticky-top">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
@@ -21,6 +22,7 @@
                     aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
                     <ul class="navbar-nav">
                         <li class="nav-item active">
@@ -30,24 +32,8 @@
                             <a class="nav-link" href="/userProfile"> My Profile <span
                                     class="sr-only">(current)</span></a>
                         </li>
-                        <!-- <li class="nav-item">
-                                    <a class="nav-link" href="#">Features</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Pricing</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Dropdown link
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                        <a class="dropdown-item" href="#">Action</a>
-                                        <a class="dropdown-item" href="#">Another action</a>
-                                        <a class="dropdown-item" href="#">Something else here</a>
-                                    </div>
-                                </li> -->
                     </ul>
+
                 </div>
             </div>
         </nav>
@@ -57,7 +43,10 @@
 
     <div class="container-fluid">
 
-        <div class="mt-2 mb-4">
+        <div class="mb-4 sticky-top">
+            <br>
+            <br>
+            <br>
             <input type="text" class="form-control companyname" placeholder="Find Stcks by Company Name">
             <div class="suggestionresponse"></div>
         </div>
@@ -71,13 +60,13 @@
         <!-- <div class="mycardcontainer"></div> -->
 
 
-        <div class="stock-table d-none">
-            <table class="table table-hover">
+        <div style="overflow:auto" class="stock-table d-none">
+            <table class="table table-hover" style="width: 300%;">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Symbol</th>
-                        <th>Sector</th>
+                        <th style="width:300px !important">Name</th>
+                        <th style="width: 100px !important;">Symbol</th>
+                        <th style="width: 200px !important;">Sector</th>
                         <th>CAP</th>
                         <th>M CAP(Cr.)</th>
                         <th>B.V.</th>
@@ -103,6 +92,10 @@
             </table>
         </div>
     </div>
+
+
+
+
     <script src="./assets/common.js"></script>
     <script src="./assets/index.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"

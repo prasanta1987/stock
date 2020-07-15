@@ -12,6 +12,7 @@ const getUserData = () => {
             if (document.querySelector('#name')) {
                 document.querySelector('#name').setAttribute('placeholder', data.name)
             }
+            getMyData()
         })
         .catch(err => console.log(err))
 }

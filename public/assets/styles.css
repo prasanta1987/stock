@@ -16,3 +16,11 @@
     cursor: pointer;
     font-size: 15px;
 }
+
+td{
+    vertical-align: middle !important;
+}
+
+th{
+    width: 100px !important;
+}

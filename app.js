@@ -45,11 +45,15 @@ app.get('/:symbol', userProfileCheck, (req, res) => res.sendFile(path.join(__dir
 
 app.use(express.static(path.join(__dirname, '/public')));
 
-app.post('/getUserData', (req, res) => {
+app.post('/getUserData', (req, res) => res.status(200).json(getUserProfile()))
 
+const getUserProfile = () => {
     let userData = JSON.parse(fs.readFileSync('./user_profile/userProfile.json').toString())
-    res.status(200).json(userData)
-})
+
+    return userData
+}
+
+
 
 app.post('/updateName/:name', (req, res) => {
 
@@ -294,7 +298,6 @@ app.post('/getHistoricalData/:symbol/:startDate/:endDate', (req, res) => {
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
-
 
 const port = process.env.PORT || 3000
 
