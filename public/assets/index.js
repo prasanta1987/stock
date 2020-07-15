@@ -131,15 +131,9 @@ const fetchData = async (symbols) => {
             weeklowData: data.priceInfo.weekHighLow.minDate,
         }
 
-<<<<<<< HEAD
         if (!document.querySelector(`.${symbols}`)) {
             tableBody.innerHTML += `
                 <tr class="${symbols}">
-=======
-            if (!document.querySelector(`.${symbols}`)) {
-                tableBody.innerHTML += `
-                <tr class="w-10${symbols}">
->>>>>>> b07f79a30082784e1489d2554ac5bbf4a9fc8350
                 <td>${data.info.companyName}</td>
                 <td>${data.info.identifier}</td>
                 <td>${data.info.industry}</td>
