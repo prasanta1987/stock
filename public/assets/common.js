@@ -3,18 +3,20 @@ const suggestionresponse = document.querySelector('.suggestionresponse')
 
 let userData = []
 
-const getUserData = () => {
+const getUserData = async () => {
 
-    fetch('/getUserData', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-            userData = data
-            if (document.querySelector('#name')) {
-                document.querySelector('#name').setAttribute('placeholder', data.name)
-            }
-            getMyData()
-        })
-        .catch(err => console.log(err))
+    try {
+        let res = await fetch('/getUserData', { method: 'POST' })
+        let data = await res.json()
+        userData = data
+        if (document.querySelector('#name')) {
+            document.querySelector('#name').setAttribute('placeholder', data.name)
+        }
+        // getMyData()
+    } catch (error) {
+        console.log(error)
+        setTimeout(getUserData, 1000)
+    }
 }
 
 
@@ -56,7 +58,7 @@ const addSymbolToprofile = (symbol) => {
             console.log(data)
             userData.watchList.push(symbol)
             filterSymbols(userData.watchList)
-            setTimeout(getMyData, 1000)
+            setTimeout(getMyWatchList, 1000)
         })
         .catch(err => console.log(err))
 }

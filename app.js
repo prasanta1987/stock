@@ -17,7 +17,7 @@ fs.exists('./user_profile/userProfile.json', (res) => {
 
 // require('events').EventEmitter.defaultMaxListeners = 0
 
-// https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2020&to=26-06-2020
+// https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2018&to=26-06-2020
 // https://www.nse-india.com/api/chart-databyindex?index=TATASTEELEQN&preopen=true
 
 const app = express()
@@ -211,10 +211,12 @@ app.post('/candleData/:symbol', (req, res) => {
 
 
 // Not Working Properly Still Kept for Reference
-app.post('/historicalData/:symbol', (req, res) => {
+app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
 
     let symb = (req.params.symbol).toLowerCase()
     symb = symb.replace('&', '%26')
+    let fromDate = req.params.fromDate
+    let toDate = req.params.toDate
 
     const symbolCountUrl = `https://www1.nseindia.com/marketinfo/sym_map/symbolCount.jsp?symbol=${symb}`
 
@@ -223,9 +225,25 @@ app.post('/historicalData/:symbol', (req, res) => {
         .then(data => {
 
             let symbolCount = data.data
-            const url = `https://www1.nseindia.com/products/dynaContent/common/productsSymbolMapping.jsp?symbol=${symb}&segmentLink=3&symbolCount=${symbolCount}&series=EQ&dateRange=+&fromDate=03-04-2020&toDate=03-04-2020&dataType=PRICEVOLUMEDELIVERABLE`
+            // Det format DD-MM-YYYY
+            const url = `https://www1.nseindia.com/products/dynaContent/common/productsSymbolMapping.jsp?symbol=${symb}&segmentLink=3&symbolCount=${symbolCount}&series=EQ&dateRange=+&fromDate=${fromDate}&toDate=${toDate}&dataType=PRICEVOLUMEDELIVERABLE`
 
-            axios.get(url)
+            axios.get(url, {
+                headers: {
+                    "Sec-Fetch-Mode": "cors",
+                    "Sec-Fetch-Dest": "empty",
+                    "Referer": "https://www1.nseindia.com/products/content/equities/equities/eq_security.htm",
+                    "Host": "www1.nseindia.com",
+                    "Connection": "keep-alive",
+                    "Accept-Language": "en-US,en;q=0.9,bn;q=0.8",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Accept": "*/*",
+                    "Sec-Fetch-Site": "same-origin",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36",
+                    "X-Requested-With": "XMLHttpRequest"
+
+                }
+            })
                 .then(data => {
 
                     let htmlData = HTMLParser.parse(data.data).querySelector('#csvContentDiv').rawText
@@ -267,18 +285,19 @@ app.post('/historicalData/:symbol', (req, res) => {
                             ttq: x[10],
                             turnOver: x[11],
                             noOfTrade: x[12],
-                            deliverableQty: x[13],
-                            dlyQtyToTradeQty: x[14]
+                            deliQty: x[13],
+                            dliPercen: x[14]
                         }
                         arrayJsonData.push(data)
 
                     })
 
-                    // console.log(arrayJsonData)
                     res.status(200).json(arrayJsonData)
 
                 })
-                .catch(err => res.status(500).json(err))
+                .catch(err => {
+                    res.status(500).json({ "error": "Query Must Be Within a Year" })
+                })
         })
         .catch(err => console.log(err))
 

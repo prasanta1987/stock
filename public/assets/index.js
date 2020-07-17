@@ -2,76 +2,204 @@
 const tableBody = document.querySelector('.stockdata')
 const noWatchlist = document.querySelector('.noWatchlist')
 const stockTable = document.querySelector('.stock-table')
+const mycardcontainer = document.querySelector('.mycardcontainer')
 
-const getMyWatchList = () => {
 
-    //     if (userData.watchList.length > 0 & userData.watchList != "undefined") {
+const getMyWatchList = async () => {
 
-    //         userData.watchList.map(symbol => {
+    if (userData.watchList.length > 0 & userData.watchList != "undefined") {
 
-    //             fetch(`/stock/${symbol}`, { method: 'POST' })
-    //                 .then(res => res.json())
-    //                 .then(data => {
-    //                     console.log(data)
-
-    //                     if (document.querySelector(`.${symbol}`)) {
-    //                         let existingCard = document.querySelector(`.${symbol}`)
-    //                         existingCard.innerHTML = ''
-    //                         existingCard.innerHTML = `
-    //                             <div class="row p-2" style="position:relative">
-    //                             <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
-    //                                 <div class="col-sm-2 col-md-3 col-lg-3 text-xs-center">
-    //                                     <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
-    //                                     <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
-    //                                     <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
-    //                                 </div>
-
-    //                                 <div class="col-sm-12 col-md-2  col-lg-2 text-light rounded">
-    //                                     <div class="rounded h-100 v-c-c w-100 text-center ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
-    //                                         <div>
-    //                                         <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
-    //                                         <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}%</span>
-    //                                         </div>
-    //                                     </div>
-    //                                 </div>
-    //                             </div>
-    //                                     `
-    //                     } else {
-
-    //                         mycardcontainer.innerHTML += `
-    //                                     <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
-    //                                         <div class="row p-2" style="position:relative">
-    //                                         <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
-    //                                             <div class="col-sm-2 col-md-3 col-lg-3 text-xs-center">
-    //                                                 <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
-    //                                                 <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
-    //                                                 <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
-    //                                             </div>
-
-    //                                             <div class="col-sm-12 col-md-2  col-lg-2 text-light rounded">
-    //                                                 <div class="rounded h-100 v-c-c w-100 text-center ${(data.priceInfo.change > 0 ? 'bg-success' : 'bg-danger')}">
-    //                                                     <div>
-    //                                                     <h4 class="cmp">${data.priceInfo.lastPrice}</h4>
-    //                                                     <span class="cmpcng">${data.priceInfo.pChange.toFixed(2)}%</span>
-    //                                                     </div>
-    //                                                 </div>
-    //                                             </div>
-
-    //                                         </div>
-    //                                     </div>
-    //                                 `
-    //                     }
-    //                 })
-    //                 .catch(err => console.log(err))
-    //         })
-    //     }
+        userData.watchList.map(symbol => {
+            buildCards(symbol)
+        })
+    }
 }
 
+setTimeout(getMyWatchList, 2000)
 
-// setTimeout(getMyWatchList, 2000)
-// setInterval(getMyWatchList, 2000)
+const getMarketStatus = async () => {
+    try {
+        let res = await fetch('/marketStatus', { method: 'POST' })
+        let data = await res.json();
+
+        (data.marketState[0].marketStatus != 'Closed') && setInterval(getMyWatchList, 2000)
+
+    } catch (error) {
+        console.log('Failed to get market status')
+    }
+}
+
+setInterval(getMarketStatus, 2000)
 
 
+
+const buildCards = async (symbol) => {
+
+    try {
+
+        let res = await fetch(`/stock/${symbol}`, { method: 'POST' })
+        let data = await res.json()
+        if (Object.keys(data).length > 0) {
+            noWatchlist.innerHTML = ''
+            let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+            let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
+            let marketCap = (ttlShare * closePrice).toFixed(2)
+            let preClosePrice = data.priceInfo.previousClose
+            let oneDayReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
+            let symbolPe = data.metadata.pdSymbolPe
+            let indPe = data.metadata.pdSectorPe
+            let eps = isFinite(closePrice / symbolPe) ? (closePrice / symbolPe).toFixed(2) : 0
+            let weekHighValue = data.priceInfo.weekHighLow.max
+            let weekLowValue = data.priceInfo.weekHighLow.min
+            let weekHighDate = data.priceInfo.weekHighLow.maxDate
+            let weeklowData = data.priceInfo.weekHighLow.minDate
+
+            if (document.querySelector(`.${symbol}`)) {
+                let existingCard = document.querySelector(`.${symbol}`)
+                existingCard.innerHTML = ''
+                existingCard.innerHTML = `
+                                            <div class="row p-2" style="position:relative">
+                                            <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
+
+                                                <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                                                    <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
+                                                    <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
+                                                    <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
+                                                    <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
+                                                        <div>
+                                                        <h4 class="cmp">${closePrice}</h4>
+                                                        <hr />
+                                                        <span class="cmpcng">${oneDayReturn}%</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col d-flex flex-column">
+
+                                                
+
+                                                    <div class="row text-center align-items-center flex-grow-1">
+                                                        <div class="col"> M Cap (Cr.)</div>
+                                                        <div class="col"> Pre. Close </div>
+                                                        <div class="col"> PE </div>
+                                                        <div class="col"> 52W High </div>
+                                                    </div>
+                                                        
+                                                    <div class="row text-center align-items-center flex-grow-1">
+                                                        <div class="col"> ${marketCap} </div>
+                                                        <div class="col"> ${preClosePrice} </div>
+                                                        <div class="col"> ${symbolPe} </div>
+                                                        <div class="col">
+                                                            <span class="d-block">${weekHighValue}</span>
+                                                            <small class="d-block">${weekHighDate}</small>
+                                                        </div>
+                                                    </div>
+                                                        
+                                                    <hr />
+                                                        
+                                                        
+                                                    <div class="row text-center align-items-center flex-grow-1">
+                                                        <div class="col"> TTL Share (Cr.)</div>
+                                                        <div class="col"> EPS </div>
+                                                        <div class="col"> PE Ind </div>
+                                                        <div class="col"> 52W Low </div>
+                                                    </div>
+                                                        
+                                                    <div class="row text-center align-items-center flex-grow-1">
+                                                        <div class="col"> ${ttlShare} </div>
+                                                        <div class="col"> ${eps} </div>
+                                                        <div class="col"> ${indPe} </div>
+                                                        <div class="col">
+                                                            <span class="d-block">${weekLowValue}</span>
+                                                            <small class="d-block">${weeklowData}</small>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div>
+
+                                            </div>
+                                        `
+            } else {
+                mycardcontainer.innerHTML += `
+                                        <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
+                                            <div class="row p-2" style="position:relative">
+                                            <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
+
+                                                <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                                                    <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
+                                                    <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
+                                                    <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
+                                                    <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
+                                                        <div>
+                                                        <h4 class="cmp">${closePrice}</h4>
+                                                        <hr />
+                                                        <span class="cmpcng">${oneDayReturn}%</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col d-flex flex-column">
+
+
+                                                    <div class="row text-center align-items-center flex-grow-1">
+                                                        <div class="col"> M Cap (Cr.)</div>
+                                                        <div class="col"> Pre. Close </div>
+                                                        <div class="col"> PE </div>
+                                                        <div class="col"> 52W High </div>
+                                                    </div>
+                                                        
+                                                    <div class="row text-center align-items-center flex-grow-1">
+                                                        <div class="col"> ${marketCap} </div>
+                                                        <div class="col"> ${preClosePrice} </div>
+                                                        <div class="col"> ${symbolPe} </div>
+                                                        <div class="col">
+                                                            <span class="d-block">${weekHighValue}</span>
+                                                            <small class="d-block">${weekHighDate}</small>
+                                                        </div>
+                                                    </div>
+                                                        
+                                                    <hr />
+                                                        
+                                                        
+                                                    <div class="row text-center align-items-center flex-grow-1">
+                                                        <div class="col"> TTL Share (Cr.)</div>
+                                                        <div class="col"> EPS </div>
+                                                        <div class="col"> PE Ind </div>
+                                                        <div class="col"> 52W Low </div>
+                                                    </div>
+                                                        
+                                                    <div class="row text-center align-items-center flex-grow-1">
+                                                        <div class="col"> ${ttlShare} </div>
+                                                        <div class="col"> ${eps} </div>
+                                                        <div class="col"> ${indPe} </div>
+                                                        <div class="col">
+                                                            <span class="d-block">${weekLowValue}</span>
+                                                            <small class="d-block">${weeklowData}</small>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    `
+            }
+        } else {
+            console.log('Data Not Received, Retrying')
+        }
+
+    } catch (error) {
+        console.log('Retrying Last Action')
+        // setTimeout(buildCards(symbol), 2000)
+    }
+
+}
 
 let jsonArray = []
 

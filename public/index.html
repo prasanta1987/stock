@@ -1,114 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <link rel="stylesheet" href="./assets/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js"></script>
-</head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+            integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+        <link rel="stylesheet" href="./assets/styles.css">
+        <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js"></script>
+    </head>
 
-<body>
+    <body>
 
-    <div class="sticky-top">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container">
-                <a class="navbar-brand" href="/">STOCK VIEW</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
-                    aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+        <div class="sticky-top">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container">
+                    <a class="navbar-brand" href="/">STOCK VIEW</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                        aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/"> Home <span class="sr-only">(current)</span></a>
-                        </li>
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/userProfile"> My Profile <span
-                                    class="sr-only">(current)</span></a>
-                        </li>
-                    </ul>
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/"> Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/userProfile"> My Profile <span
+                                        class="sr-only">(current)</span></a>
+                            </li>
+                        </ul>
 
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <br>
+
+        <div class="container-fluid">
+
+            <div class="mb-4 sticky-top">
+                <br>
+                <br>
+                <br>
+                <input type="text" class="form-control companyname" placeholder="Find Stocks by Company Name">
+                <div class="suggestionresponse"></div>
+            </div>
+
+            <div class="row">
+                <div class="text-center col-sm-12">
+                    <h1 class="noWatchlist display-4">Fetching Data. Please Wait</h1>
                 </div>
             </div>
-        </nav>
-    </div>
 
-    <br>
+            <div class="mycardcontainer"></div>
 
-    <div class="container-fluid">
 
-        <div class="mb-4 sticky-top">
-            <br>
-            <br>
-            <br>
-            <input type="text" class="form-control companyname" placeholder="Find Stocks by Company Name">
-            <div class="suggestionresponse"></div>
-        </div>
-
-        <div class="row">
-            <div class="text-center col-sm-12">
-                <h1 class="noWatchlist display-4">Fetching Data. Please Wait</h1>
+            <div style="overflow:auto" class="stock-table d-none">
+                <table class="table table-hover" style="width: 250%;">
+                    <thead>
+                        <tr>
+                            <th style="width:300px !important">Name</th>
+                            <th style="width: 100px !important;">Symbol</th>
+                            <th style="width: 200px !important;">Sector</th>
+                            <th>CAP</th>
+                            <th>M CAP(Cr.)</th>
+                            <th>B.V.</th>
+                            <th>CMP</th>
+                            <th>EPS</th>
+                            <th>P/E</th>
+                            <th>Ind. P/E</th>
+                            <th class="pb">P/B</th>
+                            <th class="roe">ROE</th>
+                            <th>Div. Yield</th>
+                            <th>52W High</th>
+                            <th>52W Low</th>
+                            <th>1D Ret.</th>
+                            <th>1W Ret.</th>
+                            <th>1M Ret.</th>
+                            <th>3M Ret.</th>
+                            <th>6M Ret.</th>
+                            <th>1Y Ret.</th>
+                            <th>2Y Ret.</th>
+                            <th>5Y Ret.</th>
+                            <th>10Y Ret.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="stockdata"></tbody>
+                </table>
             </div>
         </div>
 
-        <!-- <div class="mycardcontainer"></div> -->
-
-
-        <div style="overflow:auto" class="stock-table d-none">
-            <table class="table table-hover" style="width: 250%;">
-                <thead>
-                    <tr>
-                        <th style="width:300px !important">Name</th>
-                        <th style="width: 100px !important;">Symbol</th>
-                        <th style="width: 200px !important;">Sector</th>
-                        <th>CAP</th>
-                        <th>M CAP(Cr.)</th>
-                        <th>B.V.</th>
-                        <th>CMP</th>
-                        <th>EPS</th>
-                        <th>P/E</th>
-                        <th>Ind. P/E</th>
-                        <th class="pb">P/B</th>
-                        <th class="roe">ROE</th>
-                        <th>Div. Yield</th>
-                        <th>52W High</th>
-                        <th>52W Low</th>
-                        <th>1D Ret.</th>
-                        <th>1W Ret.</th>
-                        <th>1M Ret.</th>
-                        <th>3M Ret.</th>
-                        <th>6M Ret.</th>
-                        <th>1Y Ret.</th>
-                        <th>2Y Ret.</th>
-                        <th>5Y Ret.</th>
-                        <th>10Y Ret.</th>
-                    </tr>
-                </thead>
-                <tbody class="stockdata"></tbody>
-            </table>
-        </div>
-    </div>
 
 
 
-
-    <script src="./assets/common.js"></script>
-    <script src="./assets/index.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        <script src="./assets/common.js"></script>
+        <script src="./assets/index.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
         crossorigin="anonymous"></script> -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
-        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
-        crossorigin="anonymous"></script>
-</body>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+            integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+            crossorigin="anonymous"></script>
+    </body>
 
 </html>
