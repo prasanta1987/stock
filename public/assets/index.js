@@ -39,6 +39,7 @@ const buildCards = async (symbol) => {
 
         let res = await fetch(`/stock/${symbol}`, { method: 'POST' })
         let data = await res.json()
+        console.log(data)
         if (Object.keys(data).length > 0) {
             noWatchlist.innerHTML = ''
             let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
@@ -58,137 +59,134 @@ const buildCards = async (symbol) => {
                 let existingCard = document.querySelector(`.${symbol}`)
                 existingCard.innerHTML = ''
                 existingCard.innerHTML = `
-                                            <div class="row p-2" style="position:relative">
-                                            <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
+                <div class="row p-2" style="position:relative">
+                    <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
 
-                                                <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
-                                                    <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
-                                                    <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
-                                                    <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
-                                                </div>
+                    <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                        <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
+                        <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
+                        <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
+                    </div>
 
-                                                <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
-                                                    <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
-                                                        <div>
-                                                        <h4 class="cmp">${closePrice}</h4>
-                                                        <hr />
-                                                        <span class="cmpcng">${oneDayReturn}%</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                    <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
+                        <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
+                            <div>
+                            <h4 class="cmp">${closePrice}</h4>
+                            <hr />
+                            <span class="cmpcng">${oneDayReturn}%</span>
+                            </div>
+                        </div>
+                    </div>
 
-                                                <div class="col d-flex flex-column">
+                    <div class="col d-flex flex-column">
 
-                                                
+                        <div class="row text-center align-items-center flex-grow-1">
+                            <div class="col"> M Cap (Cr.)</div>
+                            <div class="col"> Pre. Close </div>
+                            <div class="col"> PE </div>
+                            <div class="col"> 52W High </div>
+                        </div>
+                            
+                        <div class="row text-center align-items-center flex-grow-1">
+                            <div class="col font-weight-bold"> ${marketCap} </div>
+                            <div class="col font-weight-bold"> ${preClosePrice} </div>
+                            <div class="col font-weight-bold"> ${symbolPe} </div>
+                            <div class="col">
+                                <span class="d-block font-weight-bold">${weekHighValue}</span>
+                                <small class="d-block">${weekHighDate}</small>
+                            </div>
+                        </div>
+                            
+                        <hr />
+                            
+                            
+                        <div class="row text-center align-items-center flex-grow-1">
+                            <div class="col"> TTL Share (Cr.)</div>
+                            <div class="col"> EPS </div>
+                            <div class="col"> PE Ind </div>
+                            <div class="col"> 52W Low </div>
+                        </div>
+                            
+                        <div class="row text-center align-items-center flex-grow-1">
+                            <div class="col font-weight-bold"> ${ttlShare} </div>
+                            <div class="col font-weight-bold"> ${eps} </div>
+                            <div class="col font-weight-bold"> ${indPe} </div>
+                            <div class="col">
+                                <span class="d-block font-weight-bold">${weekLowValue}</span>
+                                <small class="d-block">${weeklowData}</small>
+                            </div>
+                        </div>
+                        
+                    </div>
 
-                                                    <div class="row text-center align-items-center flex-grow-1">
-                                                        <div class="col"> M Cap (Cr.)</div>
-                                                        <div class="col"> Pre. Close </div>
-                                                        <div class="col"> PE </div>
-                                                        <div class="col"> 52W High </div>
-                                                    </div>
-                                                        
-                                                    <div class="row text-center align-items-center flex-grow-1">
-                                                        <div class="col"> ${marketCap} </div>
-                                                        <div class="col"> ${preClosePrice} </div>
-                                                        <div class="col"> ${symbolPe} </div>
-                                                        <div class="col">
-                                                            <span class="d-block">${weekHighValue}</span>
-                                                            <small class="d-block">${weekHighDate}</small>
-                                                        </div>
-                                                    </div>
-                                                        
-                                                    <hr />
-                                                        
-                                                        
-                                                    <div class="row text-center align-items-center flex-grow-1">
-                                                        <div class="col"> TTL Share (Cr.)</div>
-                                                        <div class="col"> EPS </div>
-                                                        <div class="col"> PE Ind </div>
-                                                        <div class="col"> 52W Low </div>
-                                                    </div>
-                                                        
-                                                    <div class="row text-center align-items-center flex-grow-1">
-                                                        <div class="col"> ${ttlShare} </div>
-                                                        <div class="col"> ${eps} </div>
-                                                        <div class="col"> ${indPe} </div>
-                                                        <div class="col">
-                                                            <span class="d-block">${weekLowValue}</span>
-                                                            <small class="d-block">${weeklowData}</small>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                </div>
-
-                                            </div>
-                                        `
+                </div>
+                `
             } else {
                 mycardcontainer.innerHTML += `
-                                        <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
-                                            <div class="row p-2" style="position:relative">
-                                            <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
+                    <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
+                        <div class="row p-2" style="position:relative">
+                        <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
 
-                                                <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
-                                                    <h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3>
-                                                    <small class="d-block">Industry: <span class="indstry">${data.info.industry}</span></small>
-                                                    <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
-                                                </div>
+                            <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                                <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
+                                <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
+                                <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
+                            </div>
 
-                                                <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
-                                                    <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
-                                                        <div>
-                                                        <h4 class="cmp">${closePrice}</h4>
-                                                        <hr />
-                                                        <span class="cmpcng">${oneDayReturn}%</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                            <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
+                                <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
+                                    <div>
+                                    <h4 class="cmp">${closePrice}</h4>
+                                    <hr />
+                                    <span class="cmpcng">${oneDayReturn}%</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                                                <div class="col d-flex flex-column">
+                            <div class="col d-flex flex-column">
 
+                                <div class="row text-center align-items-center flex-grow-1">
+                                    <div class="col"> M Cap (Cr.)</div>
+                                    <div class="col"> Pre. Close </div>
+                                    <div class="col"> PE </div>
+                                    <div class="col"> 52W High </div>
+                                </div>
+                                    
+                                <div class="row text-center align-items-center flex-grow-1">
+                                    <div class="col font-weight-bold"> ${marketCap} </div>
+                                    <div class="col font-weight-bold"> ${preClosePrice} </div>
+                                    <div class="col font-weight-bold"> ${symbolPe} </div>
+                                    <div class="col">
+                                        <span class="d-block font-weight-bold">${weekHighValue}</span>
+                                        <small class="d-block">${weekHighDate}</small>
+                                    </div>
+                                </div>
+                                    
+                                <hr />
+                                    
+                                    
+                                <div class="row text-center align-items-center flex-grow-1">
+                                    <div class="col"> TTL Share (Cr.)</div>
+                                    <div class="col"> EPS </div>
+                                    <div class="col"> PE Ind </div>
+                                    <div class="col"> 52W Low </div>
+                                </div>
+                                    
+                                <div class="row text-center align-items-center flex-grow-1">
+                                    <div class="col font-weight-bold"> ${ttlShare} </div>
+                                    <div class="col font-weight-bold"> ${eps} </div>
+                                    <div class="col font-weight-bold"> ${indPe} </div>
+                                    <div class="col">
+                                        <span class="d-block font-weight-bold">${weekLowValue}</span>
+                                        <small class="d-block">${weeklowData}</small>
+                                    </div>
+                                </div>
+                                
+                            </div>
 
-                                                    <div class="row text-center align-items-center flex-grow-1">
-                                                        <div class="col"> M Cap (Cr.)</div>
-                                                        <div class="col"> Pre. Close </div>
-                                                        <div class="col"> PE </div>
-                                                        <div class="col"> 52W High </div>
-                                                    </div>
-                                                        
-                                                    <div class="row text-center align-items-center flex-grow-1">
-                                                        <div class="col"> ${marketCap} </div>
-                                                        <div class="col"> ${preClosePrice} </div>
-                                                        <div class="col"> ${symbolPe} </div>
-                                                        <div class="col">
-                                                            <span class="d-block">${weekHighValue}</span>
-                                                            <small class="d-block">${weekHighDate}</small>
-                                                        </div>
-                                                    </div>
-                                                        
-                                                    <hr />
-                                                        
-                                                        
-                                                    <div class="row text-center align-items-center flex-grow-1">
-                                                        <div class="col"> TTL Share (Cr.)</div>
-                                                        <div class="col"> EPS </div>
-                                                        <div class="col"> PE Ind </div>
-                                                        <div class="col"> 52W Low </div>
-                                                    </div>
-                                                        
-                                                    <div class="row text-center align-items-center flex-grow-1">
-                                                        <div class="col"> ${ttlShare} </div>
-                                                        <div class="col"> ${eps} </div>
-                                                        <div class="col"> ${indPe} </div>
-                                                        <div class="col">
-                                                            <span class="d-block">${weekLowValue}</span>
-                                                            <small class="d-block">${weeklowData}</small>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    `
+                        </div>
+                    </div>
+                    `
             }
         } else {
             console.log('Data Not Received, Retrying')

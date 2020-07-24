@@ -7,16 +7,18 @@ const fs = require('fs')
 const NSESymbol = require('./indexSymbols')
 const BSESymbol = require('./bseEqComp')
 
-fs.exists('./user_profile/userProfile.json', (res) => {
+const userPrifileFile = path.join(__dirname,'./user_profile/userProfile.json')
+
+fs.exists(userPrifileFile, (res) => {
     if (!res) {
-        fs.mkdirSync('./user_profile')
-        fs.writeFileSync('./user_profile/userProfile.json', '{}')
+        fs.mkdirSync(path.join(__dirname,'./user_profile'))
+        fs.writeFileSync(userPrifileFile, '{}')
     }
 })
 
 
 // require('events').EventEmitter.defaultMaxListeners = 0
-
+// https://www.nseindia.com/api/search/autocomplete?q=reliance
 // https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2018&to=26-06-2020
 // https://www.nse-india.com/api/chart-databyindex?index=TATASTEELEQN&preopen=true
 
@@ -25,7 +27,7 @@ const app = express()
 
 const userProfileCheck = (req, res, next) => {
 
-    userData = JSON.parse(fs.readFileSync('./user_profile/userProfile.json').toString())
+    userData = JSON.parse(fs.readFileSync(userPrifileFile).toString())
     let keys = Object.keys(userData).length
 
     if (keys > 0) {
@@ -48,7 +50,7 @@ app.use(express.static(path.join(__dirname, '/public')));
 app.post('/getUserData', (req, res) => res.status(200).json(getUserProfile()))
 
 const getUserProfile = () => {
-    let userData = JSON.parse(fs.readFileSync('./user_profile/userProfile.json').toString())
+    let userData = JSON.parse(fs.readFileSync(userPrifileFile).toString())
 
     return userData
 }
@@ -63,7 +65,7 @@ app.post('/updateName/:name', (req, res) => {
     userData.name = name
 
     try {
-        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(userData))
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
         res.status(200).json({ "message": "User Name Saved Successfully" })
     } catch (error) {
         res.status(501).json({ "error": "Something Went Wrong" })
@@ -85,7 +87,7 @@ app.post('/removeSymbol/:symbol', (req, res) => {
     userAddedSymbols.push(userAddedSymbols)
 
     try {
-        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(userData))
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
         res.status(200).json({ "message": "Watchlist Updated Successfully" })
     } catch (error) {
         res.status(501).json({ "error": "Something Went Wrong" })
@@ -105,7 +107,7 @@ app.post('/addSymbol/:symbol', (req, res) => {
     userData.watchList = userWatchList
 
     try {
-        fs.writeFileSync('./user_profile/userProfile.json', JSON.stringify(userData))
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
         res.status(200).json({ "message": "Watchlist Updated Successfully" })
     } catch (error) {
         res.status(501).json({ "error": "Something Went Wrong" })
@@ -114,17 +116,12 @@ app.post('/addSymbol/:symbol', (req, res) => {
 
 })
 
-
-app.post('/nseSymbol/:name', (req, res) => {
+app.post('/searchSymbol/:name',(req,res)=>{
 
     const name = req.params.name.toLocaleUpperCase()
-    let companySymbols = NSESymbol.symbols.symbol
-    let foundSymbols = []
-    for (let i = 0; i < companySymbols.length; i++) {
-        companySymbols[i].companyName.toLocaleUpperCase().includes(name) && foundSymbols.push(companySymbols[i])
-    }
-
-    res.status(200).json({ "message": foundSymbols })
+    axios.get(`https://www.nseindia.com/api/search/autocomplete?q=${name}`)
+        .then(data => res.status(200).json(data.data))
+        .catch((err) => res.status(500).json(err))
 
 })
 
@@ -220,14 +217,15 @@ app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
 
     const symbolCountUrl = `https://www1.nseindia.com/marketinfo/sym_map/symbolCount.jsp?symbol=${symb}`
 
-
     axios.get(symbolCountUrl)
         .then(data => {
 
             let symbolCount = data.data
+
             // Det format DD-MM-YYYY
             const url = `https://www1.nseindia.com/products/dynaContent/common/productsSymbolMapping.jsp?symbol=${symb}&segmentLink=3&symbolCount=${symbolCount}&series=EQ&dateRange=+&fromDate=${fromDate}&toDate=${toDate}&dataType=PRICEVOLUMEDELIVERABLE`
-
+            
+            console.log(url)
             axios.get(url, {
                 headers: {
                     "Sec-Fetch-Mode": "cors",
@@ -240,7 +238,8 @@ app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
                     "Accept": "*/*",
                     "Sec-Fetch-Site": "same-origin",
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36",
-                    "X-Requested-With": "XMLHttpRequest"
+                    "X-Requested-With": "XMLHttpRequest",
+                    // "Cookie":`ak_bmsc=AD64DC6BCE60883E716EE288B89771E2312CD80DDF4B0000C6A2155F68A01720~plXefTvuBeeNTNGIRZefd4n9rgrY8tS7oh9+KBbZNl/9shF9qAZ51vZtYWcVxI0dje3kiFg5VRSXztcaswIYGi0DvOH0zVntbJWs+042Y1ggBi9wGlDw0UM4l9u6ibntr/5i84fYWcURPutEZqmWx4J/KJiURhRpAXKB5hjUNpTJLOtrhEOp76DPUAVPPp0Ux773RwRna+MqQBFwGWGq1nhdQNx3Ch2F1pqFowQbP0TmimxVSa3eSeL13UswjxcL1u; RT="z=1&dm=nseindia.com&si=0a1e1505-77a0-495f-a8f1-aef85fc082cc&ss=kcun08t3&sl=1&tt=3os&bcn=%2F%2F684fc538.akstat.io%2F&ld=4d7&nu=bc83bc72f32b478e63220cea705aa17a&cl=2iwg"; JSESSIONID=E2CF3EE22C5C58DB9F68926A8C5EAF2D.jvm1; NSE-TEST-1=1910513674.20480.0000; bm_sv=9AF917CFCF0FB72FDB88F816C4392171~azFoZyzYC4rPVmtxChkrzW0a0eiDOsR7447lI1BINjePA0NVZuqgyUij+YW/s0sc/3lGiFbYIrOcOSZtRPoxRsiKv60RB1Kd/emZ5ytdK20vTjMlOSuv7rxzpv/B494sJhVd/cPaYU7JVgndJT7jcgE1JiHRvs5jcfQLGr/Ku28=`
 
                 }
             })
@@ -296,7 +295,7 @@ app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
 
                 })
                 .catch(err => {
-                    res.status(500).json({ "error": "Query Must Be Within a Year" })
+                    res.status(500).json(err)
                 })
         })
         .catch(err => console.log(err))

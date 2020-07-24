@@ -19,6 +19,22 @@
     z-index: 9999;
 }
 
+.nav{
+    height: 60px;
+    background: teal;
+    color: #f4f4f4;
+}
+
+.nav .search{
+    width: 50%;
+    position: relative;
+}
+.searchcontainer{
+    position: absolute;
+    width: 100%;
+    margin:0 !important;
+}
+
 td{
     vertical-align: middle !important;
 }

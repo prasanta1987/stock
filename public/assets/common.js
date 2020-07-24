@@ -27,15 +27,14 @@ companyname.addEventListener('keyup', () => {
     let name = companyname.value
 
     if (name.length > 2) {
-        fetch(`/nseSymbol/${name}`, { method: 'POST' })
+        fetch(`/searchSymbol/${name}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
                 suggestionresponse.innerHTML = ''
-                data.message.map(ele => {
-                    // console.log(ele)
+                data.symbols.map(ele => {
                     suggestionresponse.innerHTML += `
                     <span class="p-1 border suggestion">
-                        <span class="name">${ele.companyName}</span>
+                        <span class="name">${ele.symbol_info}</span>
                         <button id="${ele.symbol}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.symbol}')">ADD</button>
                     </span>`
 
