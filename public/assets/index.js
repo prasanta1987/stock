@@ -86,6 +86,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> M Cap (Cr.)</div>
                             <div class="col"> Pre. Close </div>
                             <div class="col"> PE </div>
+                            <div class="col"> Day High </div>
                             <div class="col"> 52W High </div>
                         </div>
                             
@@ -93,6 +94,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${marketCap} </div>
                             <div class="col font-weight-bold"> ${preClosePrice} </div>
                             <div class="col font-weight-bold"> ${symbolPe} </div>
+                            <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.max} </div>
                             <div class="col">
                                 <span class="d-block font-weight-bold">${weekHighValue}</span>
                                 <small class="d-block">${weekHighDate}</small>
@@ -106,6 +108,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> TTL Share (Cr.)</div>
                             <div class="col"> EPS </div>
                             <div class="col"> PE Ind </div>
+                            <div class="col"> Day Low </div>
                             <div class="col"> 52W Low </div>
                         </div>
                             
@@ -113,6 +116,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${ttlShare} </div>
                             <div class="col font-weight-bold"> ${eps} </div>
                             <div class="col font-weight-bold"> ${indPe} </div>
+                            <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
                             <div class="col">
                                 <span class="d-block font-weight-bold">${weekLowValue}</span>
                                 <small class="d-block">${weeklowData}</small>
@@ -149,42 +153,46 @@ const buildCards = async (symbol) => {
 
                             <div class="col d-flex flex-column">
 
-                                <div class="row text-center align-items-center flex-grow-1">
-                                    <div class="col"> M Cap (Cr.)</div>
-                                    <div class="col"> Pre. Close </div>
-                                    <div class="col"> PE </div>
-                                    <div class="col"> 52W High </div>
-                                </div>
-                                    
-                                <div class="row text-center align-items-center flex-grow-1">
-                                    <div class="col font-weight-bold"> ${marketCap} </div>
-                                    <div class="col font-weight-bold"> ${preClosePrice} </div>
-                                    <div class="col font-weight-bold"> ${symbolPe} </div>
-                                    <div class="col">
-                                        <span class="d-block font-weight-bold">${weekHighValue}</span>
-                                        <small class="d-block">${weekHighDate}</small>
-                                    </div>
-                                </div>
-                                    
-                                <hr />
-                                    
-                                    
-                                <div class="row text-center align-items-center flex-grow-1">
-                                    <div class="col"> TTL Share (Cr.)</div>
-                                    <div class="col"> EPS </div>
-                                    <div class="col"> PE Ind </div>
-                                    <div class="col"> 52W Low </div>
-                                </div>
-                                    
-                                <div class="row text-center align-items-center flex-grow-1">
-                                    <div class="col font-weight-bold"> ${ttlShare} </div>
-                                    <div class="col font-weight-bold"> ${eps} </div>
-                                    <div class="col font-weight-bold"> ${indPe} </div>
-                                    <div class="col">
-                                        <span class="d-block font-weight-bold">${weekLowValue}</span>
-                                        <small class="d-block">${weeklowData}</small>
-                                    </div>
-                                </div>
+                            <div class="row text-center align-items-center flex-grow-1">
+                            <div class="col"> M Cap (Cr.)</div>
+                            <div class="col"> Pre. Close </div>
+                            <div class="col"> PE </div>
+                            <div class="col"> Day High </div>
+                            <div class="col"> 52W High </div>
+                        </div>
+                            
+                        <div class="row text-center align-items-center flex-grow-1">
+                            <div class="col font-weight-bold"> ${marketCap} </div>
+                            <div class="col font-weight-bold"> ${preClosePrice} </div>
+                            <div class="col font-weight-bold"> ${symbolPe} </div>
+                            <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.max} </div>
+                            <div class="col">
+                                <span class="d-block font-weight-bold">${weekHighValue}</span>
+                                <small class="d-block">${weekHighDate}</small>
+                            </div>
+                        </div>
+                            
+                        <hr />
+                            
+                            
+                        <div class="row text-center align-items-center flex-grow-1">
+                            <div class="col"> TTL Share (Cr.)</div>
+                            <div class="col"> EPS </div>
+                            <div class="col"> PE Ind </div>
+                            <div class="col"> Day Low </div>
+                            <div class="col"> 52W Low </div>
+                        </div>
+                            
+                        <div class="row text-center align-items-center flex-grow-1">
+                            <div class="col font-weight-bold"> ${ttlShare} </div>
+                            <div class="col font-weight-bold"> ${eps} </div>
+                            <div class="col font-weight-bold"> ${indPe} </div>
+                            <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
+                            <div class="col">
+                                <span class="d-block font-weight-bold">${weekLowValue}</span>
+                                <small class="d-block">${weeklowData}</small>
+                            </div>
+                        </div>
                                 
                             </div>
 
