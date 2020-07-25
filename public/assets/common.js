@@ -49,11 +49,6 @@ companyname.addEventListener('keyup', () => {
     }
 })
 
-companyname.addEventListener('blur',()=>{
-    companyname.value = ''
-    suggestionresponse.innerHTML = ''
-})
-
 const addSymbolToprofile = (symbol) => {
 
     fetch(`/addSymbol/${symbol}`, { method: 'POST' })
