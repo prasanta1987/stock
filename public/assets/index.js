@@ -22,8 +22,9 @@ const getMarketStatus = async () => {
         let res = await fetch('/marketStatus', { method: 'POST' })
         let data = await res.json();
 
-        (data.marketState[0].marketStatus != 'Closed') && setInterval(getMyWatchList, 2000)
-
+        (data.marketState[0].marketStatus != 'Close') && setInterval(getMyWatchList, 2000);
+        console.log(`Market ${data.marketState[0].marketStatus}`);
+            (userData.watchList.length == 0) && (noWatchlist.innerHTML = 'Your Watch List is Empty')
     } catch (error) {
         console.log('Failed to get market status')
     }
@@ -60,8 +61,9 @@ const buildCards = async (symbol) => {
                 existingCard.innerHTML = ''
                 existingCard.innerHTML = `
                 <div class="row p-2" style="position:relative">
-                    <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
-
+                    <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
+                        <span aria-hidden="true">&times;</span>
+                    </button>>
                     <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
                         <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
                         <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
@@ -125,7 +127,9 @@ const buildCards = async (symbol) => {
                 mycardcontainer.innerHTML += `
                     <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
                         <div class="row p-2" style="position:relative">
-                        <span class="close text-danger" onClick=removeSymbolFromProfile('${symbol}')>X</span>
+                        <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
 
                             <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
                                 <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>

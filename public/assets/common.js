@@ -34,7 +34,7 @@ companyname.addEventListener('keyup', () => {
                 data.symbols.map(ele => {
                     suggestionresponse.innerHTML += `
                     <span class="p-1 border suggestion">
-                        <span class="name">${ele.symbol_info}</span>
+                        <span class="name text-dark">${ele.symbol_info}</span>
                         <button id="${ele.symbol}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.symbol}')">ADD</button>
                     </span>`
 
