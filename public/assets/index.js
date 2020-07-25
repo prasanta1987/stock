@@ -44,6 +44,7 @@ const buildCards = async (symbol) => {
         if (Object.keys(data).length > 0) {
             noWatchlist.innerHTML = ''
             let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+            let openPrice = data.priceInfo.open
             let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
             let marketCap = (ttlShare * closePrice).toFixed(2)
             let preClosePrice = data.priceInfo.previousClose
@@ -69,7 +70,8 @@ const buildCards = async (symbol) => {
                         <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
                         <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
                     </div>
-
+                    
+                    <!--
                     <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
                         <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
                             <div>
@@ -79,6 +81,7 @@ const buildCards = async (symbol) => {
                             </div>
                         </div>
                     </div>
+                    -->
 
                     <div class="col d-flex flex-column">
 
@@ -86,6 +89,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> M Cap (Cr.)</div>
                             <div class="col"> Pre. Close </div>
                             <div class="col"> PE </div>
+                            <div class="col"> Open </div>
                             <div class="col"> Day High </div>
                             <div class="col"> 52W High </div>
                         </div>
@@ -94,6 +98,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${marketCap} </div>
                             <div class="col font-weight-bold"> ${preClosePrice} </div>
                             <div class="col font-weight-bold"> ${symbolPe} </div>
+                            <div class="col font-weight-bold"> ${openPrice} </div>
                             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.max} </div>
                             <div class="col">
                                 <span class="d-block font-weight-bold">${weekHighValue}</span>
@@ -108,6 +113,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> TTL Share (Cr.)</div>
                             <div class="col"> EPS </div>
                             <div class="col"> PE Ind </div>
+                            <div class="col"> CMP </div>
                             <div class="col"> Day Low </div>
                             <div class="col"> 52W Low </div>
                         </div>
@@ -116,6 +122,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${ttlShare} </div>
                             <div class="col font-weight-bold"> ${eps} </div>
                             <div class="col font-weight-bold"> ${indPe} </div>
+                            <div class="col font-weight-bold"><kbd class="${(closePrice>openPrice)?'bg-success':'bg-danger'}">${closePrice}</kbd></div>
                             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
                             <div class="col">
                                 <span class="d-block font-weight-bold">${weekLowValue}</span>
@@ -141,6 +148,7 @@ const buildCards = async (symbol) => {
                                 <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
                             </div>
 
+                            <!--
                             <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
                                 <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
                                     <div>
@@ -150,6 +158,7 @@ const buildCards = async (symbol) => {
                                     </div>
                                 </div>
                             </div>
+                            -->
 
                             <div class="col d-flex flex-column">
 
@@ -157,6 +166,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> M Cap (Cr.)</div>
                             <div class="col"> Pre. Close </div>
                             <div class="col"> PE </div>
+                            <div class="col"> Open </div>
                             <div class="col"> Day High </div>
                             <div class="col"> 52W High </div>
                         </div>
@@ -165,6 +175,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${marketCap} </div>
                             <div class="col font-weight-bold"> ${preClosePrice} </div>
                             <div class="col font-weight-bold"> ${symbolPe} </div>
+                            <div class="col font-weight-bold"> ${openPrice} </div>
                             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.max} </div>
                             <div class="col">
                                 <span class="d-block font-weight-bold">${weekHighValue}</span>
@@ -179,6 +190,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> TTL Share (Cr.)</div>
                             <div class="col"> EPS </div>
                             <div class="col"> PE Ind </div>
+                            <div class="col"> CMP </div>
                             <div class="col"> Day Low </div>
                             <div class="col"> 52W Low </div>
                         </div>
@@ -187,6 +199,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${ttlShare} </div>
                             <div class="col font-weight-bold"> ${eps} </div>
                             <div class="col font-weight-bold"> ${indPe} </div>
+                            <div class="col font-weight-bold"> <kbd class="${(closePrice>openPrice)?'bg-success':'bg-danger'}">${closePrice} </kbd></div>
                             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
                             <div class="col">
                                 <span class="d-block font-weight-bold">${weekLowValue}</span>
