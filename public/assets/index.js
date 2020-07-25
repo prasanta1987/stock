@@ -63,11 +63,11 @@ const buildCards = async (symbol) => {
                 <div class="row p-2" style="position:relative">
                     <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
                         <span aria-hidden="true">&times;</span>
-                    </button>>
+                    </button>
                     <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
                         <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
                         <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
-                        <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
+                        <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
                     </div>
 
                     <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
@@ -134,7 +134,7 @@ const buildCards = async (symbol) => {
                             <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
                                 <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
                                 <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
-                                <small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small>
+                                <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
                             </div>
 
                             <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
