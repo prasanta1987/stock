@@ -22,7 +22,7 @@ const getMarketStatus = async () => {
         let res = await fetch('/marketStatus', { method: 'POST' })
         let data = await res.json();
 
-        (data.marketState[0].marketStatus != 'Close') && setInterval(getMyWatchList, 2000);
+        (data.marketState[0].marketStatus != 'Closed') && setInterval(getMyWatchList, 2000);
         console.log(`Market ${data.marketState[0].marketStatus}`);
             (userData.watchList.length == 0) && (noWatchlist.innerHTML = 'Your Watch List is Empty')
     } catch (error) {
