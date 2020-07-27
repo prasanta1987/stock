@@ -55,8 +55,6 @@ const getUserProfile = () => {
     return userData
 }
 
-
-
 app.post('/updateName/:name', (req, res) => {
 
     const name = req.params.name
@@ -67,6 +65,60 @@ app.post('/updateName/:name', (req, res) => {
     try {
         fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
         res.status(200).json({ "message": "User Name Saved Successfully" })
+    } catch (error) {
+        res.status(501).json({ "error": "Something Went Wrong" })
+    }
+
+})
+
+app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
+
+    const name = req.params.symbol
+    const price = req.params.price
+    const qty = req.params.qty
+    const date = req.params.date
+
+    let data = {
+        "symbol": name,
+        "date": date,
+        "price": parseFloat(price),
+        "qty": parseInt(qty)
+    }
+
+    let userData = getUserProfile()
+
+    userData.transactions.buy.push(data)
+
+    try {
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+        res.status(200).json({ "message": "Data Written Successfully" })
+    } catch (error) {
+        res.status(501).json({ "error": "Something Went Wrong" })
+    }
+
+})
+
+app.post('/sellShare/:symbol/:price/:qty/:date', (req, res) => {
+
+    const name = req.params.symbol
+    const price = req.params.price
+    const qty = req.params.qty
+    const date = req.params.date
+
+    let data = {
+        "symbol": name,
+        "date": date,
+        "price": parseFloat(price),
+        "qty": parseInt(qty)
+    }
+
+    let userData = getUserProfile()
+
+    userData.transactions.sell.push(data)
+
+    try {
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+        res.status(200).json({ "message": "Data Written Successfully" })
     } catch (error) {
         res.status(501).json({ "error": "Something Went Wrong" })
     }
