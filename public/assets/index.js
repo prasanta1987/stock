@@ -65,26 +65,35 @@ const buildCards = async (symbol) => {
 
             userData.transactions.buy.map(value => {
                 if (value.symbol == symbol) {
-                    investedPrice += value.price
+                    investedPrice += value.price * value.qty
                     investedQty += value.qty
                 }
             })
 
             userData.transactions.sell.map(value => {
                 if (value.symbol == symbol) {
-                    sellPrice += value.price
+                    sellPrice += value.price * value.qty
                     sellQty += value.qty
                 }
             })
 
             let shareHeld = investedQty - sellQty
-            let invested = (investedPrice * investedQty).toFixed(2)
+            let invested = (investedPrice).toFixed(2)
             let retAginstInv = (sellPrice * sellQty).toFixed(2)
-            let currentGain = ((closePrice - investedPrice)* shareHeld).toFixed(2)
+            let currentGain = ((closePrice * shareHeld)-invested).toFixed(2)
 
             if (document.querySelector(`.${symbol}`)) {
-                let existingCard = document.querySelector(`.${symbol}`)
-                document.querySelector(`.${symbol}-cmp`).innerHTML = closePrice
+                let cmpMarkup = document.querySelector(`.${symbol}-cmp`)
+
+                if(closePrice > openPrice){
+                    cmpMarkup.classList.remove('bg-danger')
+                    cmpMarkup.classList.add('bg-success')
+                } else{
+                    cmpMarkup.classList.add('bg-danger')
+                    cmpMarkup.classList.remove('bg-success')
+                }
+                cmpMarkup.innerHTML = closePrice
+
                 document.querySelector(`#${symbol}-cgl`).innerHTML = currentGain
                 // existingCard.innerHTML = ''
                 // existingCard.innerHTML = `
