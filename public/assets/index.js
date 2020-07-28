@@ -81,9 +81,9 @@ const buildCards = async (symbol) => {
             let sold = parseFloat(sellPrice)
             invested = invested.toFixed(2) - sold
 
-            console.log(invested, sold)
-            let retAginstInv = (sellPrice * sellQty).toFixed(2)
             let currentGain = ((closePrice * shareHeld)- invested).toFixed(2)
+
+            let retAginstInv = (sellPrice * sellQty).toFixed(2)
 
             if (document.querySelector(`.${symbol}`)) {
                 let cmpMarkup = document.querySelector(`.${symbol}-cmp`)
@@ -295,8 +295,8 @@ const buildCards = async (symbol) => {
                                     <input onChange="calcReturn('${symbol}')" id="${symbol}-buyingPrice" type="number" placeholder="Price" class="form-control">
                                     <input onChange="calcReturn('${symbol}')" id="${symbol}-buyQty" type="number" placeholder="Qty" class="form-control">
                                     <div class="input-group-append">
-                                        <button class="btn btn-success" onClick="buyShares('${symbol}')" type="button">BUY</button>
-                                        <button class="btn btn-danger ${(shareHeld == 0) && 'disabled'}" onClick="sellShares('${symbol}')" type="button">SELL</button>
+                                        <button class="btn btn-success ${symbol}-buy-btn" onClick="buyShares('${symbol},${closePrice}')" type="button">BUY</button>
+                                        <button class="btn btn-danger ${(shareHeld == 0) && 'disabled'} ${symbol}-sell-btn" onClick="sellShares('${symbol},${closePrice}')" type="button">SELL</button>
                                     </div>
                                 </div>
                             </div>
