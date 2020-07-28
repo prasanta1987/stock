@@ -79,9 +79,11 @@ const buildCards = async (symbol) => {
 
             let avlShare = buyQty - sellQty //Available Share Qty
             let avgBuyPrice = buyPrice / buyQty //Average Buy Price
-            let currentGain = ((closePrice - avgBuyPrice) * avlShare).toFixed(2) //Curent Gain / Loss
-            let retAginstInv = sellPrice - (avgBuyPrice * sellQty) // Total Return
-            let invested = avlShare * avgBuyPrice
+            let currentGain = ((closePrice - avgBuyPrice) * avlShare).toFixed(2); //Curent Gain / Loss
+            currentGain = (isNaN(currentGain)) ? 0 : currentGain
+            let retAginstInv = sellPrice - (avgBuyPrice * sellQty); // Total Return
+            retAginstInv = (isNaN(retAginstInv))?0:retAginstInv
+            let invested = (isNaN(avlShare * avgBuyPrice)) ? 0 : (avlShare * avgBuyPrice)
 
             if (document.querySelector(`.${symbol}`)) {
                 let cmpMarkup = document.querySelector(`.${symbol}-cmp`)
@@ -115,18 +117,6 @@ const buildCards = async (symbol) => {
                                 <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
                             </div>
 
-                            <!--
-                            <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
-                                <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
-                                    <div>
-                                    <h4 class="cmp">${closePrice}</h4>
-                                    <hr />
-                                    <span class="cmpcng">${oneDayReturn}%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            -->
-
                             <div class="col d-flex flex-column">
 
                             <div class="row text-center align-items-center flex-grow-1">
@@ -150,10 +140,7 @@ const buildCards = async (symbol) => {
                             </div>
                         </div>
                             
-                        <hr />
-                            
-                            
-                        <div class="row text-center align-items-center flex-grow-1">
+                        <div class="mt-2 row text-center align-items-center flex-grow-1">
                             <div class="col"> TTL Share (Cr.)</div>
                             <div class="col"> EPS </div>
                             <div class="col"> PE Ind </div>
