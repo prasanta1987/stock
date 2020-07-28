@@ -56,7 +56,7 @@ const buildCards = async (symbol) => {
             let weekHighDate = data.priceInfo.weekHighLow.maxDate
             let weeklowData = data.priceInfo.weekHighLow.minDate
 
-            let investedPrice = 0
+            let invested = 0
             let investedQty = 0
 
             let sellPrice = 0
@@ -65,7 +65,7 @@ const buildCards = async (symbol) => {
 
             userData.transactions.buy.map(value => {
                 if (value.symbol == symbol) {
-                    investedPrice += value.price * value.qty
+                    invested += value.price * value.qty
                     investedQty += value.qty
                 }
             })
@@ -78,9 +78,12 @@ const buildCards = async (symbol) => {
             })
 
             let shareHeld = investedQty - sellQty
-            let invested = (investedPrice).toFixed(2)
+            let sold = parseFloat(sellPrice)
+            invested = invested.toFixed(2) - sold
+
+            console.log(invested, sold)
             let retAginstInv = (sellPrice * sellQty).toFixed(2)
-            let currentGain = ((closePrice * shareHeld)-invested).toFixed(2)
+            let currentGain = ((closePrice * shareHeld)- invested).toFixed(2)
 
             if (document.querySelector(`.${symbol}`)) {
                 let cmpMarkup = document.querySelector(`.${symbol}-cmp`)
@@ -347,7 +350,7 @@ const calcReturn = (symbol) => {
 
     let invst = (buyingPrice * buyQty).toFixed(2)
     let rtrn = (cmp * buyQty).toFixed(2)
-    let gain = (rtrn - invst).toFixed(2)
+    let gain = (invst - rtrn).toFixed(2)
     let gainPercentage = ((gain / invst) * 100).toFixed(2)
 
     investment.innerHTML = invst
