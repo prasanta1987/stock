@@ -71,20 +71,18 @@ app.post('/updateName/:name', (req, res) => {
 
 })
 
-app.post('/buyShare/:symbol/:cmp/:price/:qty/:date', (req, res) => {
+app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
 
     const name = req.params.symbol
     const price = req.params.price
     const qty = req.params.qty
     const date = req.params.date
-    const cmp = req.params.cmp
 
     let data = {
         "symbol": name,
         "date": date,
         "price": parseFloat(price),
-        "qty": parseInt(qty),
-        "cmp" : parseFloat(cmp)
+        "qty": parseInt(qty)
     }
 
     let userData = getUserProfile()
@@ -100,20 +98,18 @@ app.post('/buyShare/:symbol/:cmp/:price/:qty/:date', (req, res) => {
 
 })
 
-app.post('/sellShare/:symbol/:cmp/:price/:qty/:date', (req, res) => {
+app.post('/sellShare/:symbol/:price/:qty/:date', (req, res) => {
 
     const name = req.params.symbol
     const price = req.params.price
     const qty = req.params.qty
     const date = req.params.date
-    const cmp = req.params.cmp
 
     let data = {
         "symbol": name,
         "date": date,
         "price": parseFloat(price),
-        "qty": parseInt(qty),
-        "cmp" : parseFloat(cmp)
+        "qty": parseInt(qty)
     }
 
     let userData = getUserProfile()

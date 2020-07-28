@@ -56,8 +56,8 @@ const buildCards = async (symbol) => {
             let weekHighDate = data.priceInfo.weekHighLow.maxDate
             let weeklowData = data.priceInfo.weekHighLow.minDate
 
-            let invested = 0
-            let investedQty = 0
+            let buyPrice = 0
+            let buyQty = 0
 
             let sellPrice = 0
             let sellQty = 0
@@ -65,8 +65,8 @@ const buildCards = async (symbol) => {
 
             userData.transactions.buy.map(value => {
                 if (value.symbol == symbol) {
-                    invested += value.price * value.qty
-                    investedQty += value.qty
+                    buyPrice += value.price * value.qty
+                    buyQty += value.qty
                 }
             })
 
@@ -77,139 +77,29 @@ const buildCards = async (symbol) => {
                 }
             })
 
-            let shareHeld = investedQty - sellQty
-            let sold = parseFloat(sellPrice)
-            invested = invested.toFixed(2) - sold
-
-            let currentGain = ((closePrice * shareHeld)- invested).toFixed(2)
-
-            let retAginstInv = (sellPrice * sellQty).toFixed(2)
+            let avlShare = buyQty - sellQty //Available Share Qty
+            let avgBuyPrice = buyPrice / buyQty //Average Buy Price
+            let currentGain = ((closePrice - avgBuyPrice) * avlShare).toFixed(2) //Curent Gain / Loss
+            let retAginstInv = sellPrice - (avgBuyPrice * sellQty) // Total Return
+            let invested = avlShare * avgBuyPrice
 
             if (document.querySelector(`.${symbol}`)) {
                 let cmpMarkup = document.querySelector(`.${symbol}-cmp`)
 
-                if(closePrice > openPrice){
+                if (closePrice > openPrice) {
                     cmpMarkup.classList.remove('bg-danger')
                     cmpMarkup.classList.add('bg-success')
-                } else{
+                } else {
                     cmpMarkup.classList.add('bg-danger')
                     cmpMarkup.classList.remove('bg-success')
                 }
                 cmpMarkup.innerHTML = closePrice
 
+                document.querySelector(`#${symbol}-invested`).innerHTML = invested
                 document.querySelector(`#${symbol}-cgl`).innerHTML = currentGain
-                // existingCard.innerHTML = ''
-                // existingCard.innerHTML = `
-                // <div class="row p-2" style="position:relative">
-                //         <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
-                //             <span aria-hidden="true">&times;</span>
-                //         </button>
-                //         <div class="col-sm-12">
-                //             <div class="row">
-                //             <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
-                //                 <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
-                //                 <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
-                //                 <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
-                //             </div>
+                document.querySelector(`#${symbol}-ttlrtn`).innerHTML = retAginstInv
+                document.querySelector(`#${symbol}-avlshare`).innerHTML = avlShare
 
-                //             <!--
-                //             <div class="col-sm-12 col-md-2 col-lg-2 text-light rounded">
-                //                 <div class="rounded h-100 v-c-c w-100 text-center ${(oneDayReturn > 0 ? 'bg-success' : 'bg-danger')}">
-                //                     <div>
-                //                     <h4 class="cmp">${closePrice}</h4>
-                //                     <hr />
-                //                     <span class="cmpcng">${oneDayReturn}%</span>
-                //                     </div>
-                //                 </div>
-                //             </div>
-                //             -->
-
-                //             <div class="col d-flex flex-column">
-
-                //             <div class="row text-center align-items-center flex-grow-1">
-                //             <div class="col"> M Cap (Cr.)</div>
-                //             <div class="col"> Pre. Close </div>
-                //             <div class="col"> PE </div>
-                //             <div class="col"> Open </div>
-                //             <div class="col"> Day High </div>
-                //             <div class="col"> 52W High </div>
-                //         </div>
-                            
-                //         <div class="row text-center align-items-center flex-grow-1">
-                //             <div class="col font-weight-bold"> ${marketCap} </div>
-                //             <div class="col font-weight-bold"> ${preClosePrice} </div>
-                //             <div class="col font-weight-bold"> ${symbolPe} </div>
-                //             <div class="col font-weight-bold"> ${openPrice} </div>
-                //             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.max} </div>
-                //             <div class="col">
-                //                 <span class="d-block font-weight-bold">${weekHighValue}</span>
-                //                 <small class="d-block">${weekHighDate}</small>
-                //             </div>
-                //         </div>
-                            
-                //         <hr />
-                            
-                            
-                //         <div class="row text-center align-items-center flex-grow-1">
-                //             <div class="col"> TTL Share (Cr.)</div>
-                //             <div class="col"> EPS </div>
-                //             <div class="col"> PE Ind </div>
-                //             <div class="col"> CMP </div>
-                //             <div class="col"> Day Low </div>
-                //             <div class="col"> 52W Low </div>
-                //         </div>
-                            
-                //         <div class="row text-center align-items-center flex-grow-1">
-                //             <div class="col font-weight-bold"> ${ttlShare} </div>
-                //             <div class="col font-weight-bold"> ${eps} </div>
-                //             <div class="col font-weight-bold"> ${indPe} </div>
-                //             <div class="col font-weight-bold"> <kbd class="${symbol}-cmp ${(closePrice > openPrice) ? 'bg-success' : 'bg-danger'}">${closePrice} </kbd></div>
-                //             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
-                //             <div class="col">
-                //                 <span class="d-block font-weight-bold">${weekLowValue}</span>
-                //                 <small class="d-block">${weeklowData}</small>
-                //             </div>
-                //         </div>
-                                
-                //             </div>
-                //         </div>
-                //         </div>
-                //         <div class="col-sm-12">
-                //         <hr />
-                //         <div class="row">
-                //             <div class="col-sm-3 d-flex align-items-center">
-                //                 <div class="input-group">
-                //                     <input onChange="calcReturn('${symbol}')" id="${symbol}-buyingPrice" type="number" placeholder="Price" class="form-control">
-                //                     <input onChange="calcReturn('${symbol}')" id="${symbol}-buyQty" type="number" placeholder="Qty" class="form-control">
-                //                     <div class="input-group-append">
-                //                         <button class="btn btn-success" onClick="buyShares('${symbol}')" type="button">BUY</button>
-                //                         <button class="btn btn-danger ${(shareHeld == 0) && 'disabled'}" onClick="sellShares('${symbol}')" type="button">SELL</button>
-                //                     </div>
-                //                 </div>
-                //             </div>
-
-                //             <div class="col-sm-9">
-                //                 <div class="d-flex flex-column text-center">
-                //                     <kbd class="bg-primary d-flex justify-content-between">
-                //                         <span>Investment : <b id="${symbol}-investment">0</b></span>
-                //                         <span>Return : <b id="${symbol}-return">0</b></span>
-                //                         <span>Gain/Loss : <b id="${symbol}-prloss">0</b></span>
-                //                         <span>Change % : <b id="${symbol}-prlossPer">0</b></span>
-                //                     </kbd>
-                //                     <kbd class="mt-1 bg-dark d-flex justify-content-between">
-                //                         <span>Invested : <b id="${symbol}-invested">${invested}</b></span>
-                //                         <span>Curent Gain/Loss. : <b id="${symbol}-invested">${currentGain}</b></span>
-                //                         <span>Gain/Loss : <b id="${symbol}-invested">${retAginstInv}</b></span>
-                //                         <span>Share Avl. : <b id="${symbol}-invested">${shareHeld}</b></span>
-                //                     </kdb>
-                //                 </div>
-                //             </div>
-
-                //         </div>
-                        
-                //         </div>
-                //         </div>
-                // `
             } else {
                 mycardcontainer.innerHTML += `
                     <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
@@ -295,8 +185,8 @@ const buildCards = async (symbol) => {
                                     <input onChange="calcReturn('${symbol}')" id="${symbol}-buyingPrice" type="number" placeholder="Price" class="form-control">
                                     <input onChange="calcReturn('${symbol}')" id="${symbol}-buyQty" type="number" placeholder="Qty" class="form-control">
                                     <div class="input-group-append">
-                                        <button class="btn btn-success ${symbol}-buy-btn" onClick="buyShares('${symbol},${closePrice}')" type="button">BUY</button>
-                                        <button class="btn btn-danger ${(shareHeld == 0) && 'disabled'} ${symbol}-sell-btn" onClick="sellShares('${symbol},${closePrice}')" type="button">SELL</button>
+                                        <button class="btn btn-success ${symbol}-buy-btn" onClick="buyShares('${symbol}')" type="button">BUY</button>
+                                        <button ${(avlShare == 0) && 'disabled'} class="btn btn-danger ${symbol}-sell-btn" onClick="sellShares('${symbol}')" type="button">SELL</button>
                                     </div>
                                 </div>
                             </div>
@@ -307,13 +197,13 @@ const buildCards = async (symbol) => {
                                         <span>Investment : <b id="${symbol}-investment">0</b></span>
                                         <span>Return : <b id="${symbol}-return">0</b></span>
                                         <span>Gain/Loss : <b id="${symbol}-prloss">0</b></span>
-                                        <span>Change % : <b id="${symbol}-prlossPer">0</b></span>
+                                        <span>Change : <b id="${symbol}-prlossPer">0</b></span>
                                     </kbd>
                                     <kbd class="mt-1 bg-dark d-flex justify-content-between">
-                                        <span>Invested : <b id="${symbol}-invested">${invested}</b></span>
+                                        <span>Avl. Investment : <b id="${symbol}-invested">${invested}</b></span>
                                         <span>Curent Gain/Loss. : <b id="${symbol}-cgl">${currentGain}</b></span>
-                                        <span>Gain/Loss : <b id="${symbol}-invested">${retAginstInv}</b></span>
-                                        <span>Share Avl. : <b id="${symbol}-invested">${shareHeld}</b></span>
+                                        <span>Gain/Loss : <b id="${symbol}-ttlrtn">${retAginstInv}</b></span>
+                                        <span>Share Avl. : <b id="${symbol}-avlshare">${avlShare}</b></span>
                                     </kdb>
                                 </div>
                             </div>
