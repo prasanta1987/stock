@@ -139,17 +139,17 @@ const buildCards = async (symbol) => {
             } else {
                 mycardcontainer.innerHTML += `
                     <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
-                        <div class="row p-2" style="position:relative">
+                        <div class="row p-2">
                         <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <div class="col-sm-12">
                             <div class="row">
-                                <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                                <div class="mt-3 d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
                                     <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
                                     <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
                                     <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
-                                    <div class="d-flex justify-content-between mt-5 pl-2 pr-2">
+                                    <div class="d-flex justify-content-between mt-3 pl-2 pr-2">
                                         <span class="text-success">Buy : <b class="${symbol}-buy-qty"></b></span>
                                         <span class="text-danger">Sell : <b class="${symbol}-sell-qty"></b></span>
                                     </div>
@@ -213,10 +213,9 @@ const buildCards = async (symbol) => {
                         </div>
                         </div>
                         <div class="col-sm-12">
-                        <hr />
                         <div class="row">
                             <div class="col-sm-3 d-flex align-items-center">
-                                <div class="input-group">
+                                <div class="input-group input-group-sm">
                                     <input onChange="calcReturn('${symbol}')" id="${symbol}-buyingPrice" type="number" placeholder="Price" class="form-control">
                                     <input onChange="calcReturn('${symbol}')" id="${symbol}-buyQty" type="number" placeholder="Qty" class="form-control">
                                     <div class="input-group-append">

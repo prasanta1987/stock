@@ -22,6 +22,8 @@ fs.exists(userPrifileFile, (res) => {
 // https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2018&to=26-06-2020
 // https://www.nse-india.com/api/chart-databyindex?index=TATASTEELEQN&preopen=true
 
+// https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=SBIN
+
 const app = express()
 
 
@@ -241,7 +243,7 @@ app.post('/stock/:symbol', (req, res) => {
 })
 
 // Get Individual Stock Chart Data
-app.post('/candleData/:symbol', (req, res) => {
+app.post('/chartData/:symbol', (req, res) => {
 
     let symb = (req.params.symbol).toUpperCase()
     symb = symb.replace('&', '%26')
@@ -259,7 +261,7 @@ app.post('/candleData/:symbol', (req, res) => {
 })
 
 
-// Not Working Properly Still Kept for Reference
+// This may break after august as NSE1 is shutting down
 app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
 
     let symb = (req.params.symbol).toLowerCase()
@@ -356,13 +358,16 @@ app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
 
 })
 
+// historical data from NSE
 app.post('/getHistoricalData/:symbol/:startDate/:endDate', (req, res) => {
 
-    const symbol = req.params.symbol.toUpperCase()
+    const symbol = req.params.symbol.toUpperCase().replace('&','%26')
     const startDate = req.params.startDate
     const endDate = req.params.endDate
 
-    const url = `https://www.nse-india.com/api/historical/cm/equity?symbol=${symbol}&series=["EQ"]&from=${startDate}&to=${endDate}`
+    const url = `https://www.nseindia.com/api/historical/cm/equity?symbol=${symbol}&series=[%22EQ%22]&from=${startDate}&to=${endDate}`
+
+    console.log(url)
 
     axios.get(url)
         .then(data => res.status(200).json(data.data))
@@ -379,6 +384,39 @@ app.post('/marketDepth/:symbol', (req, res) => {
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
 })
+
+app.post('/shareHoldingPattern/:symbol', (req, res) => {
+    const symbol = req.params.symbol.toUpperCase()
+    const url = `https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=${symbol}`
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+
+})
+
+app.post('/corporateActions/:symbol', (req, res) => {
+    const symbol = req.params.symbol.toUpperCase()
+    const url = `https://www.nseindia.com/api/corporates-corporateActions?index=equities&symbol=${symbol}`
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+
+})
+
+app.post('/historicalFinancialResult/:symbol', (req, res) => {
+    const symbol = req.params.symbol.toUpperCase()
+    const url = `https://www.nseindia.com/api/results-comparision?symbol=${symbol}`
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+
+})
+
+
+
 const port = process.env.PORT || 3000
 
 app.listen(port, () => {
