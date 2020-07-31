@@ -89,13 +89,14 @@ const plotGraphData = (graphDatas, companyName) => {
     },
 
     exporting: {
-      enabled: false
+      enabled: true
     },
 
-    series: [{
-      name: 'CMP',
-      data: graphDatas,
-
-    }]
+    series: [
+      {
+        name: 'CMP',
+        data: graphDatas,
+      }
+    ]
   });
 }
