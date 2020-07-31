@@ -63,8 +63,7 @@ const plotGraphData = (graphDatas, companyName) => {
       series: {
         marker: {
           enabled: false
-        },
-        color: "#008080",
+        }
       }
     },
     rangeSelector: {
@@ -96,6 +95,7 @@ const plotGraphData = (graphDatas, companyName) => {
       {
         name: 'CMP',
         data: graphDatas,
+        color: "#008080"
       }
     ]
   });
