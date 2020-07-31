@@ -46,12 +46,16 @@ const getMarketDepth = async (symbol) => {
         let sellPercentage = (100 - buyPercentage).toFixed(2)
 
         let buyMarkup = document.querySelector(`.${symbol}-buy-bar`)
+        let buyMarkupQty = document.querySelector(`.${symbol}-buy-qty`)
         let sellMarkup = document.querySelector(`.${symbol}-sell-bar`)
+        let sellMarkupQty = document.querySelector(`.${symbol}-sell-qty`)
 
         buyMarkup.innerHTML = `${buyPercentage} %`
         buyMarkup.style.width = `${buyPercentage}%`
         sellMarkup.innerHTML = `${sellPercentage} %`
         sellMarkup.style.width = `${sellPercentage}%`
+        buyMarkupQty.innerHTML = ttlBuyQty
+        sellMarkupQty.innerHTML = ttlSellQty
 
 
     } catch (err) {
@@ -75,7 +79,6 @@ const buildCards = async (symbol) => {
             let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
             let marketCap = (ttlShare * closePrice).toFixed(2)
             let preClosePrice = data.priceInfo.previousClose
-            let oneDayReturn = (((closePrice - preClosePrice) / preClosePrice) * 100).toFixed(2)
             let symbolPe = data.metadata.pdSymbolPe
             let indPe = data.metadata.pdSectorPe
             let eps = isFinite(closePrice / symbolPe) ? (closePrice / symbolPe).toFixed(2) : 0
@@ -83,6 +86,9 @@ const buildCards = async (symbol) => {
             let weekLowValue = data.priceInfo.weekHighLow.min
             let weekHighDate = data.priceInfo.weekHighLow.maxDate
             let weeklowData = data.priceInfo.weekHighLow.minDate
+            let faceValue = (data.securityInfo.faceValue).toFixed(2)
+            let pChnage = (data.priceInfo.pChange).toFixed(2)
+            let vwap = data.priceInfo.vwap
 
             let buyPrice = 0
             let buyQty = 0
@@ -144,8 +150,8 @@ const buildCards = async (symbol) => {
                                     <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
                                     <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
                                     <div class="d-flex justify-content-between mt-5 pl-2 pr-2">
-                                        <b class="text-success">Buy</b>
-                                        <b class="text-danger">Sell</b>
+                                        <span class="text-success">Buy : <b class="${symbol}-buy-qty"></b></span>
+                                        <span class="text-danger">Sell : <b class="${symbol}-sell-qty"></b></span>
                                     </div>
                                     <div class="progress">
                                         <div class="progress-bar bg-success ${symbol}-buy-bar" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
@@ -160,6 +166,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> Pre. Close </div>
                             <div class="col"> PE </div>
                             <div class="col"> Open </div>
+                            <div class="col"> VWAP </div>
                             <div class="col"> Day High </div>
                             <div class="col"> 52W High </div>
                         </div>
@@ -169,6 +176,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${preClosePrice} </div>
                             <div class="col font-weight-bold"> ${symbolPe} </div>
                             <div class="col font-weight-bold"> ${openPrice} </div>
+                            <div class="col font-weight-bold ${symbol}-vwap"> ${vwap} </div>
                             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.max} </div>
                             <div class="col">
                                 <span class="d-block font-weight-bold">${weekHighValue}</span>
@@ -181,6 +189,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> EPS </div>
                             <div class="col"> PE Ind </div>
                             <div class="col"> CMP </div>
+                            <div class="col"> % Chnage </div>
                             <div class="col"> Day Low </div>
                             <div class="col"> 52W Low </div>
                         </div>
@@ -190,6 +199,9 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${eps} </div>
                             <div class="col font-weight-bold"> ${indPe} </div>
                             <div class="col font-weight-bold"> <kbd class="${symbol}-cmp ${(closePrice > openPrice) ? 'bg-success' : 'bg-danger'}">${closePrice} </kbd></div>
+                            <div class="col font-weight-bold">
+                                <kbd class="${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
+                            </div>
                             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
                             <div class="col">
                                 <span class="d-block font-weight-bold">${weekLowValue}</span>
