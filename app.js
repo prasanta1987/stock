@@ -7,11 +7,11 @@ const fs = require('fs')
 const NSESymbol = require('./indexSymbols')
 const BSESymbol = require('./bseEqComp')
 
-const userPrifileFile = path.join(__dirname,'./user_profile/userProfile.json')
+const userPrifileFile = path.join(__dirname, './user_profile/userProfile.json')
 
 fs.exists(userPrifileFile, (res) => {
     if (!res) {
-        fs.mkdirSync(path.join(__dirname,'./user_profile'))
+        fs.mkdirSync(path.join(__dirname, './user_profile'))
         fs.writeFileSync(userPrifileFile, '{}')
     }
 })
@@ -168,7 +168,7 @@ app.post('/addSymbol/:symbol', (req, res) => {
 
 })
 
-app.post('/searchSymbol/:name',(req,res)=>{
+app.post('/searchSymbol/:name', (req, res) => {
 
     const name = req.params.name.toLocaleUpperCase()
     axios.get(`https://www.nseindia.com/api/search/autocomplete?q=${name}`)
@@ -276,7 +276,7 @@ app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
 
             // Det format DD-MM-YYYY
             const url = `https://www1.nseindia.com/products/dynaContent/common/productsSymbolMapping.jsp?symbol=${symb}&segmentLink=3&symbolCount=${symbolCount}&series=EQ&dateRange=+&fromDate=${fromDate}&toDate=${toDate}&dataType=PRICEVOLUMEDELIVERABLE`
-            
+
             console.log(url)
             axios.get(url, {
                 headers: {
@@ -369,6 +369,16 @@ app.post('/getHistoricalData/:symbol/:startDate/:endDate', (req, res) => {
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
 
+
+app.post('/marketDepth/:symbol', (req, res) => {
+    const symbol = req.params.symbol.toUpperCase()
+    const url = `https://www.nse-india.com/api/quote-equity?symbol=${symbol}&section=trade_info`
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+
+})
 const port = process.env.PORT || 3000
 
 app.listen(port, () => {

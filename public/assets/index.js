@@ -24,6 +24,7 @@ const getMarketStatus = async () => {
         (data.marketState[0].marketStatus != 'Closed') && setTimeout(getMyWatchList, 2000);
         console.log(`Market ${data.marketState[0].marketStatus}`);
         (userData.watchList.length == 0) && (noWatchlist.innerHTML = 'Your Watch List is Empty')
+
     } catch (error) {
         console.log('Failed to get market status')
     }
@@ -31,6 +32,33 @@ const getMarketStatus = async () => {
 
 setInterval(getMarketStatus, 2000)
 
+
+const getMarketDepth = async (symbol) => {
+
+    try {
+        let res = await fetch(`/marketDepth/${symbol}`, { method: 'POST' })
+        let data = await res.json()
+
+        let ttlBuyQty = data.marketDeptOrderBook.totalBuyQuantity
+        let ttlSellQty = data.marketDeptOrderBook.totalSellQuantity
+        let totalTrade = ttlBuyQty + ttlSellQty
+        let buyPercentage = parseFloat((ttlBuyQty / totalTrade) * 100).toFixed(2)
+        let sellPercentage = 100 - buyPercentage
+
+        let buyMarkup = document.querySelector(`.${symbol}-buy-bar`)
+        let sellMarkup = document.querySelector(`.${symbol}-sell-bar`)
+
+        buyMarkup.innerHTML = `${buyPercentage} %`
+        buyMarkup.style.width = `${buyPercentage}%`
+        sellMarkup.innerHTML = `${sellPercentage} %`
+        sellMarkup.style.width = `${sellPercentage}%`
+
+
+    } catch (err) {
+        console.log(err)
+        setTimeout(getMarketDepth, 2000)
+    }
+}
 
 
 const buildCards = async (symbol) => {
@@ -82,7 +110,7 @@ const buildCards = async (symbol) => {
             let currentGain = ((closePrice - avgBuyPrice) * avlShare).toFixed(2); //Curent Gain / Loss
             currentGain = (isNaN(currentGain)) ? 0 : currentGain
             let retAginstInv = sellPrice - (avgBuyPrice * sellQty); // Total Return
-            retAginstInv = (isNaN(retAginstInv))?0:retAginstInv
+            retAginstInv = (isNaN(retAginstInv)) ? 0 : retAginstInv
             let invested = (isNaN(avlShare * avgBuyPrice)) ? 0 : (avlShare * avgBuyPrice)
 
             if (document.querySelector(`.${symbol}`)) {
@@ -111,11 +139,19 @@ const buildCards = async (symbol) => {
                         </button>
                         <div class="col-sm-12">
                             <div class="row">
-                            <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
-                                <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
-                                <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
-                                <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
-                            </div>
+                                <div class="d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                                    <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
+                                    <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
+                                    <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
+                                    <div class="d-flex justify-content-between mt-5 pl-2 pr-2">
+                                        <b class="text-success">Buy</b>
+                                        <b class="text-danger">Sell</b>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success ${symbol}-buy-bar" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-danger ${symbol}-sell-bar" role="progressbar" style="width: 85%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
 
                             <div class="col d-flex flex-column">
 
@@ -202,6 +238,7 @@ const buildCards = async (symbol) => {
                     </div>
                     `
             }
+            getMarketDepth(symbol)
         } else {
             console.log('Data Not Received, Retrying')
         }
