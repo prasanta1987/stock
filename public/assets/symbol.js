@@ -6,34 +6,8 @@ const changeprice = document.querySelector('.changeprice')
 const industryinfo = document.querySelector('.industryinfo')
 const chartdatainfo = document.querySelector('.chartdatainfo')
 
-// Create Chart
-const stockChartElement = document.getElementById('myChart')
-const stockChartCanvas = stockChartElement.getContext('2d');
 
-stockChartElement.style.visibility = 'hidden'
 
-let stockChart = new Chart(stockChartCanvas, {
-  type: 'bar',
-  data: {
-    labels: [],
-    datasets: [{
-      label: 'data',
-      backgroundColor: 'rgba(0, 99, 132,1)',
-      borderColor: 'rgba(0, 99, 132,1)',
-      data: []
-    }]
-  },
-  options: {
-    scales: {
-      xAxes: [{
-        ticks: {
-          autoSkip: true,
-          maxTicksLimit: 20
-        }
-      }]
-    }
-  }
-});
 
 
 const symbol = window.location.pathname
@@ -42,57 +16,86 @@ fetch(`/stock${symbol}`, { method: 'POST' })
   .then(res => res.json())
   .then(data => {
     console.log(data)
-    companyName.innerHTML = data.info.companyName
-    industryinfo.innerHTML = `Industry : ${data.metadata.industry}`
-    updateTimeInfo.innerHTML = `Last Update : ${data.metadata.lastUpdateTime}`
-    baseprice.innerHTML = `Base Price : ${data.priceInfo.basePrice}`
-    lastprice.innerHTML = `Last Price : ${data.priceInfo.lastPrice}`
-    changeprice.innerHTML = `Change Price : ${data.priceInfo.change.toFixed(2)}`
-    if (data.priceInfo.change > 0) {
-      changeprice.classList.add("text-success")
-    } else {
-      changeprice.classList.add("text-danger")
-    }
-
-    chartdatainfo.innerHTML = 'Loading Chart Data.'
     getChartData(data.info.identifier, data.info.companyName)
   })
   .catch(err => console.log(err))
 
+let grapthData = []
 
-const getChartData = (inden, companyName) => {
-  fetch(`/candleData/${inden}`, { method: 'POST' })
+const getChartData = (symbol = 'SBINEQN', companyName) => {
+  fetch(`/candleData/${symbol}`, { method: 'POST' })
     .then(res => res.json())
     .then(data => {
-      chartdatainfo.innerHTML = ''
-      let grapthData = data.grapthData
-      let timestamp = []
-      let timeAmount = []
-      grapthData.map(data => {
-        let d = new Date(data[0])
-
-        let hour = d.getUTCHours()
-        let min = d.getUTCMinutes()
-        let sec = d.getUTCSeconds()
-        let time = `${hour}:${min}:${sec}`
-
-        timestamp.push(time)
-        timeAmount.push(data[1])
-      })
-
-      plotChartData(timestamp, timeAmount, companyName)
+      plotGraphData(data.grapthData, companyName)
     })
     .catch(err => {
       console.log(err)
     })
 }
 
-const plotChartData = (time, data, companyName) => {
+const plotGraphData = (graphDatas, companyName) => {
+  console.log(graphDatas)
+  Highcharts.stockChart('container', {
+    chart: {
+      events: {
+        load:
 
-  stockChartElement.style.visibility = 'visible'
-  stockChart.data.labels = time
-  stockChart.data.datasets[0].data = data
-  stockChart.data.datasets[0].label = companyName
+          function () {
+            var series = this.series[0];
 
-  stockChart.update();
+            // setInterval(function () {
+            //   var x = (new Date()).getTime(), // current time
+            //     y = Math.round(Math.random() * 100);
+            //   series.addPoint([x, y], true, true);
+            // }, 2000);
+
+
+          }
+
+
+      }
+    },
+
+    time: {
+      useUTC: true
+    },
+    plotOptions: {
+      series: {
+        marker: {
+          enabled: false
+        },
+        color: "#008080",
+      }
+    },
+    rangeSelector: {
+      buttons: [{
+        count: 1,
+        type: 'hour',
+        text: '1H'
+      }, {
+        count: 5,
+        type: 'hour',
+        text: '5H'
+      }, {
+        type: 'all',
+        text: 'All'
+      }],
+      inputEnabled: false,
+      selected: 2
+    },
+
+    title: {
+      text: companyName
+    },
+
+    exporting: {
+      enabled: false
+    },
+
+    series: [{
+      name: 'CMP',
+      data: graphDatas,
+
+    }]
+  });
 }
