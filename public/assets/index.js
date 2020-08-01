@@ -45,6 +45,9 @@ const getMarketDepth = async (symbol) => {
         let buyPercentage = parseFloat((ttlBuyQty / totalTrade) * 100).toFixed(2)
         let sellPercentage = (100 - buyPercentage).toFixed(2)
 
+        buyPercentage = (isNaN(buyPercentage)?0:buyPercentage)
+        sellPercentage = (isNaN(sellPercentage)?0:sellPercentage)
+
         let buyMarkup = document.querySelector(`.${symbol}-buy-bar`)
         let buyMarkupQty = document.querySelector(`.${symbol}-buy-qty`)
         let sellMarkup = document.querySelector(`.${symbol}-sell-bar`)
@@ -154,8 +157,8 @@ const buildCards = async (symbol) => {
                                         <span class="text-danger">Sell : <b class="${symbol}-sell-qty"></b></span>
                                     </div>
                                     <div class="progress">
-                                        <div class="progress-bar bg-success ${symbol}-buy-bar" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                                        <div class="progress-bar bg-danger ${symbol}-sell-bar" role="progressbar" style="width: 85%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-success ${symbol}-buy-bar" role="progressbar" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-danger ${symbol}-sell-bar" role="progressbar" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
 
