@@ -42,3 +42,19 @@ td{
 th{
     width: 100px !important;
 }
+
+.gainers, .loosers{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 5px;
+    justify-content: center;
+}
+
+.mylinks{
+    min-height: 120px;
+    text-decoration: none !important;
+}
+
+ul{list-style: none;}
+.nav-link a{text-decoration: none !important; color: #eee;}
+.nav-link a:hover{color: #f4f4f4;}

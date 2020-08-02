@@ -4,7 +4,6 @@ const axios = require("axios").default;
 const HTMLParser = require('node-html-parser');
 const fs = require('fs')
 
-const NSESymbol = require('./indexSymbols')
 const BSESymbol = require('./bseEqComp')
 
 const userPrifileFile = path.join(__dirname, './user_profile/userProfile.json')
@@ -42,9 +41,9 @@ const userProfileCheck = (req, res, next) => {
 
 
 
-app.get('/', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/watchlist.html')));
+app.get('/watchlist', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/watchlist.html')));
 app.get('/userProfile', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/registration.html')));
-app.get('/home', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/home.html')));
+app.get('/', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/home.html')));
 app.get('/:symbol', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/symbol.html')));
 
 app.use(express.static(path.join(__dirname, '/public')));
@@ -81,10 +80,11 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
     const date = req.params.date
 
     let data = {
-        "symbol": name,
-        "date": date,
-        "price": parseFloat(price),
-        "qty": parseInt(qty)
+        id: new Date().getTime(),
+        symbol: name,
+        date: date,
+        price: parseFloat(price),
+        qty: parseInt(qty)
     }
 
     let userData = getUserProfile()
@@ -95,7 +95,7 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
         fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
         res.status(200).json({ "message": "Data Written Successfully" })
     } catch (error) {
-        res.status(501).json({ "error": "Something Went Wrong" })
+        res.status(501).json({ "error": 'Something Went Wrong' })
     }
 
 })
@@ -108,14 +108,14 @@ app.post('/sellShare/:symbol/:price/:qty/:date', (req, res) => {
     const date = req.params.date
 
     let data = {
-        "symbol": name,
-        "date": date,
-        "price": parseFloat(price),
-        "qty": parseInt(qty)
+        id: new Date().getTime(),
+        symbol: name,
+        date: date,
+        price: parseFloat(price),
+        qty: parseInt(qty)
     }
 
     let userData = getUserProfile()
-
     userData.transactions.sell.push(data)
 
     try {

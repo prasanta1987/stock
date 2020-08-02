@@ -100,19 +100,24 @@ const buildCards = async (symbol) => {
             let sellQty = 0
 
 
-            userData.transactions.buy.map(value => {
-                if (value.symbol == symbol) {
-                    buyPrice += value.price * value.qty
-                    buyQty += value.qty
-                }
-            })
+            if (userData.transactions.buy) {
 
-            userData.transactions.sell.map(value => {
-                if (value.symbol == symbol) {
-                    sellPrice += value.price * value.qty
-                    sellQty += value.qty
-                }
-            })
+                userData.transactions.buy.map(value => {
+                    if (value.symbol == symbol) {
+                        buyPrice += value.price * value.qty
+                        buyQty += value.qty
+                    }
+                })
+
+            }
+            if (userData.transactions.sell) {
+                userData.transactions.sell.map(value => {
+                    if (value.symbol == symbol) {
+                        sellPrice += value.price * value.qty
+                        sellQty += value.qty
+                    }
+                })
+            }
 
             let avlShare = buyQty - sellQty //Available Share Qty
             let avgBuyPrice = buyPrice / buyQty //Average Buy Price
