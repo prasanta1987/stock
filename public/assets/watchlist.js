@@ -45,8 +45,8 @@ const getMarketDepth = async (symbol) => {
         let buyPercentage = parseFloat((ttlBuyQty / totalTrade) * 100).toFixed(2)
         let sellPercentage = (100 - buyPercentage).toFixed(2)
 
-        buyPercentage = (isNaN(buyPercentage)?0:buyPercentage)
-        sellPercentage = (isNaN(sellPercentage)?0:sellPercentage)
+        buyPercentage = (isNaN(buyPercentage) ? 0 : buyPercentage)
+        sellPercentage = (isNaN(sellPercentage) ? 0 : sellPercentage)
 
         let buyMarkup = document.querySelector(`.${symbol}-buy-bar`)
         let buyMarkupQty = document.querySelector(`.${symbol}-buy-qty`)

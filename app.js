@@ -42,9 +42,9 @@ const userProfileCheck = (req, res, next) => {
 
 
 
-app.get('/', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
+app.get('/', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/watchlist.html')));
 app.get('/userProfile', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/registration.html')));
-app.get('/historicalData', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/historicalData.html')));
+app.get('/home', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/home.html')));
 app.get('/:symbol', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/symbol.html')));
 
 app.use(express.static(path.join(__dirname, '/public')));
@@ -413,6 +413,39 @@ app.post('/historicalFinancialResult/:symbol', (req, res) => {
 
 })
 
+app.post('/gainers', (req, res) => {
+    const url = 'https://www.nseindia.com/api/live-analysis-variations?index=gainers'
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+
+})
+
+app.post('/loosers', (req, res) => {
+    const url = 'https://www.nseindia.com/api/live-analysis-variations?index=loosers'
+
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+
+})
+
+app.post('/activeByValue', (req, res) => {
+    const url = 'https://www.nseindia.com/api/live-analysis-most-active-securities?index=value'
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+
+})
+
+app.post('/activeByVolume', (req, res) => {
+    const url = 'https://www.nseindia.com/api/live-analysis-most-active-securities?index=volume'
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+
+})
 
 
 const port = process.env.PORT || 3000
