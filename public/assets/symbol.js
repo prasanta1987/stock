@@ -12,21 +12,94 @@ const symbol = window.location.pathname
 fetch(`/stock${symbol}`, { method: 'POST' })
 	.then(res => res.json())
 	.then(data => {
-		// console.log(data)
+		let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
 		getChartData(data.info.symbol, data.info.companyName)
 		getFinData(data.info.symbol)
-		// getChartData(data.info.identifier, data.info.companyName)
+		getIntraChartData(data.priceInfo.open, data.priceInfo.intraDayHighLow.max, data.priceInfo.intraDayHighLow.min, closePrice, data.info.identifier, data.info.companyName)
 	})
 	.catch(err => console.log(err))
 
+const getIntraChartData = (open, high, low, close, identifire, companyName) => {
+	fetch(`/chartData/${identifire}`, { method: 'POST' })
+		.then(res => res.json())
+		.then(data => {
+			intraGrpah(data.grapthData, identifire)
+		})
+		.catch(err => {
+			console.log(err)
+		})
+}
 
+const intraGrpah = (datas, identifire) => {
+	console.log(datas)
+	Highcharts.stockChart('container-intra', {
+		chart: {
+			events: {
+				load:
+					function () {
+						let series = this.series[0];
+						setInterval(function () {
+							var x = (new Date()).toUTCString().getTime(), // current time
+								y = Math.round(Math.random() * 100);
+							series.addPoint([x, y], true, true);
+							console.log(x, y)
+						}, 2000);
+					}
+			}
+		},
+
+		time: {
+			useUTC: false
+		},
+		plotOptions: {
+			series: {
+				marker: {
+					enabled: false
+				}
+			}
+		},
+		rangeSelector: {
+			buttons: [{
+				count: 1,
+				type: 'minute',
+				text: '1M'
+			}, {
+				count: 30,
+				type: 'minute',
+				text: '30M'
+			}, {
+				type: 'all',
+				text: 'All'
+			}],
+			inputEnabled: false,
+			selected: 2
+		},
+
+		title: {
+			text: companyName
+		},
+
+		exporting: {
+			enabled: true
+		},
+
+		series: [
+			{
+				name: 'Open Price',
+				data: datas,
+				color: "#001080"
+			}
+		]
+	});
+
+}
 
 const getFinData = (symbol) => {
 
 	fetch(`/historicalFinancialResult/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			console.log(data)
+			// console.log(data)
 			let totalInc = []
 			let totalExp = []
 			let paTax = []
@@ -40,9 +113,6 @@ const getFinData = (symbol) => {
 				totalExpeceBeforeTax = (isNaN(totalExpeceBeforeTax) ? 0 : totalExpeceBeforeTax)
 				pat = (isNaN(pat) ? 0 : pat)
 				let date = new Date(values.re_to_dt).getTime()
-
-				console.log(pat)
-
 				totalInc.push([date, parseFloat(totalIncome)])
 				totalExp.push([date, parseFloat(totalExpeceBeforeTax)])
 				paTax.push([date, parseFloat(pat)])
@@ -114,17 +184,6 @@ const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 	});
 
 }
-
-// const getChartData = (symbol = 'SBINEQN', companyName) => {
-//   fetch(`/chartData/${symbol}`, { method: 'POST' })
-//     .then(res => res.json())
-//     .then(data => {
-//       plotGraphData(data.grapthData, companyName)
-//     })
-//     .catch(err => {
-//       console.log(err)
-//     })
-// }
 
 const getChartData = (symbol, companyName) => {
 
