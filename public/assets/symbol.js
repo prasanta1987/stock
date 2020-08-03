@@ -15,11 +15,11 @@ fetch(`/stock${symbol}`, { method: 'POST' })
 		let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
 		getChartData(data.info.symbol, data.info.companyName)
 		getFinData(data.info.symbol)
-		getIntraChartData(data.priceInfo.open, data.priceInfo.intraDayHighLow.max, data.priceInfo.intraDayHighLow.min, closePrice, data.info.identifier, data.info.companyName)
+		getIntraChartData(data.info.identifier, data.info.companyName)
 	})
 	.catch(err => console.log(err))
 
-const getIntraChartData = (open, high, low, close, identifire, companyName) => {
+const getIntraChartData = (identifire, companyName) => {
 	fetch(`/chartData/${identifire}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
@@ -31,25 +31,34 @@ const getIntraChartData = (open, high, low, close, identifire, companyName) => {
 }
 
 const intraGrpah = (datas, identifire) => {
-	console.log(datas)
+	console.log(datas.pop())
 	Highcharts.stockChart('container-intra', {
 		chart: {
 			events: {
 				load:
 					function () {
 						let series = this.series[0];
-						setInterval(function () {
-							var x = (new Date()).toUTCString().getTime(), // current time
-								y = Math.round(Math.random() * 100);
-							series.addPoint([x, y], true, true);
-							console.log(x, y)
-						}, 2000);
+						setInterval(async function () {
+							let res = await fetch(`/stock${symbol}`, { 'method': 'POST' })
+							let data = await res.json()
+							let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+
+							let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
+							series.addPoint([date, closePrice], true, true);
+							console.log([date, closePrice])
+							// console.log([date, closePrice])
+							// console.log(data.metadata.lastUpdateTime, new Date(data.metadata.lastUpdateTime).getTime())
+							// console.log(new Date(date).toUTCString(), date)
+							// var x = (new Date()).getTime(), // current time
+							// y = Math.round(Math.random() * 100);
+						}, 5000);
 					}
 			}
 		},
 
 		time: {
-			useUTC: false
+			useGMT: true,
+			// useUTC: true
 		},
 		plotOptions: {
 			series: {
@@ -61,18 +70,23 @@ const intraGrpah = (datas, identifire) => {
 		rangeSelector: {
 			buttons: [{
 				count: 1,
-				type: 'minute',
-				text: '1M'
+				type: 'hour',
+				text: '1H'
 			}, {
-				count: 30,
-				type: 'minute',
-				text: '30M'
+				count: 2,
+				type: 'hour',
+				text: '2H'
+			},
+			{
+				count: 4,
+				type: 'hour',
+				text: '4h'
 			}, {
 				type: 'all',
 				text: 'All'
 			}],
 			inputEnabled: false,
-			selected: 2
+			selected: 3
 		},
 
 		title: {
