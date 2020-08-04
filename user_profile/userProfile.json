@@ -1,14 +1,1 @@
-{
-    "name": "Prasanta Karmakar",
-    "watchList": [
-        "SBIN",
-        "INFY",
-        "PFS",
-        "MBECL",
-        "RELIANCE"
-    ],
-    "transactions": {
-        "buy": [],
-        "sell": []
-    }
-}
+{"name":"Prasanta Karmakar","watchList":["PFS","IDFC","RELIANCE"],"transactions":{"buy":[],"sell":[]}}

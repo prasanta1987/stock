@@ -12,6 +12,8 @@ const symbol = window.location.pathname
 fetch(`/stock${symbol}`, { method: 'POST' })
 	.then(res => res.json())
 	.then(data => {
+		console.log(data.info.companyName)
+		companyName.innerHTML = data.info.companyName
 		let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
 		getChartData(data.info.symbol, data.info.companyName)
 		getFinData(data.info.symbol)
@@ -23,89 +25,11 @@ const getIntraChartData = (identifire, companyName) => {
 	fetch(`/chartData/${identifire}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			intraGrpah(data.grapthData, identifire)
+			intraGrpah(data.grapthData)
 		})
 		.catch(err => {
 			console.log(err)
 		})
-}
-
-const intraGrpah = (datas, identifire) => {
-	console.log(datas.pop())
-	Highcharts.stockChart('container-intra', {
-		chart: {
-			events: {
-				load:
-					function () {
-						let series = this.series[0];
-						setInterval(async function () {
-							let res = await fetch(`/stock${symbol}`, { 'method': 'POST' })
-							let data = await res.json()
-							let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-
-							let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
-							series.addPoint([date, closePrice], true, true);
-							console.log([date, closePrice])
-							// console.log([date, closePrice])
-							// console.log(data.metadata.lastUpdateTime, new Date(data.metadata.lastUpdateTime).getTime())
-							// console.log(new Date(date).toUTCString(), date)
-							// var x = (new Date()).getTime(), // current time
-							// y = Math.round(Math.random() * 100);
-						}, 5000);
-					}
-			}
-		},
-
-		time: {
-			useGMT: true,
-			// useUTC: true
-		},
-		plotOptions: {
-			series: {
-				marker: {
-					enabled: false
-				}
-			}
-		},
-		rangeSelector: {
-			buttons: [{
-				count: 1,
-				type: 'hour',
-				text: '1H'
-			}, {
-				count: 2,
-				type: 'hour',
-				text: '2H'
-			},
-			{
-				count: 4,
-				type: 'hour',
-				text: '4h'
-			}, {
-				type: 'all',
-				text: 'All'
-			}],
-			inputEnabled: false,
-			selected: 3
-		},
-
-		title: {
-			text: companyName
-		},
-
-		exporting: {
-			enabled: true
-		},
-
-		series: [
-			{
-				name: 'Open Price',
-				data: datas,
-				color: "#001080"
-			}
-		]
-	});
-
 }
 
 const getFinData = (symbol) => {
@@ -139,66 +63,6 @@ const getFinData = (symbol) => {
 		})
 }
 
-
-
-const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
-
-	Highcharts.stockChart('container-finance', {
-
-		time: {
-			useUTC: true
-		},
-		rangeSelector: {
-			selected: 1
-		},
-
-		title: {
-			text: 'Proft & Loss Statement'
-		},
-		navigator: {
-			enabled: false
-		},
-		rangeSelector: {
-			buttons: [{
-				count: 1,
-				type: 'month',
-				text: '1M'
-			}, {
-				count: 2,
-				type: 'month',
-				text: '2M'
-			}, {
-				type: 'all',
-				text: 'All'
-			}],
-			inputEnabled: false,
-			selected: 0
-		},
-		plotOptions: {},
-		series: [
-			{
-				name: "Total Income",
-				type: 'spline',
-				data: totalInc.reverse(),
-				color: "#008080"
-			},
-			{
-				name: "Total Expence",
-				type: 'spline',
-				data: totalExp.reverse(),
-				color: "#001080"
-			},
-			{
-				name: "PAT",
-				type: 'spline',
-				data: paTax.reverse(),
-				color: "#008010"
-			}
-		]
-	});
-
-}
-
 const getChartData = (symbol, companyName) => {
 
 	const today = moment().format('DD-MM-yyyy')
@@ -210,7 +74,7 @@ const getChartData = (symbol, companyName) => {
 			let datas = []
 			let vwapData = []
 			data.data.map(values => {
-				let date = new Date(values.TIMESTAMP).getTime()
+				let date = new Date(values.mTIMESTAMP).getTime()
 				datas.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
 				vwapData.push([date, values.VWAP])
 			})
@@ -223,6 +87,8 @@ const getChartData = (symbol, companyName) => {
 		})
 }
 
+
+// Historical Graph
 const plotGraphData = (datas, vwapData, companyName, symbol) => {
 
 	Highcharts.stockChart('container', {
@@ -245,7 +111,7 @@ const plotGraphData = (datas, vwapData, companyName, symbol) => {
 			}
 		},
 		time: {
-			useUTC: true
+			useGMT: true
 		},
 		rangeSelector: {
 			selected: 1
@@ -304,76 +170,138 @@ const plotGraphData = (datas, vwapData, companyName, symbol) => {
 
 }
 
+// IntraDay Chart
+const intraGrpah = (datas) => {
+	console.log(datas.pop())
+	Highcharts.stockChart('container-intra', {
+		chart: {
+			events: {
+				load:
+					function () {
+						let series = this.series[0];
+						setInterval(async function () {
+							let res = await fetch(`/stock${symbol}`, { 'method': 'POST' })
+							let data = await res.json()
+							let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
 
-// const plotGraphData = (closeData, openData, companyName) => {
+							let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
+							series.addPoint([date, closePrice], true, true);
+							// console.log([date, closePrice])
+							// console.log(data.metadata.lastUpdateTime, new Date(data.metadata.lastUpdateTime).getTime())
+							// console.log(new Date(date).toUTCString(), date)
+							// var x = (new Date()).getTime(), // current time
+							// y = Math.round(Math.random() * 100);
+						}, 5000);
+					}
+			}
+		},
 
-//   Highcharts.stockChart('container', {
-//     chart: {
-//       events: {
-//         load:
+		time: {
+			useGMT: true,
+		},
+		plotOptions: {
+			series: {
+				marker: {
+					enabled: false
+				}
+			}
+		},
+		rangeSelector: {
+			buttons: [{
+				count: 1,
+				type: 'hour',
+				text: '1H'
+			}, {
+				count: 2,
+				type: 'hour',
+				text: '2H'
+			},
+			{
+				count: 4,
+				type: 'hour',
+				text: '4h'
+			}, {
+				type: 'all',
+				text: 'All'
+			}],
+			inputEnabled: false,
+			selected: 3
+		},
 
-//           function () {
-//             var series = this.series[0];
+		title: {
+			text: 'Intra Day Chart'
+		},
 
-//             // setInterval(function () {
-//             //   var x = (new Date()).getTime(), // current time
-//             //     y = Math.round(Math.random() * 100);
-//             //   series.addPoint([x, y], true, true);
-//             // }, 2000);
+		exporting: {
+			enabled: true
+		},
 
+		series: [
+			{
+				name: 'Open Price',
+				data: datas,
+				color: "#001080"
+			}
+		]
+	});
 
-//           }
+}
 
+// Quaterly Statement graph
+const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 
-//       }
-//     },
+	Highcharts.stockChart('container-finance', {
 
-//     time: {
-//       useUTC: true
-//     },
-//     plotOptions: {
-//       series: {
-//         marker: {
-//           enabled: false
-//         }
-//       }
-//     },
-//     rangeSelector: {
-//       buttons: [{
-//         count: 1,
-//         type: 'month',
-//         text: '1M'
-//       }, {
-//         count: 2,
-//         type: 'month',
-//         text: '2M'
-//       }, {
-//         type: 'all',
-//         text: 'All'
-//       }],
-//       inputEnabled: false,
-//       selected: 2
-//     },
+		time: {
+			useUTC: true
+		},
+		rangeSelector: {
+			selected: 1
+		},
 
-//     title: {
-//       text: companyName
-//     },
+		title: {
+			text: 'Proft & Loss Statement'
+		},
+		navigator: {
+			enabled: false
+		},
+		rangeSelector: {
+			buttons: [{
+				count: 1,
+				type: 'month',
+				text: '1M'
+			}, {
+				count: 2,
+				type: 'month',
+				text: '2M'
+			}, {
+				type: 'all',
+				text: 'All'
+			}],
+			inputEnabled: false,
+			selected: 0
+		},
+		plotOptions: {},
+		series: [
+			{
+				name: "Total Income",
+				type: 'spline',
+				data: totalInc.reverse(),
+				color: "#008080"
+			},
+			{
+				name: "Total Expence",
+				type: 'spline',
+				data: totalExp.reverse(),
+				color: "#001080"
+			},
+			{
+				name: "PAT",
+				type: 'spline',
+				data: paTax.reverse(),
+				color: "#008010"
+			}
+		]
+	});
 
-//     exporting: {
-//       enabled: true
-//     },
-
-//     series: [
-//       {
-//         name: 'Open Price',
-//         data: openData,
-//         color: "#001080"
-//       },
-//       {
-//         name: 'Close Price',
-//         data: closeData,
-//         color: "#008080"
-//       }
-//     ]
-//   });
-// }
+}
