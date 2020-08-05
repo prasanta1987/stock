@@ -3,6 +3,7 @@ const tableBody = document.querySelector('.stockdata')
 const noWatchlist = document.querySelector('.noWatchlist')
 const stockTable = document.querySelector('.stock-table')
 const mycardcontainer = document.querySelector('.mycardcontainer')
+const industrySelector = document.querySelector('#industry')
 
 const getMyWatchList = async () => {
 
@@ -76,6 +77,17 @@ const buildCards = async (symbol) => {
         let data = await res.json()
         // console.log(data)
         if (Object.keys(data).length > 0) {
+
+            let option = document.createElement("option")
+            let indusArray = []
+            industrySelector.childNodes.forEach(ele => {
+                (ele.value) && indusArray.push(ele.value)
+            })
+            if (!indusArray.includes(data.metadata.industry)) {
+                option.text = data.metadata.industry
+                industrySelector.add(option)
+            }
+
             noWatchlist.innerHTML = ''
             let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
             let openPrice = data.priceInfo.open
@@ -148,14 +160,14 @@ const buildCards = async (symbol) => {
                 mycardcontainer.innerHTML += `
                     <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
                         <div class="row p-2">
+                        <div class="col-sm-12">
                         <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <div class="col-sm-12">
-                            <div class="row">
-                                <div class="mt-3 d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                        <div class="row">
+                        <div class="mt-3 d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
                                     <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
-                                    <small class="d-block">Industry: <span class="indstry">${data.metadata.industry}</span></small>
+                                    <small class="d-block">Industry: <span data-symbol="${symbol}" class="industry">${data.metadata.industry}</span></small>
                                     <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
                                     <div class="d-flex justify-content-between mt-3 pl-2 pr-2">
                                         <span class="text-success">Buy : <b class="${symbol}-buy-qty"></b></span>
@@ -208,7 +220,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${indPe} </div>
                             <div class="col font-weight-bold"> <kbd class="${symbol}-cmp ${(closePrice > openPrice) ? 'bg-success' : 'bg-danger'}">${closePrice} </kbd></div>
                             <div class="col font-weight-bold">
-                                <kbd class="${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
+                                <kbd class="d-block ${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
                             </div>
                             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
                             <div class="col">
@@ -327,6 +339,26 @@ const sellShares = async (symbol) => {
     }
 
 }
+
+industrySelector.addEventListener('change', (e) => {
+    let selected = e.target.value
+    let industries = document.querySelectorAll('.industry')
+    industries.forEach(ele => {
+
+        let eleSymbol = ele.getAttribute('data-symbol');
+        let symbol = document.querySelector(`.${eleSymbol}`);
+
+        if (ele.innerHTML == selected) {
+            symbol.style.display = 'block'
+        } else if (selected == 'all') {
+            symbol.style.display = 'block'
+        } else {
+            symbol.style.display = 'none'
+        }
+
+    })
+})
+
 
 let jsonArray = []
 

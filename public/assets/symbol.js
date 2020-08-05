@@ -1,5 +1,7 @@
 const companyName = document.querySelector('.stockname')
 const updateTimeInfo = document.querySelector('.updateTimeInfo')
+const cmpMarkup = document.querySelector('.cmp')
+const changeMarkup = document.querySelector('.change')
 
 const symbol = window.location.pathname.replace('/', '')
 
@@ -10,14 +12,28 @@ const fetchStockData = (symbol) => {
 		.then(data => {
 			console.log(data.info.companyName)
 			let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+			let openPrice = data.priceInfo.open
 
 			companyName.innerHTML = data.info.companyName
 			updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
-			document.querySelector('.cmp').innerHTML = closePrice
+			cmpMarkup.innerHTML = closePrice
+			if (openPrice < closePrice) {
+				cmpMarkup.classList.remove('bg-danger')
+				changeMarkup.classList.remove('bg-danger')
+
+				cmpMarkup.classList.add('bg-success')
+				changeMarkup.classList.add('bg-success')
+			} else {
+				cmpMarkup.classList.remove('bg-success')
+				changeMarkup.classList.remove('bg-success')
+
+				cmpMarkup.classList.add('bg-danger')
+				changeMarkup.classList.add('bg-danger')
+			}
 			document.querySelector('.dhigh').innerHTML = data.priceInfo.intraDayHighLow.max
 			document.querySelector('.dlow').innerHTML = data.priceInfo.intraDayHighLow.min
-			document.querySelector('.open').innerHTML = data.priceInfo.open
-			document.querySelector('.change').innerHTML = (data.priceInfo.change).toFixed(2)
+			document.querySelector('.open').innerHTML = openPrice
+			changeMarkup.innerHTML = (data.priceInfo.change).toFixed(2)
 			document.querySelector('.pchange').innerHTML = (data.priceInfo.pChange).toFixed(2)
 			document.querySelector('.wlow').innerHTML = `
 				<span class="d-block">${data.priceInfo.weekHighLow.min}</span>
@@ -29,7 +45,7 @@ const fetchStockData = (symbol) => {
 
 			getChartData(data.info.symbol, data.info.companyName)
 			getFinData(data.info.symbol)
-			getIntraChartData(data.info.identifier)
+			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min)
 		})
 		.catch(err => {
 			console.log(err)
@@ -40,11 +56,11 @@ const fetchStockData = (symbol) => {
 
 fetchStockData(symbol)
 
-const getIntraChartData = (identifire) => {
+const getIntraChartData = (identifire, wHigh, wLow) => {
 	fetch(`/chartData/${identifire}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			intraGrpah(data.grapthData)
+			intraGrpah(data.grapthData, wHigh, wLow)
 		})
 		.catch(err => {
 			console.log(err)
@@ -173,7 +189,7 @@ const plotGraphData = (datas, vwapData, companyName, symbol) => {
 }
 
 // IntraDay Chart
-const intraGrpah = (datas, closePrice) => {
+const intraGrpah = (datas, wHigh, wLow) => {
 	Highcharts.stockChart('container-intra', {
 		chart: {
 			events: {
@@ -188,8 +204,24 @@ const intraGrpah = (datas, closePrice) => {
 							let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
 							series.addPoint([date, closePrice], true, true);
 
-							document.querySelector('.cmp').innerHTML = closePrice
+							cmpMarkup.innerHTML = closePrice
+							changeMarkup.innerHTML = (data.priceInfo.change).toFixed(2)
 							updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+
+							if (openPrice < closePrice) {
+								cmpMarkup.classList.remove('bg-danger')
+								changeMarkup.classList.remove('bg-danger')
+
+								cmpMarkup.classList.add('bg-success')
+								changeMarkup.classList.add('bg-success')
+							} else {
+								cmpMarkup.classList.remove('bg-success')
+								changeMarkup.classList.remove('bg-success')
+
+								cmpMarkup.classList.add('bg-danger')
+								changeMarkup.classList.add('bg-danger')
+							}
+
 						}, 5000);
 					}
 			}
@@ -234,7 +266,28 @@ const intraGrpah = (datas, closePrice) => {
 		exporting: {
 			enabled: true
 		},
-
+		yAxis: {
+			title: {
+				// text: 'Exchange rate'
+			},
+			plotLines: [{
+				value: wHigh,
+				color: 'green',
+				dashStyle: 'shortdash',
+				width: 2,
+				label: {
+					text: `52W High : ${wHigh}`
+				}
+			}, {
+				value: wLow,
+				color: 'red',
+				dashStyle: 'shortdash',
+				width: 2,
+				label: {
+					text: `52W Low : ${wLow}`
+				}
+			}]
+		},
 		series: [
 			{
 				name: 'Open Price',

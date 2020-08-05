@@ -45,15 +45,13 @@ th{
 
 .gainers, .loosers{
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr;
     grid-gap: 5px;
     justify-content: center;
 }
 
-.mylinks{
-    min-height: 120px;
-    text-decoration: none !important;
-}
+.mylinks{text-decoration: none !important;}
+.mylinks *{font-size: 15px;}
 
 ul{list-style: none;}
 .nav-link a{text-decoration: none !important; color: #eee;}
