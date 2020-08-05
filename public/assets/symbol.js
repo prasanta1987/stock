@@ -188,7 +188,7 @@ const intraGrpah = (datas, closePrice) => {
 							let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
 							series.addPoint([date, closePrice], true, true);
 
-							cmp.innerHTML = closePrice
+							document.querySelector('.cmp').innerHTML = closePrice
 							updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
 						}, 5000);
 					}
