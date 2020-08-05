@@ -177,7 +177,7 @@ const buildCards = async (symbol) => {
                             <div class="col"> VWAP </div>
                             <div class="col"> Day High </div>
                             <div class="col"> 52W High </div>
-                        </div>
+                            </div>
                             
                         <div class="row text-center align-items-center flex-grow-1">
                             <div class="col font-weight-bold"> ${marketCap} </div>

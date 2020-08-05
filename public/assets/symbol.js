@@ -1,27 +1,46 @@
 const companyName = document.querySelector('.stockname')
 const updateTimeInfo = document.querySelector('.updateTimeInfo')
-const baseprice = document.querySelector('.baseprice')
-const lastprice = document.querySelector('.lastprice')
-const changeprice = document.querySelector('.changeprice')
-const industryinfo = document.querySelector('.industryinfo')
-const chartdatainfo = document.querySelector('.chartdatainfo')
+
+const symbol = window.location.pathname.replace('/', '')
+
+const fetchStockData = (symbol) => {
+	console.log(symbol)
+	fetch(`/stock/${symbol}`, { method: 'POST' })
+		.then(res => res.json())
+		.then(data => {
+			console.log(data.info.companyName)
+			let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+
+			companyName.innerHTML = data.info.companyName
+			updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+			document.querySelector('.cmp').innerHTML = closePrice
+			document.querySelector('.dhigh').innerHTML = data.priceInfo.intraDayHighLow.max
+			document.querySelector('.dlow').innerHTML = data.priceInfo.intraDayHighLow.min
+			document.querySelector('.open').innerHTML = data.priceInfo.open
+			document.querySelector('.change').innerHTML = (data.priceInfo.change).toFixed(2)
+			document.querySelector('.pchange').innerHTML = (data.priceInfo.pChange).toFixed(2)
+			document.querySelector('.wlow').innerHTML = `
+				<span class="d-block">${data.priceInfo.weekHighLow.min}</span>
+				<small class="d-block">${data.priceInfo.weekHighLow.minDate}</small>`
+
+			document.querySelector('.whigh').innerHTML = `
+				<span class="d-block">${data.priceInfo.weekHighLow.max}</span>
+				<small class="d-block">${data.priceInfo.weekHighLow.maxDate}</small>`
+
+			getChartData(data.info.symbol, data.info.companyName)
+			getFinData(data.info.symbol)
+			getIntraChartData(data.info.identifier)
+		})
+		.catch(err => {
+			console.log(err)
+			setTimeout(fetchStockData(symbol), 10000)
+		})
+}
 
 
-const symbol = window.location.pathname
+fetchStockData(symbol)
 
-fetch(`/stock${symbol}`, { method: 'POST' })
-	.then(res => res.json())
-	.then(data => {
-		console.log(data.info.companyName)
-		companyName.innerHTML = data.info.companyName
-		let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-		getChartData(data.info.symbol, data.info.companyName)
-		getFinData(data.info.symbol)
-		getIntraChartData(data.info.identifier, data.info.companyName)
-	})
-	.catch(err => console.log(err))
-
-const getIntraChartData = (identifire, companyName) => {
+const getIntraChartData = (identifire) => {
 	fetch(`/chartData/${identifire}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
@@ -74,7 +93,8 @@ const getChartData = (symbol, companyName) => {
 			let datas = []
 			let vwapData = []
 			data.data.map(values => {
-				let date = new Date(values.mTIMESTAMP).getTime()
+				// let date = (new Date(values.mTIMESTAMP).getTime())
+				let date = (new Date(values.mTIMESTAMP).getTime()) + (((3600 * 5) + (60 * 30)) * 1000)
 				datas.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
 				vwapData.push([date, values.VWAP])
 			})
@@ -92,24 +112,6 @@ const getChartData = (symbol, companyName) => {
 const plotGraphData = (datas, vwapData, companyName, symbol) => {
 
 	Highcharts.stockChart('container', {
-		chart: {
-			events: {
-				load: function () {
-
-					// var series = this.series[0];
-					// console.log(series)
-					// setInterval(function () {
-					//   var x = (new Date()).getTime(), // current time
-					//     o = 872,
-					//     h = 875,
-					//     l = 800,
-					//     c = 900;
-					//   series.addPoint([x, o, h, l, c], true, true,true,true);
-					// }, 2000);
-
-				} //End of onLoad Function
-			}
-		},
 		time: {
 			useGMT: true
 		},
@@ -138,8 +140,8 @@ const plotGraphData = (datas, vwapData, companyName, symbol) => {
 		},
 		plotOptions: {
 			candlestick: {
-				color: 'green',
-				upColor: 'red'
+				color: 'red',
+				upColor: 'green'
 			}
 		},
 		series: [
@@ -171,8 +173,7 @@ const plotGraphData = (datas, vwapData, companyName, symbol) => {
 }
 
 // IntraDay Chart
-const intraGrpah = (datas) => {
-	console.log(datas.pop())
+const intraGrpah = (datas, closePrice) => {
 	Highcharts.stockChart('container-intra', {
 		chart: {
 			events: {
@@ -180,17 +181,15 @@ const intraGrpah = (datas) => {
 					function () {
 						let series = this.series[0];
 						setInterval(async function () {
-							let res = await fetch(`/stock${symbol}`, { 'method': 'POST' })
+
+							let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
 							let data = await res.json()
 							let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-
 							let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
 							series.addPoint([date, closePrice], true, true);
-							// console.log([date, closePrice])
-							// console.log(data.metadata.lastUpdateTime, new Date(data.metadata.lastUpdateTime).getTime())
-							// console.log(new Date(date).toUTCString(), date)
-							// var x = (new Date()).getTime(), // current time
-							// y = Math.round(Math.random() * 100);
+
+							cmp.innerHTML = closePrice
+							updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
 						}, 5000);
 					}
 			}

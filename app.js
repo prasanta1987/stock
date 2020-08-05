@@ -28,7 +28,7 @@ const app = express()
 
 const userProfileCheck = (req, res, next) => {
 
-    userData = JSON.parse(fs.readFileSync(userPrifileFile).toString())
+    let userData = JSON.parse(fs.readFileSync(userPrifileFile).toString())
     let keys = Object.keys(userData).length
 
     if (keys > 0) {
