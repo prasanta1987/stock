@@ -220,7 +220,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${indPe} </div>
                             <div class="col font-weight-bold"> <kbd class="${symbol}-cmp ${(closePrice > openPrice) ? 'bg-success' : 'bg-danger'}">${closePrice} </kbd></div>
                             <div class="col font-weight-bold">
-                                <kbd class="d-block ${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
+                                <kbd class="${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
                             </div>
                             <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
                             <div class="col">
@@ -276,7 +276,7 @@ const buildCards = async (symbol) => {
 
     } catch (error) {
         console.log(error)
-        // setTimeout(buildCards(symbol), 2000)
+        setTimeout(buildCards(symbol), 2000)
     }
 
 }

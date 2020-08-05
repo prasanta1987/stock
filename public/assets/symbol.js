@@ -16,6 +16,7 @@ const fetchStockData = (symbol) => {
 
 			companyName.innerHTML = data.info.companyName
 			updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+			document.querySelector('.industryinfo').innerHTML = data.metadata.industry
 			cmpMarkup.innerHTML = closePrice
 			if (openPrice < closePrice) {
 				cmpMarkup.classList.remove('bg-danger')
@@ -72,7 +73,7 @@ const getFinData = (symbol) => {
 	fetch(`/historicalFinancialResult/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			// console.log(data)
+			console.log(data)
 			let totalInc = []
 			let totalExp = []
 			let paTax = []
@@ -201,6 +202,7 @@ const intraGrpah = (datas, wHigh, wLow) => {
 							let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
 							let data = await res.json()
 							let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+							let openPrice = data.priceInfo.open
 							let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
 							series.addPoint([date, closePrice], true, true);
 
