@@ -284,19 +284,19 @@ const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 		series: [
 			{
 				name: "Total Income",
-				type: 'spline',
+				type: 'column',
 				data: totalInc.reverse(),
 				color: "#008080"
 			},
 			{
 				name: "Total Expence",
-				type: 'spline',
+				type: 'column',
 				data: totalExp.reverse(),
-				color: "#001080"
+				color: "#b94747"
 			},
 			{
 				name: "PAT",
-				type: 'spline',
+				type: 'column',
 				data: paTax.reverse(),
 				color: "#008010"
 			}
