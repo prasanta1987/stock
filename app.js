@@ -359,13 +359,14 @@ app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
 })
 
 // historical data from NSE
-app.post('/getHistoricalData/:symbol/:startDate/:endDate', (req, res) => {
+app.post('/getHistoricalData/:symbol/:eq/:startDate/:endDate', (req, res) => {
 
     const symbol = req.params.symbol.toUpperCase().replace('&', '%26')
     const startDate = req.params.startDate
     const endDate = req.params.endDate
+    const eqVal = req.params.eq || 'EQ'
 
-    const url = `https://www.nseindia.com/api/historical/cm/equity?symbol=${symbol}&series=[%22EQ%22]&from=${startDate}&to=${endDate}`
+    const url = `https://www.nseindia.com/api/historical/cm/equity?symbol=${symbol}&series=["${eqVal}"]&from=${startDate}&to=${endDate}`
 
     axios.get(url)
         .then(data => res.status(200).json(data.data))

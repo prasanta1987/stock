@@ -2,15 +2,16 @@ const companyName = document.querySelector('.stockname')
 const updateTimeInfo = document.querySelector('.updateTimeInfo')
 const cmpMarkup = document.querySelector('.cmp')
 const changeMarkup = document.querySelector('.change')
+const historicalchartdata = document.querySelector('.historicalchartdata')
 
 const symbol = window.location.pathname.replace('/', '')
 
 const fetchStockData = (symbol) => {
-	console.log(symbol)
+	// console.log(symbol)
 	fetch(`/stock/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			console.log(data.info.companyName)
+			// console.log(data)
 			let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
 			let openPrice = data.priceInfo.open
 
@@ -44,7 +45,7 @@ const fetchStockData = (symbol) => {
 				<span class="d-block">${data.priceInfo.weekHighLow.max}</span>
 				<small class="d-block">${data.priceInfo.weekHighLow.maxDate}</small>`
 
-			getChartData(data.info.symbol, data.info.companyName)
+			getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
 			getFinData(data.info.symbol)
 			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min)
 		})
@@ -73,7 +74,7 @@ const getFinData = (symbol) => {
 	fetch(`/historicalFinancialResult/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			console.log(data)
+			// console.log(data)
 			let totalInc = []
 			let totalExp = []
 			let paTax = []
@@ -99,34 +100,78 @@ const getFinData = (symbol) => {
 		})
 }
 
-const getChartData = (symbol, companyName) => {
 
+const fetchHistoricalData = async (symbol, series, startDate, endDate) => {
+
+	try {
+		let res = await fetch(`/getHistoricalData/${symbol}/${series}/${startDate}/${endDate}`, { method: 'POST' })
+		let data = await res.json()
+
+		return data
+
+	} catch (err) {
+		console.log(err)
+		setTimeout(() => fetchHistoricalData(symbol, series, startDate, endDate), 5000)
+	}
+}
+
+const getChartData = async (symbol, companyName, series) => {
+
+	historicalchartdata.innerHTML = 'Loading Historical Data, It may Take some times.'
 	const today = moment().format('DD-MM-yyyy')
-	const fromDate = moment().subtract(12, 'months').format('DD-MM-yyyy')
+	const fromDate = moment().subtract(100, 'days').format('DD-MM-yyyy')
 
-	fetch(`/getHistoricalData/${symbol}/${fromDate}/${today}`, { method: 'POST' })
-		.then(res => res.json())
-		.then(data => {
-			let datas = []
-			let vwapData = []
-			data.data.map(values => {
-				// let date = (new Date(values.mTIMESTAMP).getTime())
-				let date = (new Date(values.mTIMESTAMP).getTime()) + (((3600 * 5) + (60 * 30)) * 1000)
-				datas.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-				vwapData.push([date, values.VWAP])
-			})
-			datas.reverse()
-			vwapData.reverse()
-			plotGraphData(datas, vwapData, companyName, symbol)
-		})
-		.catch(err => {
-			console.log(err)
+	fetchHistoricalData(symbol, series, fromDate, today)
+		.then(res => {
+			let cumData = []
+			res.data.map(values => cumData.push(values))
+			getAllHistoricaldata(symbol, companyName, series, cumData)
 		})
 }
 
+const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
+
+	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
+	const toDate = moment(new Date(lastdate).getTime()).add(1, 'days').format('DD-MM-yyyy')
+	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
+
+	fetchHistoricalData(symbol, series, fromDate, toDate)
+		.then(res => {
+			if (res.data.length > 2) {
+				res.data.map(values => cumData.push(values))
+				getAllHistoricaldata(symbol, companyName, series, cumData)
+			} else {
+				let ohlc = [], vwapData = [], volume = []
+				cumData.map(values => {
+					let date = returnGmtTime(values.mTIMESTAMP)
+					ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
+					vwapData.push([date, values.VWAP])
+					volume.push([date, values.CH_TOT_TRADED_QTY])
+				})
+				ohlc.sort()
+				vwapData.sort()
+				volume.sort()
+
+				plotGraphData(ohlc, vwapData, companyName, symbol, volume)
+				historicalchartdata.innerHTML = ''
+			}
+		})
+
+}
+
+const returnGmtTime = (date) => {
+	let newDate = new Date(date).getTime()
+	return (newDate + (((3600 * 5) + (60 * 30)) * 1000))
+}
 
 // Historical Graph
-const plotGraphData = (datas, vwapData, companyName, symbol) => {
+const plotGraphData = (datas, vwapData, companyName, symbol, volume) => {
+
+	groupingUnits =
+		[
+			['week', [1]],
+			['month', [1, 2, 3, 4, 6]]
+		]
 
 	Highcharts.stockChart('container', {
 		time: {
@@ -161,28 +206,59 @@ const plotGraphData = (datas, vwapData, companyName, symbol) => {
 				upColor: 'green'
 			}
 		},
+		yAxis: [{
+			labels: {
+				align: 'right',
+				x: -3
+			},
+			title: {
+				text: 'OHLC'
+			},
+			height: '60%',
+			lineWidth: 2,
+			resize: {
+				enabled: true
+			}
+		}, {
+			labels: {
+				align: 'right',
+				x: -3
+			},
+			title: {
+				text: 'Volume'
+			},
+			top: '65%',
+			height: '35%',
+			offset: 0,
+			lineWidth: 2
+		}],
+
 		series: [
 			{
 				type: 'candlestick',
 				name: symbol,
 				data: datas,
 				dataGrouping: {
-					// units: [
-					//   [
-					//     'week', // unit name
-					//     [1] // allowed multiples
-					//   ], [
-					//     'month',
-					//     [1, 2, 3, 4, 6]
-					//   ]
-					// ]
+					units: groupingUnits
 				}
 			},
 			{
-				name: "VWAP",
 				type: 'spline',
+				name: 'VWAP',
 				data: vwapData,
-				color: "#001080"
+				dataGrouping: {
+					units: groupingUnits
+				}
+			},
+			{
+				name: "Volume",
+				type: 'column',
+				data: volume,
+				color: "#1b0531",
+				yAxis: 1,
+				dataGrouping: {
+					units: groupingUnits
+				}
 			}
 		]
 	});
@@ -231,6 +307,11 @@ const intraGrpah = (datas, wHigh, wLow) => {
 
 		time: {
 			useGMT: true,
+		},
+		stockTools: {
+			gui: {
+				enabled: false // disable the built-in toolbar
+			}
 		},
 		plotOptions: {
 			series: {
@@ -308,6 +389,11 @@ const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 
 		time: {
 			useUTC: true
+		},
+		stockTools: {
+			gui: {
+				enabled: false // disable the built-in toolbar
+			}
 		},
 		rangeSelector: {
 			selected: 1

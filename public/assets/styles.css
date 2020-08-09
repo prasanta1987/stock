@@ -57,3 +57,16 @@ ul{list-style: none;}
 .nav-link a{text-decoration: none !important; color: #eee;}
 .nav-link a:hover{color: #f4f4f4;}
 .stockname{font-size: 40px;}
+
+
+/* High Chart */
+
+/* #container {
+	max-height: 800px;
+	height: 100vh;
+} */
+
+/* Conflict with Bootstrap, not needed after v7.0.1 */
+/* .highcharts-bindings-wrapper * {
+	box-sizing: content-box;
+} */
