@@ -125,7 +125,18 @@ const getChartData = async (symbol, companyName, series) => {
 		.then(res => {
 			let cumData = []
 			res.data.map(values => cumData.push(values))
-			getAllHistoricaldata(symbol, companyName, series, cumData)
+			let ohlc = [], vwapData = [], volume = []
+			cumData.map(values => {
+				let date = returnGmtTime(values.mTIMESTAMP)
+				ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
+				vwapData.push([date, values.VWAP])
+				volume.push([date, values.CH_TOT_TRADED_QTY])
+			})
+			ohlc.sort()
+			vwapData.sort()
+			volume.sort()
+			plotGraphData(ohlc, vwapData, companyName, symbol, volume, cumData, series)
+			// getAllHistoricaldata(symbol, companyName, series, cumData)
 		})
 }
 
@@ -135,11 +146,12 @@ const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
 	const toDate = moment(new Date(lastdate).getTime()).add(1, 'days').format('DD-MM-yyyy')
 	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
 
+	console.log(lastdate)
 	fetchHistoricalData(symbol, series, fromDate, toDate)
 		.then(res => {
 			if (res.data.length > 2) {
 				res.data.map(values => cumData.push(values))
-				getAllHistoricaldata(symbol, companyName, series, cumData)
+				setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 500)
 			} else {
 				let ohlc = [], vwapData = [], volume = []
 				cumData.map(values => {
@@ -151,8 +163,8 @@ const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
 				ohlc.sort()
 				vwapData.sort()
 				volume.sort()
-
-				plotGraphData(ohlc, vwapData, companyName, symbol, volume)
+				console.log(ohlc)
+				// plotGraphData(ohlc, vwapData, companyName, symbol, volume)
 				historicalchartdata.innerHTML = ''
 			}
 		})
@@ -165,7 +177,7 @@ const returnGmtTime = (date) => {
 }
 
 // Historical Graph
-const plotGraphData = (datas, vwapData, companyName, symbol, volume) => {
+const plotGraphData = (datas, vwapData, companyName, symbol, volume, cumData, series) => {
 
 	groupingUnits =
 		[
@@ -174,6 +186,45 @@ const plotGraphData = (datas, vwapData, companyName, symbol, volume) => {
 		]
 
 	Highcharts.stockChart('container', {
+		chart: {
+			events: {
+				load:
+					function () {
+						let series = this.series[0];
+
+						function fetchData(cumData, symbol, series) {
+							const lastdate = cumData[cumData.length - 1].mTIMESTAMP
+							const toDate = moment(new Date(lastdate).getTime()).add(1, 'days').format('DD-MM-yyyy')
+							const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
+
+							console.log(lastdate)
+							fetchHistoricalData(symbol, series, fromDate, toDate)
+								.then(res => {
+									if (res.data.length > 2) {
+										res.data.map(values => cumData.push(values))
+										setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 500)
+									} else {
+										let ohlc = [], vwapData = [], volume = []
+										cumData.map(values => {
+											let date = returnGmtTime(values.mTIMESTAMP)
+											ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
+											vwapData.push([date, values.VWAP])
+											volume.push([date, values.CH_TOT_TRADED_QTY])
+										})
+										ohlc.sort()
+										vwapData.sort()
+										volume.sort()
+										console.log(ohlc)
+										// plotGraphData(ohlc, vwapData, companyName, symbol, volume)
+										historicalchartdata.innerHTML = ''
+									}
+								})
+						}
+						setTimeout(() => fetchData(cumData, symbol, series), 1000)
+
+					}
+			}
+		},
 		time: {
 			useGMT: true
 		},
