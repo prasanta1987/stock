@@ -67,6 +67,18 @@ const getStocknews = (symbol) => {
 		.then(res => res.json())
 		.then(data => {
 			console.log(data)
+			data = data.reverse()
+			data.map(value => {
+				document.querySelector('.copractions').innerHTML += `
+							<tr>
+                                <td>${value.subject}</td>
+                                <td>${value.exDate}</td>
+                                <td>${value.recDate}</td>
+                                <td>${value.bcStartDate}</td>
+                                <td>${value.bcEndDate}</td>
+                            </tr>
+				`
+			})
 		})
 		.catch(err => {
 			console.log(err)
