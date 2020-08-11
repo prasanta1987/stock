@@ -48,6 +48,7 @@ const fetchStockData = (symbol) => {
 			getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
 			getFinData(data.info.symbol)
 			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min)
+			getStocknews(data.info.symbol)
 		})
 		.catch(err => {
 			console.log(err)
@@ -55,8 +56,22 @@ const fetchStockData = (symbol) => {
 		})
 }
 
-
 fetchStockData(symbol)
+
+const getStocknews = (symbol) => {
+
+	const toDate = moment().format('DD-MM-yyyy')
+	const startDate = moment().subtract(1, 'years').format('DD-MM-yyyy')
+
+	fetch(`/corporateActions/${symbol}/${startDate}/${toDate}`, { method: 'POST' })
+		.then(res => res.json())
+		.then(data => {
+			console.log(data)
+		})
+		.catch(err => {
+			console.log(err)
+		})
+}
 
 const getIntraChartData = (identifire, wHigh, wLow) => {
 	fetch(`/chartData/${identifire}`, { method: 'POST' })
@@ -100,11 +115,11 @@ const getFinData = (symbol) => {
 		})
 }
 
-
 const fetchHistoricalData = async (symbol, series, startDate, endDate) => {
 
+	let url = `/getHistoricalData/${symbol}/${series}/${startDate}/${endDate}`
 	try {
-		let res = await fetch(`/getHistoricalData/${symbol}/${series}/${startDate}/${endDate}`, { method: 'POST' })
+		let res = await fetch(url, { method: 'POST' })
 		let data = await res.json()
 
 		return data
@@ -115,56 +130,128 @@ const fetchHistoricalData = async (symbol, series, startDate, endDate) => {
 	}
 }
 
-const getChartData = async (symbol, companyName, series) => {
+const getChartData = (symbol, companyName, series) => {
 
 	historicalchartdata.innerHTML = 'Loading Historical Data, It may Take some times.'
-	const today = moment().format('DD-MM-yyyy')
+	const toDate = moment().format('DD-MM-yyyy')
 	const fromDate = moment().subtract(100, 'days').format('DD-MM-yyyy')
-
-	fetchHistoricalData(symbol, series, fromDate, today)
+	let cumData = []
+	fetchHistoricalData(symbol, series, fromDate, toDate)
 		.then(res => {
-			let cumData = []
 			res.data.map(values => cumData.push(values))
-			let ohlc = [], vwapData = [], volume = []
-			cumData.map(values => {
-				let date = returnGmtTime(values.mTIMESTAMP)
-				ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-				vwapData.push([date, values.VWAP])
-				volume.push([date, values.CH_TOT_TRADED_QTY])
-			})
-			ohlc.sort()
-			vwapData.sort()
-			volume.sort()
-			plotGraphData(ohlc, vwapData, companyName, symbol, volume, cumData, series)
-			// getAllHistoricaldata(symbol, companyName, series, cumData)
+			// addMonth1(symbol, companyName, series, cumData)
+			getAllHistoricaldata(symbol, companyName, series, cumData)
 		})
+}
+
+const addMonth1 = (symbol, companyName, series, cumData) => {
+
+	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
+	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
+	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
+	fetchHistoricalData(symbol, series, fromDate, toDate)
+		.then(res => {
+			res.data.map(values => cumData.push(values))
+			addMonth2(symbol, companyName, series, cumData)
+		})
+
+}
+
+const addMonth2 = (symbol, companyName, series, cumData) => {
+
+	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
+	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
+	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
+	fetchHistoricalData(symbol, series, fromDate, toDate)
+		.then(res => {
+			res.data.map(values => cumData.push(values))
+			addMonth3(symbol, companyName, series, cumData)
+		})
+}
+
+const addMonth3 = (symbol, companyName, series, cumData) => {
+
+	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
+	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
+	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
+	fetchHistoricalData(symbol, series, fromDate, toDate)
+		.then(res => {
+			res.data.map(values => cumData.push(values))
+			addMonth4(symbol, companyName, series, cumData)
+		})
+}
+
+const addMonth4 = (symbol, companyName, series, cumData) => {
+
+	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
+	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
+	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
+	fetchHistoricalData(symbol, series, fromDate, toDate)
+		.then(res => {
+			res.data.map(values => cumData.push(values))
+			addMonth5(symbol, companyName, series, cumData)
+		})
+}
+
+const addMonth5 = (symbol, companyName, series, cumData) => {
+
+	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
+	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
+	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
+	fetchHistoricalData(symbol, series, fromDate, toDate)
+		.then(res => {
+			res.data.map(values => cumData.push(values))
+			getFinalData(symbol, companyName, series, cumData)
+		})
+}
+
+const getFinalData = (symbol, companyName, series, cumData) => {
+
+	let ohlc = [], vwapData = [], volume = []
+	cumData.map(values => {
+		// let date = values.mTIMESTAMP
+		let date = returnGmtTime(values.mTIMESTAMP)
+		ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
+		vwapData.push([date, values.VWAP])
+		volume.push([date, values.CH_TOT_TRADED_QTY])
+	})
+
+	ohlc = ohlc.reverse()
+	vwapData = vwapData.reverse()
+	volume = volume.reverse()
+
+	historicalchartdata.innerHTML = ''
+
+	plotGraphData(ohlc, vwapData, companyName, symbol, volume)
 }
 
 const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
 
 	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-	const toDate = moment(new Date(lastdate).getTime()).add(1, 'days').format('DD-MM-yyyy')
+	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
 	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
 
-	console.log(lastdate)
+	historicalchartdata.innerHTML = `Data Fetched upto ${lastdate}`
+
 	fetchHistoricalData(symbol, series, fromDate, toDate)
 		.then(res => {
 			if (res.data.length > 2) {
 				res.data.map(values => cumData.push(values))
-				setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 500)
+				setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 50)
 			} else {
 				let ohlc = [], vwapData = [], volume = []
 				cumData.map(values => {
 					let date = returnGmtTime(values.mTIMESTAMP)
+					// let date = values.mTIMESTAMP
 					ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-					vwapData.push([date, values.VWAP])
+					vwapData.push([date, values.CH_CLOSING_PRICE])
 					volume.push([date, values.CH_TOT_TRADED_QTY])
 				})
-				ohlc.sort()
-				vwapData.sort()
-				volume.sort()
-				console.log(ohlc)
-				// plotGraphData(ohlc, vwapData, companyName, symbol, volume)
+				ohlc = ohlc.reverse()
+				vwapData = vwapData.reverse()
+				volume = volume.reverse()
+
+				plotGraphData(ohlc, vwapData, companyName, symbol, volume)
 				historicalchartdata.innerHTML = ''
 			}
 		})
@@ -177,7 +264,7 @@ const returnGmtTime = (date) => {
 }
 
 // Historical Graph
-const plotGraphData = (datas, vwapData, companyName, symbol, volume, cumData, series) => {
+const plotGraphData = (ohlc, vwapData, companyName, symbol, volume) => {
 
 	groupingUnits =
 		[
@@ -186,47 +273,9 @@ const plotGraphData = (datas, vwapData, companyName, symbol, volume, cumData, se
 		]
 
 	Highcharts.stockChart('container', {
-		chart: {
-			events: {
-				load:
-					function () {
-						let series = this.series[0];
 
-						function fetchData(cumData, symbol, series) {
-							const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-							const toDate = moment(new Date(lastdate).getTime()).add(1, 'days').format('DD-MM-yyyy')
-							const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
-
-							console.log(lastdate)
-							fetchHistoricalData(symbol, series, fromDate, toDate)
-								.then(res => {
-									if (res.data.length > 2) {
-										res.data.map(values => cumData.push(values))
-										setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 500)
-									} else {
-										let ohlc = [], vwapData = [], volume = []
-										cumData.map(values => {
-											let date = returnGmtTime(values.mTIMESTAMP)
-											ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-											vwapData.push([date, values.VWAP])
-											volume.push([date, values.CH_TOT_TRADED_QTY])
-										})
-										ohlc.sort()
-										vwapData.sort()
-										volume.sort()
-										console.log(ohlc)
-										// plotGraphData(ohlc, vwapData, companyName, symbol, volume)
-										historicalchartdata.innerHTML = ''
-									}
-								})
-						}
-						setTimeout(() => fetchData(cumData, symbol, series), 1000)
-
-					}
-			}
-		},
 		time: {
-			useGMT: true
+			useGMT: true,
 		},
 		rangeSelector: {
 			selected: 1
@@ -241,9 +290,9 @@ const plotGraphData = (datas, vwapData, companyName, symbol, volume, cumData, se
 				type: 'month',
 				text: '1M'
 			}, {
-				count: 2,
+				count: 6,
 				type: 'month',
-				text: '2M'
+				text: '6M'
 			}, {
 				type: 'all',
 				text: 'All'
@@ -254,7 +303,7 @@ const plotGraphData = (datas, vwapData, companyName, symbol, volume, cumData, se
 		plotOptions: {
 			candlestick: {
 				color: 'red',
-				upColor: 'green'
+				upColor: 'green',
 			}
 		},
 		yAxis: [{
@@ -288,15 +337,17 @@ const plotGraphData = (datas, vwapData, companyName, symbol, volume, cumData, se
 			{
 				type: 'candlestick',
 				name: symbol,
-				data: datas,
+				data: ohlc,
 				dataGrouping: {
 					units: groupingUnits
 				}
 			},
 			{
-				type: 'spline',
+				type: 'line',
 				name: 'VWAP',
 				data: vwapData,
+				lineWidth: 1,
+				color: '#000',
 				dataGrouping: {
 					units: groupingUnits
 				}
