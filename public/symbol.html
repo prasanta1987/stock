@@ -42,13 +42,25 @@
 
 
         <div class="container">
-
-            <h1 class="lead stockname"></h1>
-            <p class="lead industryinfo m-0"></p>
-            <p class="lead updateTimeInfo"></p>
+            <div class="row">
+                <div class="col-sm-9">
+                    <h1 class="lead stockname"></h1>
+                    <p class="lead industryinfo m-0"></p>
+                    <p class="lead updateTimeInfo"></p>
+                </div>
+                <div class="col-sm-3 text-right">
+                    <div class="">
+                        <h1 class="lead m-0 indexname"></h1>
+                        <p class="lead mb-0 mt-2 indexltp"></p>
+                        <div class="sectordata m-0"></div>
+                        <!-- <div class="advdata mt-2"></div> -->
+                    </div>
+                </div>
+            </div>
 
             <div class="border rounded symbol-info p-2">
                 <div class="row text-center d-flex align-items-center">
+                    <div class="col"> Pre Close</div>
                     <div class="col"> High</div>
                     <div class="col"> Low </div>
                     <div class="col"> Open </div>
@@ -60,6 +72,7 @@
                 </div>
 
                 <div class="mt-1 row text-center d-flex align-items-center">
+                    <div class="col preclose"> 0</div>
                     <div class="col dhigh"> 0</div>
                     <div class="col dlow"> 0 </div>
                     <div class="col open"> 0 </div>

@@ -12,7 +12,6 @@ const getUserData = async () => {
         if (document.querySelector('#name')) {
             document.querySelector('#name').setAttribute('placeholder', data.name)
         }
-        // getMyData()
     } catch (error) {
         console.log(error)
         setTimeout(getUserData, 1000)
@@ -25,7 +24,6 @@ getUserData()
 companyname.addEventListener('keyup', () => {
 
     let name = companyname.value
-
     if (name.length > 2) {
         fetch(`/searchSymbol/${name}`, { method: 'POST' })
             .then(res => res.json())

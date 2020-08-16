@@ -3,6 +3,8 @@ const updateTimeInfo = document.querySelector('.updateTimeInfo')
 const cmpMarkup = document.querySelector('.cmp')
 const changeMarkup = document.querySelector('.change')
 const historicalchartdata = document.querySelector('.historicalchartdata')
+const sectordata = document.querySelector('.sectordata')
+const advdata = document.querySelector('.advdata')
 
 const symbol = window.location.pathname.replace('/', '')
 
@@ -12,10 +14,15 @@ const fetchStockData = (symbol) => {
 		.then(res => res.json())
 		.then(data => {
 			// console.log(data)
+			let sector = data.metadata.pdSectorInd
 			let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-			let openPrice = data.priceInfo.open
+			let openPrice = (data.priceInfo.open).toFixed(2)
+			let dHigh = (data.priceInfo.intraDayHighLow.max).toFixed(2)
+			let dLow = (data.priceInfo.intraDayHighLow.min).toFixed(2)
 
 			companyName.innerHTML = data.info.companyName
+
+			document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
 			updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
 			document.querySelector('.industryinfo').innerHTML = data.metadata.industry
 			cmpMarkup.innerHTML = closePrice
@@ -32,8 +39,9 @@ const fetchStockData = (symbol) => {
 				cmpMarkup.classList.add('bg-danger')
 				changeMarkup.classList.add('bg-danger')
 			}
-			document.querySelector('.dhigh').innerHTML = data.priceInfo.intraDayHighLow.max
-			document.querySelector('.dlow').innerHTML = data.priceInfo.intraDayHighLow.min
+			document.querySelector('.preclose').innerHTML = (data.priceInfo.previousClose).toFixed(2)
+			document.querySelector('.dhigh').innerHTML = dHigh
+			document.querySelector('.dlow').innerHTML = dLow
 			document.querySelector('.open').innerHTML = openPrice
 			changeMarkup.innerHTML = (data.priceInfo.change).toFixed(2)
 			document.querySelector('.pchange').innerHTML = (data.priceInfo.pChange).toFixed(2)
@@ -44,15 +52,49 @@ const fetchStockData = (symbol) => {
 			document.querySelector('.whigh').innerHTML = `
 				<span class="d-block">${data.priceInfo.weekHighLow.max}</span>
 				<small class="d-block">${data.priceInfo.weekHighLow.maxDate}</small>`
-
+			getSectorData(sector)
 			getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
 			getFinData(data.info.symbol)
-			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min)
+			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
 			getStocknews(data.info.symbol)
 		})
 		.catch(err => {
 			console.log(err)
-			setTimeout(fetchStockData(symbol), 10000)
+			console.log('Retrying Last Action')
+			setTimeout(() => fetchStockData(symbol), 10000)
+		})
+}
+
+const getSectorData = (sector) => {
+
+	fetch(`/index/${sector}`, { method: 'POST' })
+		.then(res => res.json())
+		.then(data => {
+			if (Object.keys(data).length > 0) {
+				let change = (data.metadata.change).toFixed(2)
+				document.querySelector('.indexname').innerHTML = data.metadata.indexName
+				document.querySelector('.indexltp').innerHTML = data.metadata.last
+
+				sectordata.innerHTML = `
+				<span class="d-block ${(change > 0) ? 'text-success' : 'text-danger'}">
+					<span>${change}</span>
+					<span>(${(data.metadata.percChange).toFixed(2)}%)</span>
+				<span>
+			`
+				// advdata.innerHTML = `
+				// 	<div class="d-flex justify-content-between">
+				// 		<span>Advance : ${data.advance.advances}</span>
+				// 		<span>Decline : ${data.advance.declines}</span>
+				// 		<span>Unchanged : ${data.advance.unchanged}</span>
+				// 	</div>
+				// `
+
+				setTimeout(() => getSectorData(sector), 10000)
+			}
+		})
+		.catch(err => {
+			console.log(err)
+			setTimeout(() => getSectorData(sector), 10000)
 		})
 }
 
@@ -66,7 +108,7 @@ const getStocknews = (symbol) => {
 	fetch(`/corporateActions/${symbol}/${startDate}/${toDate}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			console.log(data)
+			// console.log(data)
 			data = data.reverse()
 			data.map(value => {
 				document.querySelector('.copractions').innerHTML += `
@@ -82,17 +124,21 @@ const getStocknews = (symbol) => {
 		})
 		.catch(err => {
 			console.log(err)
+			console.log('Retrying Last Action')
+			setTimeout(() => getStocknews(symbol), 2000)
 		})
 }
 
-const getIntraChartData = (identifire, wHigh, wLow) => {
+const getIntraChartData = (identifire, wHigh, wLow, openPrice, dHigh, dLow) => {
 	fetch(`/chartData/${identifire}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			intraGrpah(data.grapthData, wHigh, wLow)
+			intraGrpah(data.grapthData, wHigh, wLow, openPrice, dHigh, dLow)
 		})
 		.catch(err => {
 			console.log(err)
+			console.log('Retrying Last Action')
+			setTimeout(() => getIntraChartData(identifire, wHigh, wLow, openPrice, dHigh, dLow), 2000)
 		})
 }
 
@@ -101,29 +147,33 @@ const getFinData = (symbol) => {
 	fetch(`/historicalFinancialResult/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			// console.log(data)
 			let totalInc = []
 			let totalExp = []
 			let paTax = []
-			data.resCmpData.map(values => {
-				// console.log(values)
-				let totalIncome = values.re_total_inc || values.re_tot_inc
-				let totalExpeceBeforeTax = values.re_tot_exp_exc_pro_cont || values.re_oth_tot_exp
-				let taxExpence = values.re_tax
-				let pat = values.re_con_pro_loss
-				totalIncome = (isNaN(totalIncome) ? 0 : totalIncome)
-				totalExpeceBeforeTax = (isNaN(totalExpeceBeforeTax) ? 0 : totalExpeceBeforeTax)
-				pat = (isNaN(pat) ? 0 : pat)
-				let date = new Date(values.re_to_dt).getTime()
-				totalInc.push([date, parseFloat(totalIncome)])
-				totalExp.push([date, parseFloat(totalExpeceBeforeTax)])
-				paTax.push([date, parseFloat(pat)])
-			})
-			plotFinanData(totalInc, totalExp, paTax, symbol)
+
+			if (data.resCmpData != null) {
+				data.resCmpData.map(values => {
+					// console.log(values)
+					let totalIncome = values.re_total_inc || values.re_tot_inc
+					let totalExpeceBeforeTax = values.re_tot_exp_exc_pro_cont || values.re_oth_tot_exp
+					let taxExpence = values.re_tax
+					let pat = values.re_con_pro_loss
+					totalIncome = (isNaN(totalIncome) ? 0 : totalIncome)
+					totalExpeceBeforeTax = (isNaN(totalExpeceBeforeTax) ? 0 : totalExpeceBeforeTax)
+					pat = (isNaN(pat) ? 0 : pat)
+					let date = new Date(values.re_to_dt).getTime()
+					totalInc.push([date, parseFloat(totalIncome)])
+					totalExp.push([date, parseFloat(totalExpeceBeforeTax)])
+					paTax.push([date, parseFloat(pat)])
+				})
+				plotFinanData(totalInc, totalExp, paTax, symbol)
+			}
 
 		})
 		.catch(err => {
 			console.log(err)
+			console.log('Retrying Last Action')
+			setTimeout(() => getFinData(symbol), 2000)
 		})
 }
 
@@ -249,14 +299,15 @@ const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
 		.then(res => {
 			if (res.data.length > 2) {
 				res.data.map(values => cumData.push(values))
-				setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 50)
+				// setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 50)
+				getAllHistoricaldata(symbol, companyName, series, cumData)
 			} else {
 				let ohlc = [], vwapData = [], volume = []
 				cumData.map(values => {
 					let date = returnGmtTime(values.mTIMESTAMP)
 					// let date = values.mTIMESTAMP
 					ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-					vwapData.push([date, values.CH_CLOSING_PRICE])
+					vwapData.push([date, values.VWAP])
 					volume.push([date, values.CH_TOT_TRADED_QTY])
 				})
 				ohlc = ohlc.reverse()
@@ -355,7 +406,7 @@ const plotGraphData = (ohlc, vwapData, companyName, symbol, volume) => {
 				}
 			},
 			{
-				type: 'line',
+				type: 'spline',
 				name: 'VWAP',
 				data: vwapData,
 				lineWidth: 1,
@@ -380,7 +431,8 @@ const plotGraphData = (ohlc, vwapData, companyName, symbol, volume) => {
 }
 
 // IntraDay Chart
-const intraGrpah = (datas, wHigh, wLow) => {
+const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
+
 	Highcharts.stockChart('container-intra', {
 		chart: {
 			events: {
@@ -399,6 +451,8 @@ const intraGrpah = (datas, wHigh, wLow) => {
 							cmpMarkup.innerHTML = closePrice
 							changeMarkup.innerHTML = (data.priceInfo.change).toFixed(2)
 							updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+
+							document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
 
 							if (openPrice < closePrice) {
 								cmpMarkup.classList.remove('bg-danger')
@@ -467,29 +521,65 @@ const intraGrpah = (datas, wHigh, wLow) => {
 			title: {
 				// text: 'Exchange rate'
 			},
-			plotLines: [{
-				value: wHigh,
-				color: 'green',
-				dashStyle: 'shortdash',
-				width: 2,
-				label: {
-					text: `52W High : ${wHigh}`
+			plotLines: [
+				{
+					value: wHigh,
+					color: 'green',
+					dashStyle: 'shortdash',
+					width: 2,
+					label: {
+						text: `52W High : ${wHigh}`
+					}
+				},
+				{
+					value: openPrice,
+					color: 'black',
+					dashStyle: 'shortdash',
+					width: 1,
+					label: {
+						text: `O: ${openPrice}`,
+						align: 'right',
+						x: -10
+					}
+				},
+				{
+					value: dHigh,
+					color: 'Green',
+					dashStyle: 'shortdash',
+					width: 1,
+					label: {
+						text: `H : ${dHigh}`,
+						align: 'right',
+						x: -100
+					}
+				},
+				{
+					value: dLow,
+					color: 'red',
+					dashStyle: 'shortdash',
+					width: 1,
+					label: {
+						text: `L : ${dLow}`,
+						align: 'right',
+						x: -100
+					}
+				},
+				{
+					value: wLow,
+					color: 'red',
+					dashStyle: 'shortdash',
+					width: 2,
+					label: {
+						text: `52W Low : ${wLow}`
+					}
 				}
-			}, {
-				value: wLow,
-				color: 'red',
-				dashStyle: 'shortdash',
-				width: 2,
-				label: {
-					text: `52W Low : ${wLow}`
-				}
-			}]
+			]
 		},
 		series: [
 			{
 				name: 'Open Price',
 				data: datas,
-				color: "#001080"
+				color: "#008080"
 			}
 		]
 	});

@@ -20,8 +20,9 @@ fs.exists(userPrifileFile, (res) => {
 // https://www.nseindia.com/api/search/autocomplete?q=reliance
 // https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2018&to=26-06-2020
 // https://www.nse-india.com/api/chart-databyindex?index=TATASTEELEQN&preopen=true
-
 // https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=SBIN
+
+// https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20FINANCIAL%20SERVICES
 
 const app = express()
 
@@ -220,9 +221,12 @@ app.post('/marketStatus', (req, res) => {
 })
 
 
-app.post('/nifty50', (req, res) => {
+app.post('/index/:sector', (req, res) => {
 
-    axios.get('https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%2050')
+    let sector = (req.params.sector).toUpperCase()
+    sector = sector.trim()
+
+    axios.get(`https://www.nseindia.com/api/equity-stockIndices?index=${sector}`)
         .then(data => res.status(200).json(data.data))
         .catch(err => res.status(500).json(err))
 
@@ -256,10 +260,7 @@ app.post('/chartData/:symbol', (req, res) => {
         .then(data => res.status(200).json(data.data))
         .catch(err => res.status(500).json(err))
 
-
-
 })
-
 
 // This may break after august as NSE1 is shutting down
 app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
@@ -372,7 +373,6 @@ app.post('/getHistoricalData/:symbol/:eq/:startDate/:endDate', (req, res) => {
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
-
 
 app.post('/marketDepth/:symbol', (req, res) => {
     const symbol = req.params.symbol.toUpperCase().replace('&', '%26')
