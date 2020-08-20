@@ -70,7 +70,7 @@ const createNameCard = async (symbol, ltp, perChange, increase, stat) => {
                 <h3 class="flex-grow-1 m-0 lead">${symbol}</h3>
                 <div class="d-flex justify-content-between align-items-center">
                     <p class="mr-5 mb-0 lead">${ltp}</p>
-                    <p class="m-0 lead">${increase}<b>(${perChange})</b></p>
+                    <p class="m-0 lead">${increase}<b>(${perChange}%)</b></p>
                 </div>
             </a>
             `
@@ -80,7 +80,7 @@ const createNameCard = async (symbol, ltp, perChange, increase, stat) => {
                 <h3 class="flex-grow-1 m-0 lead">${symbol}</h3>
                 <div class="d-flex justify-content-between align-items-center">
                     <p class="mr-5 mb-0 lead">${ltp}</p>
-                    <p class="m-0 lead">${increase}<b>(${perChange})</b></p>
+                    <p class="m-0 lead">${increase}<b>(${perChange}%)</b></p>
                 </div>
             </a>
             `
@@ -90,7 +90,7 @@ const createNameCard = async (symbol, ltp, perChange, increase, stat) => {
                 <h3 class="flex-grow-1 m-0 lead">${symbol}</h3>
                 <div class="d-flex justify-content-between align-items-center">
                     <p class="mr-5 mb-0 lead">${ltp}</p>
-                    <p class="m-0 lead">${increase}<b>(${perChange})</b></p>
+                    <p class="m-0 lead">${increase}<b>(${perChange}%)</b></p>
                 </div>
             </a>
             `
@@ -100,7 +100,7 @@ const createNameCard = async (symbol, ltp, perChange, increase, stat) => {
                 <h3 class="flex-grow-1 m-0 lead">${symbol}</h3>
                 <div class="d-flex justify-content-between align-items-center">
                     <p class="mr-5 mb-0 lead">${ltp}</p>
-                    <p class="m-0 lead">${increase}<b>(${perChange})</b></p>
+                    <p class="m-0 lead">${increase}<b>(${perChange}%)</b></p>
                 </div>
             </a>
             `
