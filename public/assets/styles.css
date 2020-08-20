@@ -43,11 +43,12 @@ th{
     width: 100px !important;
 }
 
-.gainers, .loosers{
+.gainers, .loosers, .value, .volume{
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-gap: 5px;
     justify-content: center;
+    font-size: 10px;
 }
 
 .mylinks{text-decoration: none !important;}

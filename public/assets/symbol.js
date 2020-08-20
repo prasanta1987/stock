@@ -197,73 +197,22 @@ const getChartData = (symbol, companyName, series) => {
 	historicalchartdata.innerHTML = 'Loading Historical Data, It may Take some times.'
 	const toDate = moment().format('DD-MM-yyyy')
 	const fromDate = moment().subtract(100, 'days').format('DD-MM-yyyy')
-	let cumData = []
+	let ohlc = [], vwapData = [], volume = []
 	fetchHistoricalData(symbol, series, fromDate, toDate)
 		.then(res => {
-			res.data.map(values => cumData.push(values))
-			// addMonth1(symbol, companyName, series, cumData)
-			getAllHistoricaldata(symbol, companyName, series, cumData)
-		})
-}
+			res.data.map(values => {
+				let date = returnGmtTime(values.mTIMESTAMP)
+				ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
+				vwapData.push([date, values.VWAP])
+				volume.push([date, values.CH_TOT_TRADED_QTY])
+				historicalchartdata.innerHTML = ''
+			})
 
-const addMonth1 = (symbol, companyName, series, cumData) => {
+			ohlc = ohlc.reverse()
+			vwapData = vwapData.reverse()
+			volume = volume.reverse()
 
-	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
-	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
-	fetchHistoricalData(symbol, series, fromDate, toDate)
-		.then(res => {
-			res.data.map(values => cumData.push(values))
-			addMonth2(symbol, companyName, series, cumData)
-		})
-
-}
-
-const addMonth2 = (symbol, companyName, series, cumData) => {
-
-	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
-	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
-	fetchHistoricalData(symbol, series, fromDate, toDate)
-		.then(res => {
-			res.data.map(values => cumData.push(values))
-			addMonth3(symbol, companyName, series, cumData)
-		})
-}
-
-const addMonth3 = (symbol, companyName, series, cumData) => {
-
-	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
-	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
-	fetchHistoricalData(symbol, series, fromDate, toDate)
-		.then(res => {
-			res.data.map(values => cumData.push(values))
-			addMonth4(symbol, companyName, series, cumData)
-		})
-}
-
-const addMonth4 = (symbol, companyName, series, cumData) => {
-
-	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
-	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
-	fetchHistoricalData(symbol, series, fromDate, toDate)
-		.then(res => {
-			res.data.map(values => cumData.push(values))
-			addMonth5(symbol, companyName, series, cumData)
-		})
-}
-
-const addMonth5 = (symbol, companyName, series, cumData) => {
-
-	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
-	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
-	fetchHistoricalData(symbol, series, fromDate, toDate)
-		.then(res => {
-			res.data.map(values => cumData.push(values))
-			getFinalData(symbol, companyName, series, cumData)
+			plotGraphData(ohlc, vwapData, companyName, symbol, volume)
 		})
 }
 
@@ -649,3 +598,39 @@ const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 	});
 
 }
+
+
+
+// const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
+
+// 	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
+// 	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
+// 	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
+
+// 	historicalchartdata.innerHTML = `Data Fetched upto ${lastdate}`
+
+// 	fetchHistoricalData(symbol, series, fromDate, toDate)
+// 		.then(res => {
+// 			if (res.data.length > 2) {
+// 				res.data.map(values => cumData.push(values))
+// 				// setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 50)
+// 				getAllHistoricaldata(symbol, companyName, series, cumData)
+// 			} else {
+// 				let ohlc = [], vwapData = [], volume = []
+// 				cumData.map(values => {
+// 					let date = returnGmtTime(values.mTIMESTAMP)
+// 					// let date = values.mTIMESTAMP
+// 					ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
+// 					vwapData.push([date, values.VWAP])
+// 					volume.push([date, values.CH_TOT_TRADED_QTY])
+// 				})
+// 				ohlc = ohlc.reverse()
+// 				vwapData = vwapData.reverse()
+// 				volume = volume.reverse()
+
+// 				plotGraphData(ohlc, vwapData, companyName, symbol, volume)
+// 				historicalchartdata.innerHTML = ''
+// 			}
+// 		})
+
+// }
