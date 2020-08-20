@@ -5,6 +5,8 @@ const changeMarkup = document.querySelector('.change')
 const historicalchartdata = document.querySelector('.historicalchartdata')
 const sectordata = document.querySelector('.sectordata')
 const advdata = document.querySelector('.advdata')
+const buyMarkup = document.querySelector('.buy')
+const sellMarkup = document.querySelector('.sell')
 
 const symbol = window.location.pathname.replace('/', '')
 
@@ -53,6 +55,7 @@ const fetchStockData = (symbol) => {
 				<span class="d-block">${data.priceInfo.weekHighLow.max}</span>
 				<small class="d-block">${data.priceInfo.weekHighLow.maxDate}</small>`
 			getSectorData(sector)
+			getMarketDepth(symbol)
 			getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
 			getFinData(data.info.symbol)
 			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
@@ -62,6 +65,39 @@ const fetchStockData = (symbol) => {
 			console.log(err)
 			console.log('Retrying Last Action')
 			setTimeout(() => fetchStockData(symbol), 10000)
+		})
+}
+
+const getMarketDepth = (symbol) => {
+	fetch(`/marketDepth/${symbol}`, { method: 'POST' })
+		.then(res => res.json())
+		.then(data => {
+			buyMarkup.innerHTML = ''
+			sellMarkup.innerHTML = ''
+			console.log(data)
+			data.marketDeptOrderBook.ask.map(askPrice => {
+				buyMarkup.innerHTML += `
+					<span class="d-flex justify-content-between">
+						<span>${askPrice.price}</span>
+						<span>${askPrice.quantity}</span>
+					</span>
+				`
+			})
+			data.marketDeptOrderBook.bid.map(sellPrice => {
+				sellMarkup.innerHTML += `
+					<span class="d-flex justify-content-between">
+						<span>${sellPrice.price}</span>
+						<span>${sellPrice.quantity}</span>
+					</span>
+				`
+			})
+			document.querySelector('.totBid').innerHTML = data.marketDeptOrderBook.totalBuyQuantity
+			document.querySelector('.totAsk').innerHTML = data.marketDeptOrderBook.totalSellQuantity
+			setTimeout(() => getMarketDepth(symbol), 1000)
+		})
+		.catch(err => {
+			console.log(err)
+			setTimeout(() => getMarketDepth(symbol), 5000)
 		})
 }
 
@@ -81,14 +117,6 @@ const getSectorData = (sector) => {
 					<span>(${(data.metadata.percChange).toFixed(2)}%)</span>
 				<span>
 			`
-				// advdata.innerHTML = `
-				// 	<div class="d-flex justify-content-between">
-				// 		<span>Advance : ${data.advance.advances}</span>
-				// 		<span>Decline : ${data.advance.declines}</span>
-				// 		<span>Unchanged : ${data.advance.unchanged}</span>
-				// 	</div>
-				// `
-
 				setTimeout(() => getSectorData(sector), 10000)
 			}
 		})
@@ -572,7 +600,7 @@ const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 				text: 'All'
 			}],
 			inputEnabled: false,
-			selected: 0
+			selected: 2
 		},
 		plotOptions: {},
 		series: [

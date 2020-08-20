@@ -51,8 +51,8 @@ th{
     font-size: 10px;
 }
 
+.heading {font-size: 30px;}
 .mylinks{text-decoration: none !important;}
-.mylinks *{font-size: 15px;}
 
 ul{list-style: none;}
 .nav-link a{text-decoration: none !important; color: #eee;}
