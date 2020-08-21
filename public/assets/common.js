@@ -8,9 +8,11 @@ const getMarketStat = async () => {
     try {
         let res = await fetch('marketStatus', { method: 'POST' })
         let data = await res.json()
-        let marketStat = data.marketState[0].marketStatus
-        sessionStorage.marketStat = marketStat
-        if (marketStat == 'Closed' || marketStat == 'Close') document.querySelector('.nav').style.backgroundColor = '#e04f4f'
+        let marketStat = (data.marketState[0].marketStatus).toUpperCase()
+        if (marketStat == 'CLOSED' || marketStat == 'CLOSE') {
+            sessionStorage.marketStat = 'Closed'
+            document.querySelector('.nav').style.backgroundColor = '#e04f4f'
+        }
     } catch (err) {
         console.log(err)
     }

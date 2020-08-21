@@ -429,8 +429,10 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 				load:
 					function () {
 						let series = this.series[0];
-						if (sessionStorage.marketStat != 'Closed') {
-							setInterval(async function () {
+
+						setInterval(async function () {
+							if (sessionStorage.marketStat != 'Closed') {
+								console.log(sessionStorage.marketStat)
 								let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
 								let data = await res.json()
 								let preClose = (data.priceInfo.previousClose).toFixed(2)
@@ -442,27 +444,30 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 
 								cmpMarkup.innerHTML = closePrice
 								changeMarkup.innerHTML = changePrice
-								pchangeMarkup.innerHTML = pChange
+								pchangeMarkup.innerHTML = `${pChange}%`
 								updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
 
 								document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
 
-								if (openPrice < closePrice) {
+								if (preClose < closePrice) {
 									cmpMarkup.classList.remove('bg-danger')
 									changeMarkup.classList.remove('bg-danger')
+									pchangeMarkup.classList.remove('bg-danger')
 
 									cmpMarkup.classList.add('bg-success')
 									changeMarkup.classList.add('bg-success')
+									pchangeMarkup.classList.add('bg-success')
 								} else {
 									cmpMarkup.classList.remove('bg-success')
 									changeMarkup.classList.remove('bg-success')
+									pchangeMarkup.classList.remove('bg-success')
 
 									cmpMarkup.classList.add('bg-danger')
 									changeMarkup.classList.add('bg-danger')
+									pchangeMarkup.classList.add('bg-danger')
 								}
-
-							}, 5000);
-						}
+							}
+						}, 5000);
 					}
 			}
 		},

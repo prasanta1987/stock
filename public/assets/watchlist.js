@@ -135,7 +135,7 @@ const buildCards = async (symbol) => {
             if (document.querySelector(`.${symbol}`)) {
                 let cmpMarkup = document.querySelector(`.${symbol}-cmp`)
 
-                if (closePrice > openPrice) {
+                if (closePrice > preClosePrice) {
                     cmpMarkup.classList.remove('bg-danger')
                     cmpMarkup.classList.add('bg-success')
                 } else {
@@ -211,7 +211,7 @@ const buildCards = async (symbol) => {
                             <div class="col font-weight-bold"> ${ttlShare} </div>
                             <div class="col font-weight-bold"> ${eps} </div>
                             <div class="col font-weight-bold"> ${indPe} </div>
-                            <div class="col font-weight-bold"> <kbd class="${symbol}-cmp ${(closePrice > openPrice) ? 'bg-success' : 'bg-danger'}">${closePrice} </kbd></div>
+                            <div class="col font-weight-bold"> <kbd class="${symbol}-cmp ${(closePrice > preClosePrice) ? 'bg-success' : 'bg-danger'}">${closePrice} </kbd></div>
                             <div class="col font-weight-bold">
                                 <kbd class="${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
                             </div>
