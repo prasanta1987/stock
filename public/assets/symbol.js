@@ -1,4 +1,5 @@
 const companyName = document.querySelector('.stockname')
+const addBookmark = document.querySelector('.bookmark')
 const updateTimeInfo = document.querySelector('.updateTimeInfo')
 const cmpMarkup = document.querySelector('.cmp')
 const changeMarkup = document.querySelector('.change')
@@ -67,12 +68,22 @@ const fetchStockData = (symbol) => {
 			getFinData(data.info.symbol)
 			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
 			getStocknews(data.info.symbol)
+			showAddBtn()
 		})
 		.catch(err => {
 			console.log(err)
 			console.log('Retrying Last Action')
 			setTimeout(() => fetchStockData(symbol), 10000)
 		})
+}
+
+const showAddBtn = () => {
+	addBookmark.innerHTML = ''
+	if (!userData.watchList.includes(symbol)) {
+		addBookmark.innerHTML += `<button class="btn btn-outline-success bookmarkbtn" onClick="addSymbolToprofile('${symbol}')">➕</button>`
+	} else {
+		addBookmark.innerHTML += `<button class="btn btn-outline-warning bookmarkbtn" onClick="removeSymbolFromProfile('${symbol}')">➖</button>`
+	}
 }
 
 const getMarketDepth = (symbol) => {

@@ -72,7 +72,8 @@ const addSymbolToprofile = (symbol) => {
             console.log(data)
             userData.watchList.push(symbol)
             filterSymbols(userData.watchList)
-            setTimeout(getMyWatchList, 1000)
+            showAddBtn()
+            // setTimeout(getMyWatchList, 1000)
         })
         .catch(err => console.log(err))
 }
@@ -85,13 +86,15 @@ const removeSymbolFromProfile = (symbol) => {
             let index = userData.watchList.indexOf(symbol)
             userData.watchList.splice(index, 1)
 
-            document.querySelector(`.${symbol}`).remove()
+            if (document.querySelector(`.${symbol}`)) document.querySelector(`.${symbol}`).remove()
             let foundElement = document.querySelector(`#${symbol}`)
-            foundElement.classList.add('btn-outline-success')
-            foundElement.classList.remove('btn-outline-danger')
-            foundElement.innerHTML = 'ADD'
-            foundElement.setAttribute('onClick', `addSymbolToprofile("${symbol}")`)
-
+            if (foundElement) {
+                foundElement.classList.add('btn-outline-success')
+                foundElement.classList.remove('btn-outline-danger')
+                foundElement.innerHTML = 'ADD'
+                foundElement.setAttribute('onClick', `addSymbolToprofile("${symbol}")`)
+            }
+            showAddBtn()
         })
         .catch(err => console.log(err))
 

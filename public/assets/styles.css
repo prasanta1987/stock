@@ -53,7 +53,11 @@ th{
 .heading {font-size: 30px;}
 .mylinks{text-decoration: none !important;}
 .mylinks *{font-size: 15px;}
-
+.bookmarkbtn{
+    position: fixed;
+    top: 10%;
+    left: 1%;
+}
 ul{list-style: none;}
 .nav-link a{text-decoration: none !important; color: #eee;}
 .nav-link a:hover{color: #f4f4f4;}
