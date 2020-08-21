@@ -2,6 +2,7 @@ const companyName = document.querySelector('.stockname')
 const updateTimeInfo = document.querySelector('.updateTimeInfo')
 const cmpMarkup = document.querySelector('.cmp')
 const changeMarkup = document.querySelector('.change')
+const pchangeMarkup = document.querySelector('.pchange')
 const historicalchartdata = document.querySelector('.historicalchartdata')
 const sectordata = document.querySelector('.sectordata')
 const advdata = document.querySelector('.advdata')
@@ -11,42 +12,48 @@ const sellMarkup = document.querySelector('.sell')
 const symbol = window.location.pathname.replace('/', '')
 
 const fetchStockData = (symbol) => {
-	// console.log(symbol)
 	fetch(`/stock/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
 			// console.log(data)
 			let sector = data.metadata.pdSectorInd
+			let preClose = (data.priceInfo.previousClose).toFixed(2)
 			let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+			let changePrice = (closePrice - preClose).toFixed(2)
+			let pChange = ((changePrice / preClose) * 100).toFixed(2)
 			let openPrice = (data.priceInfo.open).toFixed(2)
 			let dHigh = (data.priceInfo.intraDayHighLow.max).toFixed(2)
 			let dLow = (data.priceInfo.intraDayHighLow.min).toFixed(2)
 
 			companyName.innerHTML = data.info.companyName
 
-			document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
+			document.title = `${symbol} ${closePrice} ${(preClose < closePrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
 			updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
 			document.querySelector('.industryinfo').innerHTML = data.metadata.industry
 			cmpMarkup.innerHTML = closePrice
-			if (openPrice < closePrice) {
+			if (preClose < closePrice) {
 				cmpMarkup.classList.remove('bg-danger')
 				changeMarkup.classList.remove('bg-danger')
+				pchangeMarkup.classList.remove('bg-danger')
 
 				cmpMarkup.classList.add('bg-success')
 				changeMarkup.classList.add('bg-success')
+				pchangeMarkup.classList.add('bg-success')
 			} else {
 				cmpMarkup.classList.remove('bg-success')
 				changeMarkup.classList.remove('bg-success')
+				pchangeMarkup.classList.remove('bg-success')
 
 				cmpMarkup.classList.add('bg-danger')
 				changeMarkup.classList.add('bg-danger')
+				pchangeMarkup.classList.add('bg-danger')
 			}
-			document.querySelector('.preclose').innerHTML = (data.priceInfo.previousClose).toFixed(2)
+			document.querySelector('.preclose').innerHTML = preClose
 			document.querySelector('.dhigh').innerHTML = dHigh
 			document.querySelector('.dlow').innerHTML = dLow
 			document.querySelector('.open').innerHTML = openPrice
-			changeMarkup.innerHTML = (data.priceInfo.change).toFixed(2)
-			document.querySelector('.pchange').innerHTML = (data.priceInfo.pChange).toFixed(2)
+			changeMarkup.innerHTML = changePrice
+			pchangeMarkup.innerHTML = `${pChange}%`
 			document.querySelector('.wlow').innerHTML = `
 				<span class="d-block">${data.priceInfo.weekHighLow.min}</span>
 				<small class="d-block">${data.priceInfo.weekHighLow.minDate}</small>`
@@ -74,7 +81,7 @@ const getMarketDepth = (symbol) => {
 		.then(data => {
 			buyMarkup.innerHTML = ''
 			sellMarkup.innerHTML = ''
-			console.log(data)
+			// console.log(data)
 			data.marketDeptOrderBook.ask.map(askPrice => {
 				buyMarkup.innerHTML += `
 					<span class="d-flex justify-content-between">
@@ -93,7 +100,13 @@ const getMarketDepth = (symbol) => {
 			})
 			document.querySelector('.totBid').innerHTML = data.marketDeptOrderBook.totalBuyQuantity
 			document.querySelector('.totAsk').innerHTML = data.marketDeptOrderBook.totalSellQuantity
-			setTimeout(() => getMarketDepth(symbol), 1000)
+			document.querySelector('.deliverystat').innerHTML = `
+				<span>Total Traded Qty. <b>${data.securityWiseDP.quantityTraded}</b></span>
+				<span>Delivery Qty. <b>${data.securityWiseDP.deliveryQuantity}</b></span>
+				<span>Delivery Percentage <b>${data.securityWiseDP.deliveryToTradedQuantity}%</b></span>
+			`
+
+			if (sessionStorage.marketStat != 'Closed') setTimeout(() => getMarketDepth(symbol), 1000)
 		})
 		.catch(err => {
 			console.log(err)
@@ -330,15 +343,15 @@ const plotGraphData = (ohlc, vwapData, companyName, symbol, volume) => {
 				type: 'month',
 				text: '1M'
 			}, {
-				count: 6,
+				count: 2,
 				type: 'month',
-				text: '6M'
+				text: '2M'
 			}, {
 				type: 'all',
 				text: 'All'
 			}],
 			inputEnabled: false,
-			selected: 0
+			selected: 2
 		},
 		plotOptions: {
 			candlestick: {
@@ -416,36 +429,40 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 				load:
 					function () {
 						let series = this.series[0];
-						setInterval(async function () {
+						if (sessionStorage.marketStat != 'Closed') {
+							setInterval(async function () {
+								let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
+								let data = await res.json()
+								let preClose = (data.priceInfo.previousClose).toFixed(2)
+								let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+								let changePrice = (closePrice - preClose).toFixed(2)
+								let pChange = ((changePrice / preClose) * 100).toFixed(2)
+								let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
+								series.addPoint([date, closePrice], true, true);
 
-							let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
-							let data = await res.json()
-							let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-							let openPrice = data.priceInfo.open
-							let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
-							series.addPoint([date, closePrice], true, true);
+								cmpMarkup.innerHTML = closePrice
+								changeMarkup.innerHTML = changePrice
+								pchangeMarkup.innerHTML = pChange
+								updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
 
-							cmpMarkup.innerHTML = closePrice
-							changeMarkup.innerHTML = (data.priceInfo.change).toFixed(2)
-							updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+								document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
 
-							document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
+								if (openPrice < closePrice) {
+									cmpMarkup.classList.remove('bg-danger')
+									changeMarkup.classList.remove('bg-danger')
 
-							if (openPrice < closePrice) {
-								cmpMarkup.classList.remove('bg-danger')
-								changeMarkup.classList.remove('bg-danger')
+									cmpMarkup.classList.add('bg-success')
+									changeMarkup.classList.add('bg-success')
+								} else {
+									cmpMarkup.classList.remove('bg-success')
+									changeMarkup.classList.remove('bg-success')
 
-								cmpMarkup.classList.add('bg-success')
-								changeMarkup.classList.add('bg-success')
-							} else {
-								cmpMarkup.classList.remove('bg-success')
-								changeMarkup.classList.remove('bg-success')
+									cmpMarkup.classList.add('bg-danger')
+									changeMarkup.classList.add('bg-danger')
+								}
 
-								cmpMarkup.classList.add('bg-danger')
-								changeMarkup.classList.add('bg-danger')
-							}
-
-						}, 5000);
+							}, 5000);
+						}
 					}
 			}
 		},

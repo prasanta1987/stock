@@ -3,6 +3,21 @@ const suggestionresponse = document.querySelector('.suggestionresponse')
 
 let userData = []
 
+const getMarketStat = async () => {
+
+    try {
+        let res = await fetch('marketStatus', { method: 'POST' })
+        let data = await res.json()
+        let marketStat = data.marketState[0].marketStatus
+        sessionStorage.marketStat = marketStat
+        if (marketStat == 'Closed' || marketStat == 'Close') document.querySelector('.nav').style.backgroundColor = '#e04f4f'
+    } catch (err) {
+        console.log(err)
+    }
+}
+getMarketStat()
+setInterval(getMarketStat, 5000)
+
 const getUserData = async () => {
 
     try {
@@ -14,7 +29,7 @@ const getUserData = async () => {
         }
     } catch (error) {
         console.log(error)
-        setTimeout(getUserData, 1000)
+        setTimeout(getUserData, 5000)
     }
 }
 
