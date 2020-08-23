@@ -85,8 +85,8 @@ const buildCards = async (symbol) => {
             let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
             let openPrice = data.priceInfo.open
             let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
-            let marketCap = (ttlShare * closePrice).toFixed(2)
             let preClosePrice = data.priceInfo.previousClose
+            let marketCap = (ttlShare * closePrice).toFixed(2)
             let symbolPe = data.metadata.pdSymbolPe
             let indPe = data.metadata.pdSectorPe
             let eps = isFinite(closePrice / symbolPe) ? (closePrice / symbolPe).toFixed(2) : 0
@@ -153,16 +153,59 @@ const buildCards = async (symbol) => {
                 mycardcontainer.innerHTML += `
                     <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
                         <div class="row p-2">
-                        <div class="col-sm-12">
-                        <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                            <div class="col-sm-12">
+                                <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                        
                         <div class="row">
-                        <div class="mt-3 d-flex flex-column justify-content-center col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
-                                    <a href="/${data.info.symbol}"><h3 class="lead">${data.info.companyName} (${data.info.symbol})</h3></a>
-                                    <small class="d-block">Industry: <span data-symbol="${symbol}" class="industry">${data.metadata.industry}</span></small>
-                                    <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
-                                    <div class="d-flex justify-content-between mt-3 pl-2 pr-2">
+
+                            <div class="mt-3 d-flex flex-column justify-content-center nav-link col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                                <a href="/${data.info.symbol}"><h3 class="text-primary lead">${data.info.companyName} (${data.info.symbol})</h3></a>
+                                <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
+                                
+                                <div class="text-center align-items-center flex-grow-1 buysell mt-3">
+                                    <div class="input-group input-group-sm">
+                                        <input onChange="calcReturn('${symbol}')" id="${symbol}-buyingPrice" type="number" placeholder="Price" class="form-control">
+                                        <input onChange="calcReturn('${symbol}')" id="${symbol}-buyQty" type="number" placeholder="Qty" class="form-control">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-success ${symbol}-buy-btn" onClick="buyShares('${symbol}')" type="button">BUY</button>
+                                            <button ${(avlShare == 0) && 'disabled'} class="btn btn-danger ${symbol}-sell-btn" onClick="sellShares('${symbol}')" type="button">SELL</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col d-flex flex-column">
+
+                                <div class="priceinfo">
+                                    <div class="cola">Pre. Close</div>
+                                    <div class="cola">Open</div>
+                                    <div class="cola">High</div>
+                                    <div class="cola">Low</div>
+                                    <div class="cola">CMP</div>
+                                    <div class="cola">% Chnage</div>
+
+                                    <div class="cola font-weight-bold">${preClosePrice}</div>
+                                    <div class="cola font-weight-bold">${openPrice}</div>
+                                    <div class="cola font-weight-bold">${data.priceInfo.intraDayHighLow.max}</div>
+                                    <div class="cola font-weight-bold">${data.priceInfo.intraDayHighLow.min}</div>
+                                    <div class="cola font-weight-bold">
+                                        <kbd class="${symbol}-cmp ${(closePrice > preClosePrice) ? 'bg-success' : 'bg-danger'}">${closePrice}</kbd>
+                                    </div>
+                                    <div class="cola font-weight-bold">
+                                        <kbd class="${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
+                                    </div>
+
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+
+                                </div>
+
+                                <div class="marketdepth mb-1">
+                                    <div class="d-flex justify-content-between pl-2 pr-2">
                                         <span class="text-success">Buy : <b class="${symbol}-buy-qty"></b></span>
                                         <span class="text-danger">Sell : <b class="${symbol}-sell-qty"></b></span>
                                     </div>
@@ -171,95 +214,28 @@ const buildCards = async (symbol) => {
                                         <div class="progress-bar bg-danger ${symbol}-sell-bar" role="progressbar" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
-
-                            <div class="col d-flex flex-column">
-
-                            <div class="row text-center align-items-center flex-grow-1">
-                            <div class="col"> M Cap (Cr.)</div>
-                            <div class="col"> Pre. Close </div>
-                            <div class="col"> PE </div>
-                            <div class="col"> Open </div>
-                            <div class="col"> VWAP </div>
-                            <div class="col"> Day High </div>
-                            <div class="col"> 52W High </div>
-                            </div>
-                            
-                        <div class="row text-center align-items-center flex-grow-1">
-                            <div class="col font-weight-bold"> ${marketCap} </div>
-                            <div class="col font-weight-bold"> ${preClosePrice} </div>
-                            <div class="col font-weight-bold"> ${symbolPe} </div>
-                            <div class="col font-weight-bold"> ${openPrice} </div>
-                            <div class="col font-weight-bold ${symbol}-vwap"> ${vwap} </div>
-                            <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.max} </div>
-                            <div class="col">
-                                <span class="d-block font-weight-bold">${weekHighValue}</span>
-                                <small class="d-block">${weekHighDate}</small>
-                            </div>
-                        </div>
-                            
-                        <div class="mt-2 row text-center align-items-center flex-grow-1">
-                            <div class="col"> TTL Share (Cr.)</div>
-                            <div class="col"> EPS </div>
-                            <div class="col"> PE Ind </div>
-                            <div class="col"> CMP </div>
-                            <div class="col"> % Chnage </div>
-                            <div class="col"> Day Low </div>
-                            <div class="col"> 52W Low </div>
-                        </div>
-                            
-                        <div class="row text-center align-items-center flex-grow-1">
-                            <div class="col font-weight-bold"> ${ttlShare} </div>
-                            <div class="col font-weight-bold"> ${eps} </div>
-                            <div class="col font-weight-bold"> ${indPe} </div>
-                            <div class="col font-weight-bold"> <kbd class="${symbol}-cmp ${(closePrice > preClosePrice) ? 'bg-success' : 'bg-danger'}">${closePrice} </kbd></div>
-                            <div class="col font-weight-bold">
-                                <kbd class="${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
-                            </div>
-                            <div class="col font-weight-bold"> ${data.priceInfo.intraDayHighLow.min} </div>
-                            <div class="col">
-                                <span class="d-block font-weight-bold">${weekLowValue}</span>
-                                <small class="d-block">${weeklowData}</small>
-                            </div>
-                        </div>
-                                
-                            </div>
-                        </div>
-                        </div>
-                        <div class="col-sm-12">
-                        <div class="row">
-                            <div class="col-sm-3 d-flex align-items-center">
-                                <div class="input-group input-group-sm">
-                                    <input onChange="calcReturn('${symbol}')" id="${symbol}-buyingPrice" type="number" placeholder="Price" class="form-control">
-                                    <input onChange="calcReturn('${symbol}')" id="${symbol}-buyQty" type="number" placeholder="Qty" class="form-control">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-success ${symbol}-buy-btn" onClick="buyShares('${symbol}')" type="button">BUY</button>
-                                        <button ${(avlShare == 0) && 'disabled'} class="btn btn-danger ${symbol}-sell-btn" onClick="sellShares('${symbol}')" type="button">SELL</button>
+                               
+                                <div class="text-center align-items-center flex-grow-1">
+                                    <div class="d-flex flex-column text-center">
+                                        <kbd class="bg-primary d-flex justify-content-between">
+                                            <span>Investment : <b id="${symbol}-investment">0</b></span>
+                                            <span>Return : <b id="${symbol}-return">0</b></span>
+                                            <span>Gain/Loss : <b id="${symbol}-prloss">0</b></span>
+                                            <span>Change : <b id="${symbol}-prlossPer">0</b></span>
+                                        </kbd>
+                                        <kbd class="mt-1 bg-dark d-flex justify-content-between">
+                                            <span>Avl. Investment : <b id="${symbol}-invested">${invested}</b></span>
+                                            <span>Curent Gain/Loss. : <b id="${symbol}-cgl">${currentGain}</b></span>
+                                            <span>Gain/Loss : <b id="${symbol}-ttlrtn">${retAginstInv}</b></span>
+                                            <span>Share Avl. : <b id="${symbol}-avlshare">${avlShare}</b></span>
+                                        </kdb>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="col-sm-9">
-                                <div class="d-flex flex-column text-center">
-                                    <kbd class="bg-primary d-flex justify-content-between">
-                                        <span>Investment : <b id="${symbol}-investment">0</b></span>
-                                        <span>Return : <b id="${symbol}-return">0</b></span>
-                                        <span>Gain/Loss : <b id="${symbol}-prloss">0</b></span>
-                                        <span>Change : <b id="${symbol}-prlossPer">0</b></span>
-                                    </kbd>
-                                    <kbd class="mt-1 bg-dark d-flex justify-content-between">
-                                        <span>Avl. Investment : <b id="${symbol}-invested">${invested}</b></span>
-                                        <span>Curent Gain/Loss. : <b id="${symbol}-cgl">${currentGain}</b></span>
-                                        <span>Gain/Loss : <b id="${symbol}-ttlrtn">${retAginstInv}</b></span>
-                                        <span>Share Avl. : <b id="${symbol}-avlshare">${avlShare}</b></span>
-                                    </kdb>
-                                </div>
-                            </div>
-
-                        </div>
-                        
-                        </div>
-                        </div>
-                    </div>
+                </div>
+                </div>
+                </div>
+            </div>
                     `
             }
             getMarketDepth(symbol)

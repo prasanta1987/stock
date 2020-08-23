@@ -50,16 +50,44 @@ th{
     justify-content: center;
 }
 
-.heading {font-size: 30px;}
+.heading {font-size: 25px;}
 .mylinks{text-decoration: none !important;}
 .mylinks *{font-size: 15px;}
 .bookmarkbtn{
     position: fixed;
-    top: 10%;
-    left: 1%;
+    margin: 5px 15px;
+    padding: 0 5px 5px 5px;
+    font-size: 25px;
 }
 ul{list-style: none;}
 .nav-link a{text-decoration: none !important; color: #eee;}
 .nav-link a:hover{color: #f4f4f4;}
 .stockname{font-size: 40px;}
 .indexname{font-size: 25px;}
+.symbol-info * {font-size: 15px;}
+.symbol-info small {font-size: 9px;}
+.corpaction{height: 200px;}
+.priceinfo{
+    display: grid;
+    grid-template-columns: repeat(6,1fr);
+    text-align: center;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}

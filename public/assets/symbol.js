@@ -25,6 +25,11 @@ const fetchStockData = (symbol) => {
 			let openPrice = (data.priceInfo.open).toFixed(2)
 			let dHigh = (data.priceInfo.intraDayHighLow.max).toFixed(2)
 			let dLow = (data.priceInfo.intraDayHighLow.min).toFixed(2)
+			let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
+			let marketCap = (ttlShare * closePrice).toFixed(2)
+			let symbolPe = data.metadata.pdSymbolPe
+			let indPe = data.metadata.pdSectorPe
+			let eps = isFinite(closePrice / symbolPe) ? (closePrice / symbolPe).toFixed(2) : 0
 
 			companyName.innerHTML = data.info.companyName
 
@@ -53,7 +58,11 @@ const fetchStockData = (symbol) => {
 			document.querySelector('.dhigh').innerHTML = dHigh
 			document.querySelector('.dlow').innerHTML = dLow
 			document.querySelector('.open').innerHTML = openPrice
-			changeMarkup.innerHTML = changePrice
+			document.querySelector('.eps').innerHTML = eps
+			document.querySelector('.pe').innerHTML = symbolPe
+			document.querySelector('.indpe').innerHTML = indPe
+			document.querySelector('.mcap').innerHTML = marketCap
+			changeMarkup.innerHTML = `${changePrice}`
 			pchangeMarkup.innerHTML = `${pChange}%`
 			document.querySelector('.wlow').innerHTML = `
 				<span class="d-block">${data.priceInfo.weekHighLow.min}</span>
@@ -80,9 +89,9 @@ const fetchStockData = (symbol) => {
 const showAddBtn = () => {
 	addBookmark.innerHTML = ''
 	if (!userData.watchList.includes(symbol)) {
-		addBookmark.innerHTML += `<button class="btn btn-outline-success bookmarkbtn" onClick="addSymbolToprofile('${symbol}')">➕</button>`
+		addBookmark.innerHTML += `<button class="btn btn-small btn-outline-success bookmarkbtn" onClick="addSymbolToprofile('${symbol}')">+</button>`
 	} else {
-		addBookmark.innerHTML += `<button class="btn btn-outline-warning bookmarkbtn" onClick="removeSymbolFromProfile('${symbol}')">➖</button>`
+		addBookmark.innerHTML += `<button class="btn btn-small btn-outline-warning bookmarkbtn" onClick="removeSymbolFromProfile('${symbol}')">-</button>`
 	}
 }
 
@@ -161,7 +170,6 @@ const getStocknews = (symbol) => {
 		.then(res => res.json())
 		.then(data => {
 			// console.log(data)
-			data = data.reverse()
 			data.map(value => {
 				document.querySelector('.copractions').innerHTML += `
 							<tr>

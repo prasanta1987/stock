@@ -60,27 +60,41 @@
 
             <div class="border rounded symbol-info p-2">
                 <div class="row text-center d-flex align-items-center">
-                    <div class="col"> Pre Close</div>
-                    <div class="col"> High</div>
-                    <div class="col"> Low </div>
-                    <div class="col"> Open </div>
-                    <div class="col"> CMP </div>
-                    <div class="col"> Change </div>
-                    <div class="col"> % Change </div>
-                    <div class="col"> 52W High </div>
-                    <div class="col"> 52W Low </div>
+                    <b class="col"> Open </b>
+                    <b class="col"> High</b>
+                    <b class="col"> Low </b>
+                    <b class="col"> CMP </b>
+                    <b class="col"> Change </b>
+                    <b class="col"> % Change </b>
+                    <b class="col"> Pre Close</b>
                 </div>
 
                 <div class="mt-1 row text-center d-flex align-items-center">
-                    <div class="col preclose"> 0</div>
+                    <div class="col open"> 0 </div>
                     <div class="col dhigh"> 0</div>
                     <div class="col dlow"> 0 </div>
-                    <div class="col open"> 0 </div>
                     <div class="col"> <kbd class="cmp">0</kbd></div>
                     <div class="col"><kbd class="change">0</kbd></div>
                     <div class="col"><kbd class="pchange">0</kbd></div>
+                    <div class="col preclose"> 0</div>
+                </div>
+                <hr>
+                <div class="row text-center d-flex align-items-center">
+                    <b class="col"> 52W High </b>
+                    <b class="col"> 52W Low </b>
+                    <b class="col"> EPS </b>
+                    <b class="col"> PE </b>
+                    <b class="col"> IND PE </b>
+                    <b class="col"> M Cap (Cr.) </b>
+                </div>
+
+                <div class="mt-1 row text-center d-flex align-items-center">
                     <div class="col whigh"> 0 </div>
                     <div class="col wlow"> 0 </div>
+                    <div class="col eps"> 0 </div>
+                    <div class="col pe"> 0 </div>
+                    <div class="col indpe"> 0 </div>
+                    <div class="col mcap"> 0 </div>
                 </div>
             </div>
 
@@ -121,23 +135,21 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col">
-                    <h1 class="lead text-center mt-5 heading">Corporate Actions</h1>
-                    <div class="table-responsive mt-3 mb-3">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Description</th>
-                                    <th scope="col">Ex Date</th>
-                                    <th scope="col">Record Date</th>
-                                    <th scope="col">B.C. Start Date</th>
-                                    <th scope="col">B.C. End Date</th>
-                                </tr>
-                            </thead>
-                            <tbody class="copractions"></tbody>
-                        </table>
-                    </div>
+            <div class="border rounded mt-3 mb-5">
+                <h1 class="text-light bg-info rounded-top pt-2 pb-2 m-0 lead text-center heading">Corporate Actions</h1>
+                <div class="table-responsive corpaction">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Description</th>
+                                <th scope="col">Ex Date</th>
+                                <th scope="col">Record Date</th>
+                                <th scope="col">B.C. Start Date</th>
+                                <th scope="col">B.C. End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="copractions"></tbody>
+                    </table>
                 </div>
             </div>
 
