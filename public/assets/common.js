@@ -38,24 +38,29 @@ const getUserData = async () => {
 
 getUserData()
 
+// Search Engine
 companyname.addEventListener('keyup', () => {
 
     let name = companyname.value
     if (name.length > 2) {
-        fetch(`/searchSymbol/${name}`, { method: 'POST' })
+        fetch(`/search/${name}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
                 suggestionresponse.innerHTML = ''
-                data.symbols.map(ele => {
+
+                data.data.stocks.map(ele => {
+                    console.log(ele)
                     suggestionresponse.innerHTML += `
                     <span class="p-1 border suggestion">
-                        <span class="name text-dark"><a href="/${ele.symbol}">${ele.symbol_info}</a></span>
-                        <button id="${ele.symbol}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.symbol}')">ADD</button>
+                        <span class="name text-dark"><a href="/${ele.sid}">${ele.name}</a></span>
+                        <div>
+                            <span class="name text-dark">${ele.quote.price} (${ele.quote.change}%)</span>
+                            <button id="${ele.sid}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.sid}')">ADD</button>
+                        </div>
                     </span>`
-
                 })
 
-                filterSymbols(userData.watchList)
+                // filterSymbols(userData.watchList)
 
             })
             .catch(err => console.log(err))
