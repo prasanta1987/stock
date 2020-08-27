@@ -1,4 +1,3 @@
-const companyName = document.querySelector('.stockname')
 const addBookmark = document.querySelector('.bookmark')
 const updateTimeInfo = document.querySelector('.updateTimeInfo')
 const cmpMarkup = document.querySelector('.cmp')
@@ -12,12 +11,40 @@ const sellMarkup = document.querySelector('.sell')
 
 const symbol = window.location.pathname.replace('/', '')
 
+
+const getTickerInfo = (symbol) => {
+
+	fetch(`/tickerInfo/${symbol}`, { method: 'POST' })
+		.then(res => res.json())
+		.then(data => {
+			console.log(data)
+			document.querySelector('.stockname').innerHTML = data.data.info.name
+			document.querySelector('.industryinfo').innerHTML = data.data.info.sector
+			document.querySelector('.whigh').innerHTML = data.data.ratios["52wHigh"]
+			document.querySelector('.wlow').innerHTML = data.data.ratios["52wLow"]
+			document.querySelector('.eps').innerHTML = data.data.ratios.eps.toFixed(2)
+			document.querySelector('.pe').innerHTML = data.data.ratios.pe.toFixed(2)
+			document.querySelector('.indpe').innerHTML = data.data.ratios.indpe.toFixed(2)
+			document.querySelector('.mcap').innerHTML = data.data.ratios.marketCap.toFixed(2)
+			document.querySelector('.pb').innerHTML = data.data.ratios.pb.toFixed(2)
+			document.querySelector('.indpb').innerHTML = data.data.ratios.indpb.toFixed(2)
+			document.querySelector('.beta').innerHTML = data.data.ratios.beta.toFixed(2)
+			document.querySelector('.dy').innerHTML = (data.data.ratios.divYield == null) ? '0 %' : `${data.data.ratios.divYield.toFixed(2)} %`
+			document.querySelector('.sdy').innerHTML = `${data.data.ratios.inddy.toFixed(2)} %`
+
+			fetchStockData(symbol)
+		})
+		.catch(err => console.log(err))
+}
+
+getTickerInfo(symbol)
+
+
 const fetchStockData = (symbol) => {
 	fetch(`/tickerData/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
 			let values = data.data[0]
-			console.log(values)
 
 			let openPrice = values.o, highPrice = values.h, lowPrice = values.l, closePrice = values.price, preClosePrice = values.c, changePrice = values.change;
 			let pChange = ((changePrice / preClosePrice) * 100).toFixed(2)
@@ -29,6 +56,7 @@ const fetchStockData = (symbol) => {
 			document.querySelector('.dhigh').innerHTML = highPrice
 			document.querySelector('.dlow').innerHTML = lowPrice
 			document.querySelector('.open').innerHTML = openPrice
+
 
 			if (preClosePrice < closePrice) {
 				cmpMarkup.classList.remove('bg-danger')
@@ -106,7 +134,6 @@ const fetchStockData = (symbol) => {
 
 
 			showAddBtn()
-
 			// getSectorData(sector)
 			// getMarketDepth(symbol)
 			// getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
@@ -120,8 +147,6 @@ const fetchStockData = (symbol) => {
 			setTimeout(() => fetchStockData(symbol), 10000)
 		})
 }
-
-fetchStockData(symbol)
 
 const showAddBtn = () => {
 	addBookmark.innerHTML = ''
