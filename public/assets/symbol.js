@@ -31,6 +31,8 @@ const getTickerInfo = (symbol) => {
 			document.querySelector('.beta').innerHTML = data.data.ratios.beta.toFixed(2)
 			document.querySelector('.dy').innerHTML = (data.data.ratios.divYield == null) ? '0 %' : `${data.data.ratios.divYield.toFixed(2)} %`
 			document.querySelector('.sdy').innerHTML = `${data.data.ratios.inddy.toFixed(2)} %`
+			document.querySelector('.cap').innerHTML = data.data.ratios.marketCapLabel
+			document.querySelector('.caprank').innerHTML = data.data.ratios.mrktCapRank
 
 			fetchStockData(symbol)
 		})
