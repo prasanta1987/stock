@@ -1,3 +1,4 @@
+const companyName = document.querySelector('.stockname')
 const addBookmark = document.querySelector('.bookmark')
 const updateTimeInfo = document.querySelector('.updateTimeInfo')
 const cmpMarkup = document.querySelector('.cmp')
@@ -11,58 +12,35 @@ const sellMarkup = document.querySelector('.sell')
 
 const symbol = window.location.pathname.replace('/', '')
 
-
-const getTickerInfo = (symbol) => {
-
-	fetch(`/tickerInfo/${symbol}`, { method: 'POST' })
-		.then(res => res.json())
-		.then(data => {
-			console.log(data)
-			document.querySelector('.stockname').innerHTML = data.data.info.name
-			document.querySelector('.industryinfo').innerHTML = data.data.info.sector
-			document.querySelector('.whigh').innerHTML = data.data.ratios["52wHigh"]
-			document.querySelector('.wlow').innerHTML = data.data.ratios["52wLow"]
-			document.querySelector('.eps').innerHTML = data.data.ratios.eps.toFixed(2)
-			document.querySelector('.pe').innerHTML = data.data.ratios.pe.toFixed(2)
-			document.querySelector('.indpe').innerHTML = data.data.ratios.indpe.toFixed(2)
-			document.querySelector('.mcap').innerHTML = data.data.ratios.marketCap.toFixed(2)
-			document.querySelector('.pb').innerHTML = data.data.ratios.pb.toFixed(2)
-			document.querySelector('.indpb').innerHTML = data.data.ratios.indpb.toFixed(2)
-			document.querySelector('.beta').innerHTML = data.data.ratios.beta.toFixed(2)
-			document.querySelector('.dy').innerHTML = (data.data.ratios.divYield == null) ? '0 %' : `${data.data.ratios.divYield.toFixed(2)} %`
-			document.querySelector('.sdy').innerHTML = `${data.data.ratios.inddy.toFixed(2)} %`
-
-			fetchStockData(symbol)
-		})
-		.catch(err => console.log(err))
-}
-
-getTickerInfo(symbol)
-
-
 const fetchStockData = (symbol) => {
-	fetch(`/tickerData/${symbol}`, { method: 'POST' })
+	fetch(`/stock/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			let values = data.data[0]
+			// console.log(data)
+			let sector = data.metadata.pdSectorInd
+			let preClose = (data.priceInfo.previousClose).toFixed(2)
+			let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+			let changePrice = (closePrice - preClose).toFixed(2)
+			let pChange = ((changePrice / preClose) * 100).toFixed(2)
+			let openPrice = (data.priceInfo.open).toFixed(2)
+			let dHigh = (data.priceInfo.intraDayHighLow.max).toFixed(2)
+			let dLow = (data.priceInfo.intraDayHighLow.min).toFixed(2)
+			let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
+			let marketCap = (ttlShare * closePrice).toFixed(2)
+			let symbolPe = data.metadata.pdSymbolPe
+			let indPe = data.metadata.pdSectorPe
+			let eps = isFinite(closePrice / symbolPe) ? (closePrice / symbolPe).toFixed(2) : 0
 
-			let openPrice = values.o, highPrice = values.h, lowPrice = values.l, closePrice = values.price, preClosePrice = values.c, changePrice = values.change;
-			let pChange = ((changePrice / preClosePrice) * 100).toFixed(2)
+			companyName.innerHTML = data.info.companyName
 
+			document.title = `${symbol} ${closePrice} ${(preClose < closePrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
+			updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+			document.querySelector('.industryinfo').innerHTML = data.metadata.industry
 			cmpMarkup.innerHTML = closePrice
-			changeMarkup.innerHTML = changePrice
-			pchangeMarkup.innerHTML = `${pChange}%`
-			document.querySelector('.preclose').innerHTML = preClosePrice
-			document.querySelector('.dhigh').innerHTML = highPrice
-			document.querySelector('.dlow').innerHTML = lowPrice
-			document.querySelector('.open').innerHTML = openPrice
-
-
-			if (preClosePrice < closePrice) {
+			if (preClose < closePrice) {
 				cmpMarkup.classList.remove('bg-danger')
 				changeMarkup.classList.remove('bg-danger')
 				pchangeMarkup.classList.remove('bg-danger')
-
 
 				cmpMarkup.classList.add('bg-success')
 				changeMarkup.classList.add('bg-success')
@@ -76,70 +54,30 @@ const fetchStockData = (symbol) => {
 				changeMarkup.classList.add('bg-danger')
 				pchangeMarkup.classList.add('bg-danger')
 			}
+			document.querySelector('.preclose').innerHTML = preClose
+			document.querySelector('.dhigh').innerHTML = dHigh
+			document.querySelector('.dlow').innerHTML = dLow
+			document.querySelector('.open').innerHTML = openPrice
+			document.querySelector('.eps').innerHTML = eps
+			document.querySelector('.pe').innerHTML = symbolPe
+			document.querySelector('.indpe').innerHTML = indPe
+			document.querySelector('.mcap').innerHTML = marketCap
+			changeMarkup.innerHTML = `${changePrice}`
+			pchangeMarkup.innerHTML = `${pChange}%`
+			document.querySelector('.wlow').innerHTML = `
+				<span class="d-block">${data.priceInfo.weekHighLow.min}</span>
+				<small class="d-block">${data.priceInfo.weekHighLow.minDate}</small>`
 
-			// let sector = data.metadata.pdSectorInd
-			// let preClose = (data.priceInfo.previousClose).toFixed(2)
-			// let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-			// let changePrice = (closePrice - preClose).toFixed(2)
-			// let pChange = ((changePrice / preClose) * 100).toFixed(2)
-			// let openPrice = (data.priceInfo.open).toFixed(2)
-			// let dHigh = (data.priceInfo.intraDayHighLow.max).toFixed(2)
-			// let dLow = (data.priceInfo.intraDayHighLow.min).toFixed(2)
-			// let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
-			// let marketCap = (ttlShare * closePrice).toFixed(2)
-			// let symbolPe = data.metadata.pdSymbolPe
-			// let indPe = data.metadata.pdSectorPe
-			// let eps = isFinite(closePrice / symbolPe) ? (closePrice / symbolPe).toFixed(2) : 0
-
-			// companyName.innerHTML = data.info.companyName
-
-			// document.title = `${symbol} ${closePrice} ${(preClose < closePrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
-			// updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
-			// document.querySelector('.industryinfo').innerHTML = data.metadata.industry
-			// cmpMarkup.innerHTML = closePrice
-			// if (preClose < closePrice) {
-			// 	cmpMarkup.classList.remove('bg-danger')
-			// 	changeMarkup.classList.remove('bg-danger')
-			// 	pchangeMarkup.classList.remove('bg-danger')
-
-			// 	cmpMarkup.classList.add('bg-success')
-			// 	changeMarkup.classList.add('bg-success')
-			// 	pchangeMarkup.classList.add('bg-success')
-			// } else {
-			// 	cmpMarkup.classList.remove('bg-success')
-			// 	changeMarkup.classList.remove('bg-success')
-			// 	pchangeMarkup.classList.remove('bg-success')
-
-			// 	cmpMarkup.classList.add('bg-danger')
-			// 	changeMarkup.classList.add('bg-danger')
-			// 	pchangeMarkup.classList.add('bg-danger')
-			// }
-			// document.querySelector('.preclose').innerHTML = preClose
-			// document.querySelector('.dhigh').innerHTML = dHigh
-			// document.querySelector('.dlow').innerHTML = dLow
-			// document.querySelector('.open').innerHTML = openPrice
-			// document.querySelector('.eps').innerHTML = eps
-			// document.querySelector('.pe').innerHTML = symbolPe
-			// document.querySelector('.indpe').innerHTML = indPe
-			// document.querySelector('.mcap').innerHTML = marketCap
-			// changeMarkup.innerHTML = `${changePrice}`
-			// pchangeMarkup.innerHTML = `${pChange}%`
-			// document.querySelector('.wlow').innerHTML = `
-			// 	<span class="d-block">${data.priceInfo.weekHighLow.min}</span>
-			// 	<small class="d-block">${data.priceInfo.weekHighLow.minDate}</small>`
-
-			// document.querySelector('.whigh').innerHTML = `
-			// 	<span class="d-block">${data.priceInfo.weekHighLow.max}</span>
-			// 	<small class="d-block">${data.priceInfo.weekHighLow.maxDate}</small>`
-
-
+			document.querySelector('.whigh').innerHTML = `
+				<span class="d-block">${data.priceInfo.weekHighLow.max}</span>
+				<small class="d-block">${data.priceInfo.weekHighLow.maxDate}</small>`
+			getSectorData(sector)
+			getMarketDepth(symbol)
+			getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
+			getFinData(data.info.symbol)
+			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
+			getStocknews(data.info.symbol)
 			showAddBtn()
-			// getSectorData(sector)
-			// getMarketDepth(symbol)
-			// getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
-			// getFinData(data.info.symbol)
-			// getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
-			// getStocknews(data.info.symbol)
 		})
 		.catch(err => {
 			console.log(err)
@@ -221,14 +159,14 @@ const getSectorData = (sector) => {
 		})
 }
 
-
+fetchStockData(symbol)
 
 const getStocknews = (symbol) => {
 
 	const toDate = moment().format('DD-MM-yyyy')
 	const startDate = moment().subtract(1, 'years').format('DD-MM-yyyy')
 
-	fetch(`/corporateActions/${symbol}/${startDate}/${toDate}`, { method: 'POST' })
+	fetch(`/corporateActions/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
 			// console.log(data)
@@ -513,53 +451,42 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 
 						setInterval(async function () {
 							if (sessionStorage.marketStat != 'Closed') {
-
-
-								let res = await fetch(`/liveData/${symbol}`, { 'method': 'POST' })
+								console.log(sessionStorage.marketStat)
+								let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
 								let data = await res.json()
-
-								console.log(data.data)
-								let closePrice = data.data[0].price
-
-
-								// console.log(sessionStorage.marketStat)
-								// let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
-								// let data = await res.json()
-								// let preClose = (data.priceInfo.previousClose).toFixed(2)
-								// let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-								// let changePrice = (closePrice - preClose).toFixed(2)
-								// let pChange = ((changePrice / preClose) * 100).toFixed(2)
-								// let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
-								// series.addPoint([date, closePrice], true, true);
+								let preClose = (data.priceInfo.previousClose).toFixed(2)
+								let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+								let changePrice = (closePrice - preClose).toFixed(2)
+								let pChange = ((changePrice / preClose) * 100).toFixed(2)
+								let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
+								series.addPoint([date, closePrice], true, true);
 
 								cmpMarkup.innerHTML = closePrice
-								// changeMarkup.innerHTML = changePrice
-								// pchangeMarkup.innerHTML = `${pChange}%`
-								// updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+								changeMarkup.innerHTML = changePrice
+								pchangeMarkup.innerHTML = `${pChange}%`
+								updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
 
-								// document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
+								document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
 
-								// if (preClose < closePrice) {
-								// 	cmpMarkup.classList.remove('bg-danger')
-								// 	changeMarkup.classList.remove('bg-danger')
-								// 	pchangeMarkup.classList.remove('bg-danger')
+								if (preClose < closePrice) {
+									cmpMarkup.classList.remove('bg-danger')
+									changeMarkup.classList.remove('bg-danger')
+									pchangeMarkup.classList.remove('bg-danger')
 
-								// 	cmpMarkup.classList.add('bg-success')
-								// 	changeMarkup.classList.add('bg-success')
-								// 	pchangeMarkup.classList.add('bg-success')
-								// } else {
-								// 	cmpMarkup.classList.remove('bg-success')
-								// 	changeMarkup.classList.remove('bg-success')
-								// 	pchangeMarkup.classList.remove('bg-success')
+									cmpMarkup.classList.add('bg-success')
+									changeMarkup.classList.add('bg-success')
+									pchangeMarkup.classList.add('bg-success')
+								} else {
+									cmpMarkup.classList.remove('bg-success')
+									changeMarkup.classList.remove('bg-success')
+									pchangeMarkup.classList.remove('bg-success')
 
-								// 	cmpMarkup.classList.add('bg-danger')
-								// 	changeMarkup.classList.add('bg-danger')
-								// 	pchangeMarkup.classList.add('bg-danger')
-								// }
-
-
+									cmpMarkup.classList.add('bg-danger')
+									changeMarkup.classList.add('bg-danger')
+									pchangeMarkup.classList.add('bg-danger')
+								}
 							}
-						}, 2000);
+						}, 5000);
 					}
 			}
 		},
@@ -740,6 +667,7 @@ const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 	});
 
 }
+
 
 
 // const getAllHistoricaldata = (symbol, companyName, series, cumData) => {

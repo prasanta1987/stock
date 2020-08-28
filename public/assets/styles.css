@@ -91,3 +91,4 @@ ul{list-style: none;}
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
 }
+.highcharts-data-table table{width: 100%;text-align: center;}

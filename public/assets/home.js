@@ -35,7 +35,7 @@ fetch('/activeByValue', fetchOption)
     .then(data => {
         data.data.map(scrips => {
             let preClose = (scrips.previousClose).toFixed(2)
-            let ltp = ((scrips.closePrice) = 0 ? scrips.lastPrice : scrips.closePrice).toFixed(2)
+            let ltp = ((scrips.closePrice) == 0 ? scrips.lastPrice : scrips.closePrice).toFixed(2)
             let increase = (ltp - preClose).toFixed(2)
             let perChange = ((increase / preClose) * 100).toFixed(2)
             createNameCard(scrips.symbol, ltp, perChange, increase, 'value')
@@ -50,7 +50,7 @@ fetch('/activeByVolume', fetchOption)
     .then(data => {
         data.data.map(scrips => {
             let preClose = (scrips.previousClose).toFixed(2)
-            let ltp = ((scrips.closePrice) = 0 ? scrips.lastPrice : scrips.closePrice).toFixed(2)
+            let ltp = ((scrips.closePrice) == 0 ? scrips.lastPrice : scrips.closePrice).toFixed(2)
             let increase = (ltp - preClose).toFixed(2)
             let perChange = ((increase / preClose) * 100).toFixed(2)
 

@@ -38,29 +38,24 @@ const getUserData = async () => {
 
 getUserData()
 
-// Search Engine
 companyname.addEventListener('keyup', () => {
 
     let name = companyname.value
     if (name.length > 2) {
-        fetch(`/search/${name}`, { method: 'POST' })
+        fetch(`/searchSymbol/${name}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
                 suggestionresponse.innerHTML = ''
-
-                data.data.stocks.map(ele => {
-                    console.log(ele)
+                data.symbols.map(ele => {
                     suggestionresponse.innerHTML += `
                     <span class="p-1 border suggestion">
-                        <span class="name text-dark"><a href="/${ele.sid}">${ele.name}</a></span>
-                        <div>
-                            <span class="name text-dark">${ele.quote.price} (${ele.quote.change}%)</span>
-                            <button id="${ele.sid}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.sid}')">ADD</button>
-                        </div>
+                        <span class="name text-dark"><a href="/${ele.symbol}">${ele.symbol_info}</a></span>
+                        <button id="${ele.symbol}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.symbol}')">ADD</button>
                     </span>`
+
                 })
 
-                // filterSymbols(userData.watchList)
+                filterSymbols(userData.watchList)
 
             })
             .catch(err => console.log(err))
@@ -118,3 +113,15 @@ const filterSymbols = (userAddedSymbols) => {
     })
 
 }
+
+
+const getMMI = () => {
+    fetch('getMMI', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            document.querySelector('.MMI').innerHTML = `MMI : ${(data.data.currentValue).toFixed(2)}%`
+        })
+        .catch(err => console.log(err))
+}
+
+setInterval(getMMI, 10000)
