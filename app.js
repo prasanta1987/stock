@@ -458,6 +458,7 @@ app.post('/tickerData/:symbol', (req, res) => {
     let symbol = req.params.symbol
     const url = `https://quotes-api.tickertape.in/quotes?sids=${symbol}`
 
+    console.log(url)
     axios.get(url)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))

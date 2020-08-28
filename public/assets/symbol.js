@@ -12,6 +12,40 @@ const sellMarkup = document.querySelector('.sell')
 
 const symbol = window.location.pathname.replace('/', '')
 
+<<<<<<< HEAD
+=======
+
+const getTickerInfo = (symbol) => {
+
+	fetch(`/tickerInfo/${symbol}`, { method: 'POST' })
+		.then(res => res.json())
+		.then(data => {
+			console.log(data)
+			document.querySelector('.stockname').innerHTML = data.data.info.name
+			document.querySelector('.industryinfo').innerHTML = data.data.info.sector
+			document.querySelector('.whigh').innerHTML = data.data.ratios["52wHigh"]
+			document.querySelector('.wlow').innerHTML = data.data.ratios["52wLow"]
+			document.querySelector('.eps').innerHTML = data.data.ratios.eps.toFixed(2)
+			document.querySelector('.pe').innerHTML = data.data.ratios.pe.toFixed(2)
+			document.querySelector('.indpe').innerHTML = data.data.ratios.indpe.toFixed(2)
+			document.querySelector('.mcap').innerHTML = data.data.ratios.marketCap.toFixed(2)
+			document.querySelector('.pb').innerHTML = data.data.ratios.pb.toFixed(2)
+			document.querySelector('.indpb').innerHTML = data.data.ratios.indpb.toFixed(2)
+			document.querySelector('.beta').innerHTML = data.data.ratios.beta.toFixed(2)
+			document.querySelector('.dy').innerHTML = (data.data.ratios.divYield == null) ? '0 %' : `${data.data.ratios.divYield.toFixed(2)} %`
+			document.querySelector('.sdy').innerHTML = `${data.data.ratios.inddy.toFixed(2)} %`
+			document.querySelector('.cap').innerHTML = data.data.ratios.marketCapLabel
+			document.querySelector('.caprank').innerHTML = data.data.ratios.mrktCapRank
+
+			fetchStockData(symbol)
+		})
+		.catch(err => console.log(err))
+}
+
+getTickerInfo(symbol)
+
+
+>>>>>>> 15ca38af6938f1ddabcabae78b4fa99985ac2d6d
 const fetchStockData = (symbol) => {
 	fetch(`/stock/${symbol}`, { method: 'POST' })
 		.then(res => res.json())

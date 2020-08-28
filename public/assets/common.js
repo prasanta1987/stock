@@ -26,6 +26,9 @@ const getUserData = async () => {
         let res = await fetch('/getUserData', { method: 'POST' })
         let data = await res.json()
         userData = data
+        if (document.querySelector('.mycardcontainer')) {
+            data.watchList.map(items => buildCards(items))
+        }
         if (document.querySelector('#name')) {
             document.querySelector('#name').setAttribute('placeholder', data.name)
         }
@@ -46,7 +49,12 @@ companyname.addEventListener('keyup', () => {
             .then(res => res.json())
             .then(data => {
                 suggestionresponse.innerHTML = ''
+<<<<<<< HEAD
                 data.symbols.map(ele => {
+=======
+
+                data.data.stocks.map(ele => {
+>>>>>>> 15ca38af6938f1ddabcabae78b4fa99985ac2d6d
                     suggestionresponse.innerHTML += `
                     <span class="p-1 border suggestion">
                         <span class="name text-dark"><a href="/${ele.symbol}">${ele.symbol_info}</a></span>
@@ -72,7 +80,10 @@ const addSymbolToprofile = (symbol) => {
             console.log(data)
             userData.watchList.push(symbol)
             filterSymbols(userData.watchList)
-            showAddBtn()
+            if (document.querySelector('.mycardcontainer')) {
+                buildCards(symbol)
+            }
+            if (document.querySelector('.bookmark')) showAddBtn()
             // setTimeout(getMyWatchList, 1000)
         })
         .catch(err => console.log(err))
@@ -94,7 +105,7 @@ const removeSymbolFromProfile = (symbol) => {
                 foundElement.innerHTML = 'ADD'
                 foundElement.setAttribute('onClick', `addSymbolToprofile("${symbol}")`)
             }
-            showAddBtn()
+            if (document.querySelector('.bookmark')) showAddBtn()
         })
         .catch(err => console.log(err))
 
