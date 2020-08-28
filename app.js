@@ -463,6 +463,12 @@ app.post('/tickerInfo/:symbol', (req, res) => {
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
 
+app.post('/getMMI', (req, res) => {
+    const url = 'https://api.tickertape.in/mmi/now'
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
 
 // End Ticker Tape
 

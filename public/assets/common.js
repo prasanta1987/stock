@@ -128,4 +128,4 @@ const getMMI = () => {
         .catch(err => console.log(err))
 }
 
-// setInterval(getMMI, 10000)
+setInterval(getMMI, 10000)
