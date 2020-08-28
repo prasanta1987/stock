@@ -29,6 +29,8 @@ const getUserData = async () => {
         if (document.querySelector('#name')) {
             document.querySelector('#name').setAttribute('placeholder', data.name)
         }
+        if (document.querySelector('.mycardcontainer')) userData.watchList.map(item => buildCards(item))
+        if (document.querySelector('.mycardcontainer')) refreshData(userData)
     } catch (error) {
         console.log(error)
         setTimeout(getUserData, 5000)
@@ -72,7 +74,9 @@ const addSymbolToprofile = (symbol) => {
             console.log(data)
             userData.watchList.push(symbol)
             filterSymbols(userData.watchList)
-            showAddBtn()
+
+            if (document.querySelector('.mycardcontainer')) buildCards(symbol)
+            if (document.querySelector('.stockname')) showAddBtn()
             // setTimeout(getMyWatchList, 1000)
         })
         .catch(err => console.log(err))
@@ -94,7 +98,7 @@ const removeSymbolFromProfile = (symbol) => {
                 foundElement.innerHTML = 'ADD'
                 foundElement.setAttribute('onClick', `addSymbolToprofile("${symbol}")`)
             }
-            showAddBtn()
+            if (document.querySelector('.stockname')) showAddBtn()
         })
         .catch(err => console.log(err))
 
@@ -124,4 +128,4 @@ const getMMI = () => {
         .catch(err => console.log(err))
 }
 
-setInterval(getMMI, 10000)
+// setInterval(getMMI, 10000)

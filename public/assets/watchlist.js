@@ -5,26 +5,26 @@ const stockTable = document.querySelector('.stock-table')
 const mycardcontainer = document.querySelector('.mycardcontainer')
 const industrySelector = document.querySelector('#industry')
 
-const getMyWatchList = async () => {
+// const getMyWatchList = async () => {
 
-    if (userData.watchList.length > 0 & userData.watchList != "undefined") {
-        userData.watchList.map(symbol => {
-            buildCards(symbol)
-        })
-    }
+//     if (userData.watchList.length > 0 & userData.watchList != "undefined") {
+//         userData.watchList.map(symbol => {
+//             buildCards(symbol)
+//         })
+//     }
 
-}
+// }
 
-setTimeout(getMyWatchList, 2000)
+// setTimeout(getMyWatchList, 2000)
 
-const getMarketStatus = async () => {
-    if (sessionStorage.marketStat != 'Closed' || sessionStorage.marketStat != 'Close') {
-        getMyWatchList();
-        (userData.watchList.length == 0) && (noWatchlist.innerHTML = 'Your Watch List is Empty')
-    }
-}
+// const getMarketStatus = async () => {
+//     if (sessionStorage.marketStat != 'Closed' || sessionStorage.marketStat != 'Close') {
+//         getMyWatchList();
+//         (userData.watchList.length == 0) && (noWatchlist.innerHTML = 'Your Watch List is Empty')
+//     }
+// }
 
-setInterval(getMarketStatus, 2000)
+// setInterval(getMarketStatus, 2000)
 
 
 const getMarketDepth = async (symbol) => {
@@ -248,6 +248,13 @@ const buildCards = async (symbol) => {
         setTimeout(buildCards(symbol), 2000)
     }
 
+}
+
+const refreshData = (userData) => {
+    userData.watchList.map(item => {
+        buildCards(item)
+    })
+    setTimeout(() => refreshData(userData), 5000)
 }
 
 const calcReturn = (symbol) => {

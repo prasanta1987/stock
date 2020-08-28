@@ -454,16 +454,6 @@ app.post('/activeByVolume', (req, res) => {
 
 // Start Ticker Tape Datas
 
-app.post('/tickerData/:symbol', (req, res) => {
-    let symbol = req.params.symbol
-    const url = `https://quotes-api.tickertape.in/quotes?sids=${symbol}`
-
-    console.log(url)
-    axios.get(url)
-        .then(data => res.status(200).json(data.data))
-        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
-})
-
 app.post('/tickerInfo/:symbol', (req, res) => {
     let symbol = req.params.symbol
     const url = `https://api.tickertape.in/stocks/info/${symbol}`
@@ -472,17 +462,6 @@ app.post('/tickerInfo/:symbol', (req, res) => {
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
-
-app.post('/search/:text', (req, res) => {
-    let text = req.params.text
-    const url = `https://api.tickertape.in/search?text=${text}`
-
-    axios.get(url)
-        .then(data => res.status(200).json(data.data))
-        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
-})
-
-
 
 
 // End Ticker Tape
