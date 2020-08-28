@@ -5,6 +5,28 @@ const stockTable = document.querySelector('.stock-table')
 const mycardcontainer = document.querySelector('.mycardcontainer')
 const industrySelector = document.querySelector('#industry')
 
+const getMyWatchList = async () => {
+
+    if (userData.watchList.length > 0 & userData.watchList != "undefined") {
+        userData.watchList.map(symbol => {
+            buildCards(symbol)
+        })
+    }
+
+}
+
+setTimeout(getMyWatchList, 2000)
+
+const getMarketStatus = async () => {
+    if (sessionStorage.marketStat != 'Closed' || sessionStorage.marketStat != 'Close') {
+        getMyWatchList();
+        (userData.watchList.length == 0) && (noWatchlist.innerHTML = 'Your Watch List is Empty')
+    }
+}
+
+setInterval(getMarketStatus, 2000)
+
+
 const getMarketDepth = async (symbol) => {
 
     try {
@@ -44,75 +66,111 @@ const buildCards = async (symbol) => {
 
     try {
 
-        let nameRes = await fetch(`/tickerInfo/${symbol}`, { method: 'POST' })
-        let nameData = await nameRes.json()
-
-
-        let res = await fetch(`/tickerData/${symbol}`, { method: 'POST' })
+        let res = await fetch(`/stock/${symbol}`, { method: 'POST' })
         let data = await res.json()
-        const values = data.data[0]
-        // console.log(values)
-        noWatchlist.innerHTML = ''
-        let openPrice = values.o, highPrice = values.h, lowPrice = values.l, closePrice = values.price, preClosePrice = values.c, changePrice = values.change;
-        let sid = values.sid
+        // console.log(data)
+        if (Object.keys(data).length > 0) {
 
-        // investment Calculator Start
-        let buyPrice = 0
-        let buyQty = 0
-
-        let sellPrice = 0
-        let sellQty = 0
-
-
-        if (userData.transactions.buy) {
-
-            userData.transactions.buy.map(value => {
-                if (value.symbol == symbol) {
-                    buyPrice += value.price * value.qty
-                    buyQty += value.qty
-                }
+            let option = document.createElement("option")
+            let indusArray = []
+            industrySelector.childNodes.forEach(ele => {
+                (ele.value) && indusArray.push(ele.value)
             })
+            if (!indusArray.includes(data.metadata.industry)) {
+                option.text = data.metadata.industry
+                industrySelector.add(option)
+            }
 
-        }
-        if (userData.transactions.sell) {
-            userData.transactions.sell.map(value => {
-                if (value.symbol == symbol) {
-                    sellPrice += value.price * value.qty
-                    sellQty += value.qty
+            noWatchlist.innerHTML = ''
+            let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+            let openPrice = data.priceInfo.open
+            let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
+            let preClosePrice = data.priceInfo.previousClose
+            let marketCap = (ttlShare * closePrice).toFixed(2)
+            let symbolPe = data.metadata.pdSymbolPe
+            let indPe = data.metadata.pdSectorPe
+            let eps = isFinite(closePrice / symbolPe) ? (closePrice / symbolPe).toFixed(2) : 0
+            let weekHighValue = data.priceInfo.weekHighLow.max
+            let weekLowValue = data.priceInfo.weekHighLow.min
+            let weekHighDate = data.priceInfo.weekHighLow.maxDate
+            let weeklowData = data.priceInfo.weekHighLow.minDate
+            let faceValue = (data.securityInfo.faceValue).toFixed(2)
+            let pChnage = (data.priceInfo.pChange).toFixed(2)
+            let vwap = data.priceInfo.vwap
+
+            let buyPrice = 0
+            let buyQty = 0
+
+            let sellPrice = 0
+            let sellQty = 0
+
+
+            if (userData.transactions.buy) {
+
+                userData.transactions.buy.map(value => {
+                    if (value.symbol == symbol) {
+                        buyPrice += value.price * value.qty
+                        buyQty += value.qty
+                    }
+                })
+
+            }
+            if (userData.transactions.sell) {
+                userData.transactions.sell.map(value => {
+                    if (value.symbol == symbol) {
+                        sellPrice += value.price * value.qty
+                        sellQty += value.qty
+                    }
+                })
+            }
+
+            let avlShare = buyQty - sellQty //Available Share Qty
+            let avgBuyPrice = buyPrice / buyQty //Average Buy Price
+            let currentGain = ((closePrice - avgBuyPrice) * avlShare).toFixed(2); //Curent Gain / Loss
+            currentGain = (isNaN(currentGain)) ? 0 : currentGain
+            let retAginstInv = sellPrice - (avgBuyPrice * sellQty); // Total Return
+            retAginstInv = (isNaN(retAginstInv)) ? 0 : retAginstInv
+            let invested = (isNaN(avlShare * avgBuyPrice)) ? 0 : (avlShare * avgBuyPrice)
+
+            if (document.querySelector(`.${symbol}`)) {
+                let cmpMarkup = document.querySelector(`.${symbol}-cmp`)
+
+                if (closePrice > preClosePrice) {
+                    cmpMarkup.classList.remove('bg-danger')
+                    cmpMarkup.classList.add('bg-success')
+                } else {
+                    cmpMarkup.classList.add('bg-danger')
+                    cmpMarkup.classList.remove('bg-success')
                 }
-            })
-        }
+                cmpMarkup.innerHTML = closePrice
 
-        let avlShare = buyQty - sellQty //Available Share Qty
-        let avgBuyPrice = buyPrice / buyQty //Average Buy Price
-        let currentGain = ((closePrice - avgBuyPrice) * avlShare).toFixed(2); //Curent Gain / Loss
-        currentGain = (isNaN(currentGain)) ? 0 : currentGain
-        let retAginstInv = sellPrice - (avgBuyPrice * sellQty); // Total Return
-        retAginstInv = (isNaN(retAginstInv)) ? 0 : retAginstInv
-        let invested = (isNaN(avlShare * avgBuyPrice)) ? 0 : (avlShare * avgBuyPrice)
-        // investment Calculator End
+                document.querySelector(`#${symbol}-invested`).innerHTML = invested
+                document.querySelector(`#${symbol}-cgl`).innerHTML = currentGain
+                document.querySelector(`#${symbol}-ttlrtn`).innerHTML = retAginstInv
+                document.querySelector(`#${symbol}-avlshare`).innerHTML = avlShare
 
-        mycardcontainer.innerHTML += `
-                    <div class="rounded mt-3 mb-3 border border-dark mycard ${sid}">
+            } else {
+                mycardcontainer.innerHTML += `
+                    <div class="rounded mt-3 mb-3 border border-dark mycard ${data.info.symbol}">
                         <div class="row p-2">
                             <div class="col-sm-12">
-                                <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${sid}')>
+                                <button type="button" class="close" aria-label="Close" onClick=removeSymbolFromProfile('${symbol}')>
                                     <span aria-hidden="true">&times;</span>
                                 </button>
-
+                        
                         <div class="row">
 
                             <div class="mt-3 d-flex flex-column justify-content-center nav-link col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
-                                <a href="/${sid}"><h3 class="text-primary lead">${nameData.data.info.name}</h3></a>
-                                <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${new Date(values.ts).toLocaleString()}</span></small></kbd>
-
+                                <a href="/${data.info.symbol}"><h3 class="text-primary lead">${data.info.companyName} (${data.info.symbol})</h3></a>
+                                <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
+                                
                                 <div class="text-center align-items-center flex-grow-1 buysell mt-3">
                                     <div class="input-group input-group-sm">
-                                        <input onChange="calcReturn('${sid}')" id="${sid}-buyingPrice" type="number" placeholder="Price" class="form-control">
-                                        <input onChange="calcReturn('${sid}')" id="${sid}-buyQty" type="number" placeholder="Qty" class="form-control">
+                                        <input onChange="calcReturn('${symbol}')" id="${symbol}-buyingPrice" type="number" placeholder="Price" class="form-control">
+                                        <input onChange="calcReturn('${symbol}')" id="${symbol}-buyQty" type="number" placeholder="Qty" class="form-control">
                                         <div class="input-group-append">
-                                            <button class="btn btn-success ${sid}-buy-btn" onClick="buyShares('${sid}')" type="button">BUY</button>
-                                            <button ${(avlShare == 0) && 'disabled'} class="btn btn-danger ${sid}-sell-btn" onClick="sellShares('${sid}')" type="button">SELL</button>
+                                            <button class="btn btn-success ${symbol}-buy-btn" onClick="buyShares('${symbol}')" type="button">BUY</button>
+                                            <button ${(avlShare == 0) && 'disabled'} class="btn btn-danger ${symbol}-sell-btn" onClick="sellShares('${symbol}')" type="button">SELL</button>
                                         </div>
                                     </div>
                                 </div>
@@ -127,17 +185,17 @@ const buildCards = async (symbol) => {
                                     <div class="cola">High</div>
                                     <div class="cola">Low</div>
                                     <div class="cola">CMP</div>
-                                    <div class="cola">Chnage</div>
+                                    <div class="cola">% Chnage</div>
 
                                     <div class="cola font-weight-bold">${preClosePrice}</div>
                                     <div class="cola font-weight-bold">${openPrice}</div>
-                                    <div class="cola font-weight-bold ${sid}-hp">${highPrice}</div>
-                                    <div class="cola font-weight-bold ${sid}-lp">${lowPrice}</div>
+                                    <div class="cola font-weight-bold">${data.priceInfo.intraDayHighLow.max}</div>
+                                    <div class="cola font-weight-bold">${data.priceInfo.intraDayHighLow.min}</div>
                                     <div class="cola font-weight-bold">
-                                        <kbd class="${sid}-cmp ${(closePrice > preClosePrice) ? 'bg-success' : 'bg-danger'}">${closePrice}</kbd>
+                                        <kbd class="${symbol}-cmp ${(closePrice > preClosePrice) ? 'bg-success' : 'bg-danger'}">${closePrice}</kbd>
                                     </div>
                                     <div class="cola font-weight-bold">
-                                        <kbd class="${sid}-change ${(changePrice > 0) ? 'bg-success' : 'bg-danger'}">${changePrice}</kbd>
+                                        <kbd class="${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
                                     </div>
 
                                 </div>
@@ -148,89 +206,48 @@ const buildCards = async (symbol) => {
 
                                 <div class="marketdepth mb-1">
                                     <div class="d-flex justify-content-between pl-2 pr-2">
-                                        <span class="text-success">Buy : <b class="${sid}-buy-qty"></b></span>
-                                        <span class="text-danger">Sell : <b class="${sid}-sell-qty"></b></span>
+                                        <span class="text-success">Buy : <b class="${symbol}-buy-qty"></b></span>
+                                        <span class="text-danger">Sell : <b class="${symbol}-sell-qty"></b></span>
                                     </div>
                                     <div class="progress">
-                                        <div class="progress-bar bg-success ${sid}-buy-bar" role="progressbar" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                                        <div class="progress-bar bg-danger ${sid}-sell-bar" role="progressbar" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-success ${symbol}-buy-bar" role="progressbar" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-danger ${symbol}-sell-bar" role="progressbar" style="width: 50%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
-
+                               
                                 <div class="text-center align-items-center flex-grow-1">
                                     <div class="d-flex flex-column text-center">
                                         <kbd class="bg-primary d-flex justify-content-between">
-                                            <span>Investment : <b id="${sid}-investment">0</b></span>
-                                            <span>Return : <b id="${sid}-return">0</b></span>
-                                            <span>Gain/Loss : <b id="${sid}-prloss">0</b></span>
-                                            <span>Change : <b id="${sid}-prlossPer">0</b></span>
+                                            <span>Investment : <b id="${symbol}-investment">0</b></span>
+                                            <span>Return : <b id="${symbol}-return">0</b></span>
+                                            <span>Gain/Loss : <b id="${symbol}-prloss">0</b></span>
+                                            <span>Change : <b id="${symbol}-prlossPer">0</b></span>
                                         </kbd>
                                         <kbd class="mt-1 bg-dark d-flex justify-content-between">
-                                            <span>Avl. Investment : <b id="${sid}-invested">${invested}</b></span>
-                                            <span>Curent Gain/Loss. : <b id="${sid}-cgl">${currentGain}</b></span>
-                                            <span>Gain/Loss : <b id="${sid}-ttlrtn">${retAginstInv}</b></span>
-                                            <span>Share Avl. : <b id="${sid}-avlshare">${avlShare}</b></span>
+                                            <span>Avl. Investment : <b id="${symbol}-invested">${invested}</b></span>
+                                            <span>Curent Gain/Loss. : <b id="${symbol}-cgl">${currentGain}</b></span>
+                                            <span>Gain/Loss : <b id="${symbol}-ttlrtn">${retAginstInv}</b></span>
+                                            <span>Share Avl. : <b id="${symbol}-avlshare">${avlShare}</b></span>
                                         </kdb>
                                     </div>
                                 </div>
 
-                            </div>
-                        </div>
+                </div>
+                </div>
                 </div>
             </div>
-            `
-        updateData()
+                    `
+            }
+            getMarketDepth(symbol)
+        } else {
+            console.log('Data Not Received, Retrying')
+        }
+
     } catch (error) {
         console.log(error)
-        setTimeout(() => buildCards(symbol), 10000)
+        setTimeout(buildCards(symbol), 2000)
     }
 
-}
-
-const updateData = () => {
-
-    let sids = ''
-    userData.watchList.map(item => sids += `${item},`)
-
-    if (sids.length > 0) {
-        fetch(`/tickerData/${sids}`, { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-
-                data.data.map(values => {
-                    let openPrice = values.o, highPrice = values.h, lowPrice = values.l, closePrice = values.price, preClosePrice = values.c, changePrice = values.change;
-
-                    if (document.querySelector(`.${values.sid}`)) {
-                        document.querySelector(`.${values.sid}-hp`).innerHTML = highPrice.toFixed(2)
-                        document.querySelector(`.${values.sid}-lp`).innerHTML = lowPrice.toFixed(2)
-                        document.querySelector(`.${values.sid}-cmp`).innerHTML = closePrice.toFixed(2)
-                        document.querySelector(`.${values.sid}-change`).innerHTML = changePrice.toFixed(2)
-
-                        if (preClosePrice < closePrice) {
-                            document.querySelector(`.${values.sid}-cmp`).classList.remove('bg-danger')
-                            document.querySelector(`.${values.sid}-change`).classList.remove('bg-danger')
-
-                            document.querySelector(`.${values.sid}-cmp`).classList.add('bg-success')
-                            document.querySelector(`.${values.sid}-change`).classList.add('bg-success')
-                        } else {
-                            document.querySelector(`.${values.sid}-cmp`).classList.remove('bg-success')
-                            document.querySelector(`.${values.sid}-change`).classList.remove('bg-success')
-
-                            document.querySelector(`.${values.sid}-cmp`).classList.add('bg-danger')
-                            document.querySelector(`.${values.sid}-change`).classList.add('bg-danger')
-                        }
-                    }
-                })
-
-
-                setTimeout(updateData, 1000)
-                // if (sessionStorage.marketStat != 'Closed') setTimeout(updateData, 1000)
-            })
-            .catch(err => {
-                console.log(err)
-                if (sessionStorage.marketStat != 'Closed') setTimeout(updateData, 5000)
-            })
-    }
 }
 
 const calcReturn = (symbol) => {
@@ -310,3 +327,49 @@ industrySelector.addEventListener('change', (e) => {
 
     })
 })
+
+
+let jsonArray = []
+
+const getMyData = () => {
+
+    if (userData.watchList.length > 0 & userData.watchList != "undefined") {
+        stockTable.classList.remove('d-none');
+        noWatchlist.innerHTML = ''
+
+        userData.watchList.map(symbol => {
+            if (!document.querySelector(`.${symbol}`)) {
+                fetchData(symbol)
+            }
+        })
+
+    } else {
+        noWatchlist.innerHTML = 'Your Watchlist is Empty'
+        stockTable.classList.add('d-none');
+    }
+}
+
+// setTimeout(getMyData, 2000)
+
+const getBseData = async (symbol, closePrice) => {
+
+    try {
+        let res = await fetch(`/getBseData/${symbol}`, { method: 'POST' })
+        let data = await res.json()
+        pbMarkUp = document.querySelector(`.${symbol}-pb`)
+        roeMarkUp = document.querySelector(`.${symbol}-roe`)
+        bvMarkUp = document.querySelector(`.${symbol}-bv`)
+
+        let pbValue = parseFloat(data.PB)
+        let roeValue = parseFloat(data.ROE)
+        let bookValue = (closePrice / pbValue).toFixed(2)
+
+        pbMarkUp.innerHTML = pbValue
+        roeMarkUp.innerHTML = roeValue
+        bvMarkUp.innerHTML = bookValue
+        getUpto2mData(symbol, closePrice)
+    } catch (error) {
+        getBseData(symbol, closePrice)
+        console.log('Last Action Failed, Retrying One More Time')
+    }
+}
