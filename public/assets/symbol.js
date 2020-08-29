@@ -488,7 +488,7 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 								cmpMarkup.innerHTML = closePrice
 								changeMarkup.innerHTML = changePrice
 								pchangeMarkup.innerHTML = `${pChange}%`
-								updateTimeInfo.innerHTML = moment(new Date(time).getTime()).format('HH:mm:ss')
+								updateTimeInfo.innerHTML = moment(new Date(time).getTime()).format('DD-MMM-YYYY HH:mm:ss')
 
 								document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${pChange}%`
 							}
