@@ -455,16 +455,23 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 
 						setInterval(async function () {
 
-							// let res = await fetch(`/growwLiveData/${symbol}`, { 'method': 'POST' })
-							// let data = await res.json()
+							let res = await fetch(`/growwLiveData/${symbol}`, { 'method': 'POST' })
+							let data = await res.json()
 
-							// let cmp = data.ltp.toFixed(2),
-							// 	pChange = data.dayChangePerc.toFixed(2),
-							// 	change = data.dayChange.toFixed(2),
-							// 	low = data.low.toFixed(2),
-							// 	high = data.high.toFixed(2),
-							// 	time = data.tsInMillis
+							let closePrice = data.ltp.toFixed(2),
+								pChange = data.dayChangePerc.toFixed(2),
+								changePrice = data.dayChange.toFixed(2),
+								low = data.low.toFixed(2),
+								high = data.high.toFixed(2),
+								time = returnGmtTime(data.tsInMillis)
 
+
+							cmpMarkup.innerHTML = closePrice
+							changeMarkup.innerHTML = changePrice
+							pchangeMarkup.innerHTML = `${pChange}%`
+							updateTimeInfo.innerHTML = data.tsInMillis
+
+							document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(pChange).toFixed(2)}%`
 
 
 							// if (sessionStorage.marketStat != 'Closed') {
