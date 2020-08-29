@@ -334,10 +334,6 @@ const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
 
 }
 
-const returnGmtTime = (date) => {
-	let newDate = new Date(date).getTime()
-	return (newDate + (((3600 * 5) + (60 * 30)) * 1000))
-}
 
 // Historical Graph
 const plotGraphData = (ohlc, vwapData, companyName, symbol, volume) => {
@@ -455,23 +451,45 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 
 						setInterval(async function () {
 
-							let res = await fetch(`/growwLiveData/${symbol}`, { 'method': 'POST' })
-							let data = await res.json()
+							if (sessionStorage.marketStat != 'Closed') {
+								let res = await fetch(`/growwLiveData/${symbol}`, { 'method': 'POST' })
+								let data = await res.json()
 
-							let closePrice = data.ltp.toFixed(2),
-								pChange = data.dayChangePerc.toFixed(2),
-								changePrice = data.dayChange.toFixed(2),
-								low = data.low.toFixed(2),
-								high = data.high.toFixed(2),
-								time = returnGmtTime(data.tsInMillis)
+								console.log('Live Data Received')
 
+								let closePrice = data.ltp.toFixed(2),
+									pChange = data.dayChangePerc.toFixed(2),
+									changePrice = data.dayChange.toFixed(2),
+									low = data.low.toFixed(2),
+									high = data.high.toFixed(2),
+									time = parseInt(`${data.tsInMillis}000`)
 
-							cmpMarkup.innerHTML = closePrice
-							changeMarkup.innerHTML = changePrice
-							pchangeMarkup.innerHTML = `${pChange}%`
-							updateTimeInfo.innerHTML = data.tsInMillis
+								if (preClose < closePrice) {
+									cmpMarkup.classList.remove('bg-danger')
+									changeMarkup.classList.remove('bg-danger')
+									pchangeMarkup.classList.remove('bg-danger')
 
-							document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(pChange).toFixed(2)}%`
+									cmpMarkup.classList.add('bg-success')
+									changeMarkup.classList.add('bg-success')
+									pchangeMarkup.classList.add('bg-success')
+								} else {
+									cmpMarkup.classList.remove('bg-success')
+									changeMarkup.classList.remove('bg-success')
+									pchangeMarkup.classList.remove('bg-success')
+
+									cmpMarkup.classList.add('bg-danger')
+									changeMarkup.classList.add('bg-danger')
+									pchangeMarkup.classList.add('bg-danger')
+								}
+
+								cmpMarkup.innerHTML = closePrice
+								changeMarkup.innerHTML = changePrice
+								pchangeMarkup.innerHTML = `${pChange}%`
+								updateTimeInfo.innerHTML = moment(new Date(time).getTime()).format('HH:mm:ss')
+
+								document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${pChange}%`
+							}
+
 
 
 							// if (sessionStorage.marketStat != 'Closed') {
@@ -692,4 +710,9 @@ const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 		]
 	});
 
+}
+
+const returnGmtTime = (date) => {
+	let newDate = new Date(date).getTime()
+	return (newDate + (((3600 * 5) + (60 * 30)) * 1000))
 }
