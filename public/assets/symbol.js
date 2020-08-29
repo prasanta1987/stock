@@ -451,7 +451,7 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 
 						setInterval(async function () {
 
-							if (sessionStorage.marketStat == 'Closed') {
+							if (sessionStorage.marketStat != 'Closed') {
 								let res = await fetch(`/growwLiveData/${symbol}`, { 'method': 'POST' })
 								let data = await res.json()
 
