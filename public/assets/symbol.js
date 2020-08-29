@@ -185,7 +185,7 @@ const getStocknews = (symbol) => {
 		.catch(err => {
 			console.log(err)
 			console.log('Retrying Last Action')
-			setTimeout(() => getStocknews(symbol), 2000)
+			setTimeout(() => getStocknews(symbol), 10000)
 		})
 }
 

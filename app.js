@@ -381,7 +381,7 @@ app.post('/getHistoricalData/:symbol/:eq/:startDate/:endDate', (req, res) => {
 
 app.post('/marketDepth/:symbol', (req, res) => {
     const symbol = req.params.symbol.toUpperCase().replace('&', '%26')
-    const url = `https://www.nse-india.com/api/quote-equity?symbol=${symbol}&section=trade_info`
+    const url = `https://www.nseindia.com/api/quote-equity?symbol=${symbol}&section=trade_info`
 
     axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
@@ -399,13 +399,9 @@ app.post('/shareHoldingPattern/:symbol', (req, res) => {
 
 })
 
-app.post('/corporateActions/:symbol/:startDate/:endDate', (req, res) => {
+app.post('/corporateActions/:symbol', (req, res) => {
     const symbol = req.params.symbol.toUpperCase().replace('&', '%26')
-    const startDate = req.params.startDate
-    const endDate = req.params.endDate
-
     const url = `https://www.nseindia.com/api/corporates-corporateActions?index=equities&symbol=${symbol}`
-    // const url = `https://www.nseindia.com/api/corporates-corporateActions?index=equities&from_date=${startDate}&to_date=${endDate}&symbol=${symbol}`
 
     axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
