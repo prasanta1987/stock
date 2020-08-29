@@ -17,7 +17,7 @@ fs.exists(userPrifileFile, (res) => {
 
 const nseHeader = {
     headers: {
-        "Cookie": `_ga=GA1.2.1497332274.1580809464; _csrf=mlnZeKPZgZSmqt_8Rrutb5er; ak_bmsc=EC982392D66C67C3A34FCA08005D37C71732E8831D3D00004BEE495F3730B46A~plyR0iMuSqx/M0v6zwQmyxvNXWEBiqLOra3kiykQ8UVQKqNUnJ/BQHKsPlmFHCFnzJnzzsqVujS5c1OupI3eNjYz9CiiU3rEIQJbUQOE+1iU+mJGvqacaOsyVTlSYbuF4WLICDV6QgGc+Dkjo8f+IBC+jJl9YHfD5QPGvHmS2b7Ltu+jZDRl2L5PQwX50fPUby3pbvhXvLv/pCKpDevfjfenI1cwagHbvtPRtbiyatLU+PnKeoi/BPlFfn74oE864U; _gid=GA1.2.791593207.1598680683; _gat_UA-143761337-1=1; nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTU5ODY4MDY5NywiZXhwIjoxNjMwMjE2Njk3fQ.I40EPucaFzRQxgM4jFw0_Io6zPp-eS08DujwxefB2C4; RT="z=1&dm=nseindia.com&si=74214306-0a23-4d0a-95c0-0afc5fad063d&ss=kef96h74&sl=1&tt=t1i&bcn=%2F%2F684fc53f.akstat.io%2F"; bm_sv=C579957FB83A99A7211E2405C7F9792E~4C/CR+yg3du9bTo5XmSFD3C7/zHsAnFaLWtaDaCWHW5gdx93tojNDZgzdM7io4+bQO1YZBhXj4WZoHj02p647+ojVO72EBBHIOoe36u7FMxBfPMSFcVzrbbCglywDBTr/EmC0Q0Aw5viBosuFIXFYotzljWoY7DNgwwMCZI8894=`
+        "Cookie": `_ga=GA1.2.1497332274.1580809464; _gid=GA1.2.791593207.1598680683; nseQuoteSymbols=[]; _csrf=-I7dEK27hQYLqqg3aLVoqu1v; ak_bmsc=5E2927CD951956DF91F490967764740617D4FDA6E93B0000F6324A5F7D752C38~plrjLJGhPpTlL7wfKiXrchT99PY9FFEpGDxaBypj4fVtQLm15Ad3pQoATTqbSydoyMcm1g7YXDincJJbXMcc9ZJ7r8yOrcevcqS2cSgrLiFagP26VCtxeYGFt8XMealsiBUp3YIMbRKI1PfjjWV9r3lFBJPg0iMVHJW61G4YxnTlfO9D207yT3/pd4W2uEctIxAna2+OUfdMMI08LVju9h6hvr35vpr0DKnOFDgwj17OGt/sRMDs4LR6nUyLB8wk9x; _gat_UA-143761337-1=1; nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTU5ODY5ODI0OSwiZXhwIjoxNjMwMjM0MjQ5fQ.vWZUTWEfyFUGrUK8U0voNQpsEA3YSQ_8bDQIl8OUsR8; RT="z=1&dm=nseindia.com&si=74214306-0a23-4d0a-95c0-0afc5fad063d&ss=kefjnbhd&sl=1&tt=5vf&bcn=%2F%2F684fc53e.akstat.io%2F"; bm_sv=47FB6367C153220A20F6714CAC3B4E90~gvN3BV+Nq8V6u5/gjK2uMXTzHNPWRRKFawzMUBub7SCg86Y2tL99E17n0Vdgb+ALwzdejIWPi0HSaG0tS2afTYpHbMW28Qu8GAIDVq83rKa0W2ZA52iwsyTbK9rWGtpkmy3GBeXzzHUgIQK4oqGj/cDX/hndm+Hvgfsz+b+ElFU=`
     }
 }
 
@@ -61,6 +61,8 @@ const getUserProfile = () => {
 
     return userData
 }
+
+// Start of Local file Handling
 
 app.post('/updateName/:name', (req, res) => {
 
@@ -176,6 +178,10 @@ app.post('/addSymbol/:symbol', (req, res) => {
 
 })
 
+// End of Local file Handling
+
+
+
 app.post('/searchSymbol/:name', (req, res) => {
 
     const name = req.params.name.toLocaleUpperCase()
@@ -220,7 +226,7 @@ app.post('/getBseData/:symbol', (req, res) => {
 })
 
 app.post('/marketStatus', (req, res) => {
-    axios.get('https://www.nseindia.com/api/marketStatus', nseHeader)
+    axios.get('https://www.nseindia.com/api/marketStatus')
         .then(data => res.status(200).json(data.data))
         .catch((err) => res.status(500).json(err))
 })
@@ -244,7 +250,7 @@ app.post('/stock/:symbol', (req, res) => {
 
     symb = symb.replace('&', '%26')
     const url = `https://www.nseindia.com/api/quote-equity?symbol=${symb}`
-
+    console.log(url)
     axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(err => res.status(500).json(err))
