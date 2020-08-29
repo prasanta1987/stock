@@ -451,18 +451,21 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 
 						setInterval(async function () {
 
-							if (sessionStorage.marketStat != 'Closed') {
+							if (sessionStorage.marketStat == 'Closed') {
 								let res = await fetch(`/growwLiveData/${symbol}`, { 'method': 'POST' })
 								let data = await res.json()
 
 								console.log('Live Data Received')
 
 								let closePrice = data.ltp.toFixed(2),
+									preClose = data.close,
 									pChange = data.dayChangePerc.toFixed(2),
 									changePrice = data.dayChange.toFixed(2),
 									low = data.low.toFixed(2),
 									high = data.high.toFixed(2),
 									time = parseInt(`${data.tsInMillis}000`)
+
+								series.addPoint([returnGmtTime(time), closePrice], true, true);
 
 								if (preClose < closePrice) {
 									cmpMarkup.classList.remove('bg-danger')
