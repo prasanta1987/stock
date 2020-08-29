@@ -483,6 +483,17 @@ app.post('/growwLiveData/:symbol', (req, res) => {
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
 
+app.post('/growwChanrt/:symbol', (req, res) => {
+
+    const symbol = req.params.symbol.toUpperCase()
+    const url = `https://groww.in/v1/api/stocks_data/v1/accord_graph_points/exchange/NSE/segment/CASH/prices/${symbol}?&range=D`
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
+
+
 const port = process.env.PORT || 3000
 
 app.listen(port, () => {

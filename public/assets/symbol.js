@@ -75,7 +75,7 @@ const fetchStockData = (symbol) => {
 			getMarketDepth(symbol)
 			getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
 			getFinData(data.info.symbol)
-			getIntraChartData(data.info.identifier, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
+			getIntraChartData(data.info.symbol, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
 			getStocknews(data.info.symbol)
 			showAddBtn()
 		})
@@ -189,16 +189,20 @@ const getStocknews = (symbol) => {
 		})
 }
 
-const getIntraChartData = (identifire, wHigh, wLow, openPrice, dHigh, dLow) => {
-	fetch(`/chartData/${identifire}`, { method: 'POST' })
+const getIntraChartData = (symbol, wHigh, wLow, openPrice, dHigh, dLow) => {
+	fetch(`/growwChanrt/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
-			intraGrpah(data.grapthData, wHigh, wLow, openPrice, dHigh, dLow)
+			let graphData = []
+			data.livePointsDtos.map(datas => {
+				graphData.push([returnGmtTime(datas.tsInMillis), datas.ltp])
+			})
+			intraGrpah(graphData, wHigh, wLow, openPrice, dHigh, dLow)
 		})
 		.catch(err => {
 			console.log(err)
 			console.log('Retrying Last Action')
-			setTimeout(() => getIntraChartData(identifire, wHigh, wLow, openPrice, dHigh, dLow), 2000)
+			setTimeout(() => getIntraChartData(symbol, wHigh, wLow, openPrice, dHigh, dLow), 2000)
 		})
 }
 
@@ -450,42 +454,57 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 						let series = this.series[0];
 
 						setInterval(async function () {
-							if (sessionStorage.marketStat != 'Closed') {
-								console.log(sessionStorage.marketStat)
-								let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
-								let data = await res.json()
-								let preClose = (data.priceInfo.previousClose).toFixed(2)
-								let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-								let changePrice = (closePrice - preClose).toFixed(2)
-								let pChange = ((changePrice / preClose) * 100).toFixed(2)
-								let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
-								series.addPoint([date, closePrice], true, true);
 
-								cmpMarkup.innerHTML = closePrice
-								changeMarkup.innerHTML = changePrice
-								pchangeMarkup.innerHTML = `${pChange}%`
-								updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+							// let res = await fetch(`/growwLiveData/${symbol}`, { 'method': 'POST' })
+							// let data = await res.json()
 
-								document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
+							// let cmp = data.ltp.toFixed(2),
+							// 	pChange = data.dayChangePerc.toFixed(2),
+							// 	change = data.dayChange.toFixed(2),
+							// 	low = data.low.toFixed(2),
+							// 	high = data.high.toFixed(2),
+							// 	time = data.tsInMillis
 
-								if (preClose < closePrice) {
-									cmpMarkup.classList.remove('bg-danger')
-									changeMarkup.classList.remove('bg-danger')
-									pchangeMarkup.classList.remove('bg-danger')
 
-									cmpMarkup.classList.add('bg-success')
-									changeMarkup.classList.add('bg-success')
-									pchangeMarkup.classList.add('bg-success')
-								} else {
-									cmpMarkup.classList.remove('bg-success')
-									changeMarkup.classList.remove('bg-success')
-									pchangeMarkup.classList.remove('bg-success')
 
-									cmpMarkup.classList.add('bg-danger')
-									changeMarkup.classList.add('bg-danger')
-									pchangeMarkup.classList.add('bg-danger')
-								}
-							}
+							// if (sessionStorage.marketStat != 'Closed') {
+							// 	console.log(sessionStorage.marketStat)
+							// 	let res = await fetch(`/stock/${symbol}`, { 'method': 'POST' })
+							// 	let data = await res.json()
+							// 	let preClose = (data.priceInfo.previousClose).toFixed(2)
+							// 	let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
+							// 	let changePrice = (closePrice - preClose).toFixed(2)
+							// 	let pChange = ((changePrice / preClose) * 100).toFixed(2)
+							// 	let date = parseInt(new Date(data.metadata.lastUpdateTime).getTime()) + ((3600 * 5) + (60 * 30)) * 1000
+							// 	series.addPoint([date, closePrice], true, true);
+
+							// 	cmpMarkup.innerHTML = closePrice
+							// 	changeMarkup.innerHTML = changePrice
+							// 	pchangeMarkup.innerHTML = `${pChange}%`
+							// 	updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
+
+							// 	document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
+
+							// 	if (preClose < closePrice) {
+							// 		cmpMarkup.classList.remove('bg-danger')
+							// 		changeMarkup.classList.remove('bg-danger')
+							// 		pchangeMarkup.classList.remove('bg-danger')
+
+							// 		cmpMarkup.classList.add('bg-success')
+							// 		changeMarkup.classList.add('bg-success')
+							// 		pchangeMarkup.classList.add('bg-success')
+							// 	} else {
+							// 		cmpMarkup.classList.remove('bg-success')
+							// 		changeMarkup.classList.remove('bg-success')
+							// 		pchangeMarkup.classList.remove('bg-success')
+
+							// 		cmpMarkup.classList.add('bg-danger')
+							// 		changeMarkup.classList.add('bg-danger')
+							// 		pchangeMarkup.classList.add('bg-danger')
+							// 	}
+							// }
+
+
 						}, 5000);
 					}
 			}
@@ -667,39 +686,3 @@ const plotFinanData = (totalInc, totalExp, paTax, symbol) => {
 	});
 
 }
-
-
-
-// const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
-
-// 	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-// 	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
-// 	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
-
-// 	historicalchartdata.innerHTML = `Data Fetched upto ${lastdate}`
-
-// 	fetchHistoricalData(symbol, series, fromDate, toDate)
-// 		.then(res => {
-// 			if (res.data.length > 2) {
-// 				res.data.map(values => cumData.push(values))
-// 				// setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 50)
-// 				getAllHistoricaldata(symbol, companyName, series, cumData)
-// 			} else {
-// 				let ohlc = [], vwapData = [], volume = []
-// 				cumData.map(values => {
-// 					let date = returnGmtTime(values.mTIMESTAMP)
-// 					// let date = values.mTIMESTAMP
-// 					ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-// 					vwapData.push([date, values.VWAP])
-// 					volume.push([date, values.CH_TOT_TRADED_QTY])
-// 				})
-// 				ohlc = ohlc.reverse()
-// 				vwapData = vwapData.reverse()
-// 				volume = volume.reverse()
-
-// 				plotGraphData(ohlc, vwapData, companyName, symbol, volume)
-// 				historicalchartdata.innerHTML = ''
-// 			}
-// 		})
-
-// }
