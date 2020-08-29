@@ -5,27 +5,6 @@ const stockTable = document.querySelector('.stock-table')
 const mycardcontainer = document.querySelector('.mycardcontainer')
 const industrySelector = document.querySelector('#industry')
 
-// const getMyWatchList = async () => {
-
-//     if (userData.watchList.length > 0 & userData.watchList != "undefined") {
-//         userData.watchList.map(symbol => {
-//             buildCards(symbol)
-//         })
-//     }
-
-// }
-
-// setTimeout(getMyWatchList, 2000)
-
-// const getMarketStatus = async () => {
-//     if (sessionStorage.marketStat != 'Closed' || sessionStorage.marketStat != 'Close') {
-//         getMyWatchList();
-//         (userData.watchList.length == 0) && (noWatchlist.innerHTML = 'Your Watch List is Empty')
-//     }
-// }
-
-// setInterval(getMarketStatus, 2000)
-
 
 const getMarketDepth = async (symbol) => {
 
@@ -57,7 +36,7 @@ const getMarketDepth = async (symbol) => {
 
     } catch (err) {
         console.log(err)
-        setTimeout(getMarketDepth, 2000)
+        setTimeout(getMarketDepth, 10000)
     }
 }
 
@@ -97,6 +76,7 @@ const buildCards = async (symbol) => {
             let faceValue = (data.securityInfo.faceValue).toFixed(2)
             let pChnage = (data.priceInfo.pChange).toFixed(2)
             let vwap = data.priceInfo.vwap
+            let changePrice = (closePrice - preClosePrice).toFixed(2)
 
             let buyPrice = 0
             let buyQty = 0
@@ -185,14 +165,18 @@ const buildCards = async (symbol) => {
                                     <div class="cola">High</div>
                                     <div class="cola">Low</div>
                                     <div class="cola">CMP</div>
-                                    <div class="cola">% Chnage</div>
+                                    <div class="cola">Change</div>
+                                    <div class="cola">Chnage %</div>
 
                                     <div class="cola font-weight-bold">${preClosePrice}</div>
                                     <div class="cola font-weight-bold">${openPrice}</div>
-                                    <div class="cola font-weight-bold">${data.priceInfo.intraDayHighLow.max}</div>
-                                    <div class="cola font-weight-bold">${data.priceInfo.intraDayHighLow.min}</div>
+                                    <div class="cola font-weight-bold ${symbol}-high">${data.priceInfo.intraDayHighLow.max}</div>
+                                    <div class="cola font-weight-bold ${symbol}-low">${data.priceInfo.intraDayHighLow.min}</div>
                                     <div class="cola font-weight-bold">
                                         <kbd class="${symbol}-cmp ${(closePrice > preClosePrice) ? 'bg-success' : 'bg-danger'}">${closePrice}</kbd>
+                                    </div>
+                                    <div class="cola font-weight-bold">
+                                        <kbd class="${symbol}-change ${(closePrice > preClosePrice) ? 'bg-success' : 'bg-danger'}">${changePrice}</kbd>
                                     </div>
                                     <div class="cola font-weight-bold">
                                         <kbd class="${symbol}-pchange ${(pChnage > 0) ? 'bg-success' : 'bg-danger'}">${pChnage} %</kbd>
@@ -252,9 +236,28 @@ const buildCards = async (symbol) => {
 
 const refreshData = (userData) => {
     userData.watchList.map(item => {
-        buildCards(item)
+        // buildCards(item)
+        fetch(`/growwLiveData/${item}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                let cmpMarkup = document.querySelector(`.${item}-cmp`)
+                let changeMarkup = document.querySelector(`.${item}-change`)
+                let pChangeMarkup = document.querySelector(`.${item}-pchange`)
+                let lowMarkup = document.querySelector(`.${item}-low`)
+                let highMarkup = document.querySelector(`.${item}-high`)
+
+                if (cmpMarkup) cmpMarkup.innerHTML = data.ltp.toFixed(2)
+                if (pChangeMarkup) pChangeMarkup.innerHTML = `${data.dayChangePerc.toFixed(2)} %`
+                if (changeMarkup) changeMarkup.innerHTML = data.dayChange.toFixed(2)
+                if (lowMarkup) lowMarkup.innerHTML = data.low.toFixed(2)
+                if (highMarkup) highMarkup.innerHTML = data.high.toFixed(2)
+            })
+            .catch(err => {
+                console.log(err)
+            })
     })
-    setTimeout(() => refreshData(userData), 5000)
+    if (sessionStorage.marketStat != 'Closed') setTimeout(() => refreshData(userData), 5000)
 }
 
 const calcReturn = (symbol) => {

@@ -15,6 +15,11 @@ fs.exists(userPrifileFile, (res) => {
     }
 })
 
+const nseHeader = {
+    headers: {
+        "Cookie": `_ga=GA1.2.1497332274.1580809464; _csrf=mlnZeKPZgZSmqt_8Rrutb5er; ak_bmsc=EC982392D66C67C3A34FCA08005D37C71732E8831D3D00004BEE495F3730B46A~plyR0iMuSqx/M0v6zwQmyxvNXWEBiqLOra3kiykQ8UVQKqNUnJ/BQHKsPlmFHCFnzJnzzsqVujS5c1OupI3eNjYz9CiiU3rEIQJbUQOE+1iU+mJGvqacaOsyVTlSYbuF4WLICDV6QgGc+Dkjo8f+IBC+jJl9YHfD5QPGvHmS2b7Ltu+jZDRl2L5PQwX50fPUby3pbvhXvLv/pCKpDevfjfenI1cwagHbvtPRtbiyatLU+PnKeoi/BPlFfn74oE864U; _gid=GA1.2.791593207.1598680683; _gat_UA-143761337-1=1; nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTU5ODY4MDY5NywiZXhwIjoxNjMwMjE2Njk3fQ.I40EPucaFzRQxgM4jFw0_Io6zPp-eS08DujwxefB2C4; RT="z=1&dm=nseindia.com&si=74214306-0a23-4d0a-95c0-0afc5fad063d&ss=kef96h74&sl=1&tt=t1i&bcn=%2F%2F684fc53f.akstat.io%2F"; bm_sv=C579957FB83A99A7211E2405C7F9792E~4C/CR+yg3du9bTo5XmSFD3C7/zHsAnFaLWtaDaCWHW5gdx93tojNDZgzdM7io4+bQO1YZBhXj4WZoHj02p647+ojVO72EBBHIOoe36u7FMxBfPMSFcVzrbbCglywDBTr/EmC0Q0Aw5viBosuFIXFYotzljWoY7DNgwwMCZI8894=`
+    }
+}
 
 // require('events').EventEmitter.defaultMaxListeners = 0
 // https://www.nseindia.com/api/search/autocomplete?q=reliance
@@ -174,7 +179,7 @@ app.post('/addSymbol/:symbol', (req, res) => {
 app.post('/searchSymbol/:name', (req, res) => {
 
     const name = req.params.name.toLocaleUpperCase()
-    axios.get(`https://www.nseindia.com/api/search/autocomplete?q=${name}`)
+    axios.get(`https://www.nseindia.com/api/search/autocomplete?q=${name}`, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch((err) => res.status(500).json(err))
 
@@ -215,7 +220,7 @@ app.post('/getBseData/:symbol', (req, res) => {
 })
 
 app.post('/marketStatus', (req, res) => {
-    axios.get('https://www.nseindia.com/api/marketStatus')
+    axios.get('https://www.nseindia.com/api/marketStatus', nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch((err) => res.status(500).json(err))
 })
@@ -226,7 +231,7 @@ app.post('/index/:sector', (req, res) => {
     let sector = (req.params.sector).toUpperCase()
     sector = sector.trim()
 
-    axios.get(`https://www.nseindia.com/api/equity-stockIndices?index=${sector}`)
+    axios.get(`https://www.nseindia.com/api/equity-stockIndices?index=${sector}`, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(err => res.status(500).json(err))
 
@@ -240,7 +245,7 @@ app.post('/stock/:symbol', (req, res) => {
     symb = symb.replace('&', '%26')
     const url = `https://www.nseindia.com/api/quote-equity?symbol=${symb}`
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(err => res.status(500).json(err))
 
@@ -256,7 +261,7 @@ app.post('/chartData/:symbol', (req, res) => {
     const url = `https://www.nseindia.com/api/chart-databyindex?index=${symb}`
     // const url = `https://www.nse-india.com/api/chart-databyindex?index=${symb}&preopen=true`
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(err => res.status(500).json(err))
 
@@ -369,7 +374,7 @@ app.post('/getHistoricalData/:symbol/:eq/:startDate/:endDate', (req, res) => {
 
     const url = `https://www.nseindia.com/api/historical/cm/equity?symbol=${symbol}&series=["${eqVal}"]&from=${startDate}&to=${endDate}`
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
@@ -378,7 +383,7 @@ app.post('/marketDepth/:symbol', (req, res) => {
     const symbol = req.params.symbol.toUpperCase().replace('&', '%26')
     const url = `https://www.nse-india.com/api/quote-equity?symbol=${symbol}&section=trade_info`
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
@@ -388,7 +393,7 @@ app.post('/shareHoldingPattern/:symbol', (req, res) => {
     const symbol = req.params.symbol.toUpperCase().replace('&', '%26')
     const url = `https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=${symbol}`
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
@@ -402,7 +407,7 @@ app.post('/corporateActions/:symbol/:startDate/:endDate', (req, res) => {
     const url = `https://www.nseindia.com/api/corporates-corporateActions?index=equities&symbol=${symbol}`
     // const url = `https://www.nseindia.com/api/corporates-corporateActions?index=equities&from_date=${startDate}&to_date=${endDate}&symbol=${symbol}`
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
@@ -412,7 +417,7 @@ app.post('/historicalFinancialResult/:symbol', (req, res) => {
     const symbol = req.params.symbol.toUpperCase().replace('&', '%26')
     const url = `https://www.nseindia.com/api/results-comparision?symbol=${symbol}`
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
@@ -421,7 +426,7 @@ app.post('/historicalFinancialResult/:symbol', (req, res) => {
 app.post('/gainers', (req, res) => {
     const url = 'https://www.nseindia.com/api/live-analysis-variations?index=gainers'
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
@@ -430,7 +435,7 @@ app.post('/gainers', (req, res) => {
 app.post('/loosers', (req, res) => {
     const url = 'https://www.nseindia.com/api/live-analysis-variations?index=loosers'
 
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
@@ -438,7 +443,7 @@ app.post('/loosers', (req, res) => {
 
 app.post('/activeByValue', (req, res) => {
     const url = 'https://www.nseindia.com/api/live-analysis-most-active-securities?index=value'
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
@@ -446,7 +451,7 @@ app.post('/activeByValue', (req, res) => {
 
 app.post('/activeByVolume', (req, res) => {
     const url = 'https://www.nseindia.com/api/live-analysis-most-active-securities?index=volume'
-    axios.get(url)
+    axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 
@@ -471,6 +476,16 @@ app.post('/getMMI', (req, res) => {
 })
 
 // End Ticker Tape
+
+// Groww Data
+app.post('/growwLiveData/:symbol', (req, res) => {
+
+    const symbol = req.params.symbol.toUpperCase()
+    const url = `https://groww.in/v1/api/stocks_data/v1/accord_points/exchange/NSE/segment/CASH/latest_prices_ohlc/${symbol}`
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
 
 const port = process.env.PORT || 3000
 
