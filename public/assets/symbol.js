@@ -105,7 +105,7 @@ const getShareHolding = (sid) => {
 
 			data.data.map(datas => {
 				dateSets.push(moment(new Date(datas.date).getTime()).format('MMM-YYYY'))
-				console.log(datas.data)
+				// console.log(datas.data)
 				let otherPartyHolding = 100 - (datas.data.diPctT + datas.data.pmPctT + datas.data.mfPctT + datas.data.fiPctT)
 				diiHolding.push(datas.data.diPctT)
 				promoholding.push(datas.data.pmPctT)
@@ -114,14 +114,45 @@ const getShareHolding = (sid) => {
 				otherHolding.push(otherPartyHolding)
 			})
 
-			shareHoldingChart(dateSets, diiHolding, promoholding, MfHolding, fiiHolding, otherHolding)
+			let dataSets = []
+
+			let diiDataSets = {
+				name: 'Domestic Institutional Holdings',
+				data: diiHolding
+			}
+
+			let promoDataSets = {
+				name: 'Total Promoter Holding',
+				data: promoholding
+			}
+
+			let mfDataSets = {
+				name: 'Mutual Fund Holdings',
+				data: MfHolding
+			}
+			let fiiDataSets = {
+				name: 'Foreign Institutional Holdings',
+				data: fiiHolding
+			}
+			let otherDataSets = {
+				name: 'Other Parties',
+				data: otherHolding
+			}
+
+			dataSets.push(otherDataSets)
+			dataSets.push(fiiDataSets)
+			dataSets.push(diiDataSets)
+			dataSets.push(mfDataSets)
+			dataSets.push(promoDataSets)
+
+			shareHoldingChart(dateSets, dataSets)
 		})
 		.catch(err => {
 			console.log(err)
 		})
 }
 
-const shareHoldingChart = (dateSets, diiHolding, promoholding, MfHolding, fiiHolding, otherHolding) => {
+const shareHoldingChart = (dateSets, dataSets) => {
 	Highcharts.chart('container-shareholding', {
 		chart: {
 			type: 'bar'
@@ -147,28 +178,7 @@ const shareHoldingChart = (dateSets, diiHolding, promoholding, MfHolding, fiiHol
 				stacking: 'normal'
 			}
 		},
-		series: [
-			{
-				name: 'Other Parties',
-				data: otherHolding
-			},
-			{
-				name: 'Foreign Institutional Holdings',
-				data: fiiHolding
-			},
-			{
-				name: 'Domestic Institutional Holdings',
-				data: diiHolding
-			},
-			{
-				name: 'Mutual Fund Holdings',
-				data: MfHolding
-			},
-			{
-				name: 'Total Promoter Holding',
-				data: promoholding
-			}
-		]
+		series: dataSets
 	});
 }
 
@@ -177,7 +187,7 @@ const getTickerTapeInfo = (sid) => {
 	fetch(`/tickerInfo/${sid}`, fetchOption)
 		.then(res => res.json())
 		.then(data => {
-			// console.log(data)
+			console.log(data)
 			document.querySelector('.eps').innerHTML = data.data.ratios.eps.toFixed(2)
 			document.querySelector('.pe').innerHTML = data.data.ratios.pe.toFixed(2)
 			document.querySelector('.indpe').innerHTML = data.data.ratios.indpe.toFixed(2)
@@ -188,6 +198,8 @@ const getTickerTapeInfo = (sid) => {
 			document.querySelector('.mcaprank').innerHTML = data.data.ratios.mrktCapRank
 			document.querySelector('.divyld').innerHTML = (data.data.ratios.divYield == null) ? 0 : `${data.data.ratios.divYield.toFixed(2)} %`
 			document.querySelector('.secdivyld').innerHTML = (data.data.ratios.inddy == null) ? 0 : `${data.data.ratios.inddy.toFixed(2)} %`
+			document.querySelector('.m1ret').innerHTML = `${data.data.ratios["4wpct"].toFixed(2)} %`
+			document.querySelector('.y1ret').innerHTML = `${data.data.ratios["52wpct"].toFixed(2)} %`
 		})
 		.catch(err => {
 			console.log(err)
