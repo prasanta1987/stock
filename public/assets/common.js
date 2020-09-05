@@ -2,6 +2,7 @@ const companyname = document.querySelector('.companyname')
 const suggestionresponse = document.querySelector('.suggestionresponse')
 
 let userData = []
+const fetchOption = { method: "POST" }
 
 const getMarketStat = async () => {
 

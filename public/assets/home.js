@@ -1,9 +1,6 @@
 const gainers = document.querySelector('.gainers')
 const loosers = document.querySelector('.loosers')
 
-
-const fetchOption = { "method": 'POST' }
-
 fetch('/gainers', fetchOption)
     .then(res => res.json())
     .then(data => {

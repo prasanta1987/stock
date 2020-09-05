@@ -47,7 +47,11 @@
             <div class="row">
                 <div class="col-sm-9">
                     <h1 class="lead stockname"></h1>
-                    <p class="lead industryinfo m-0"></p>
+                    <small style="font-size: 15px;">
+                        <kbd class="bg-primary industryinfo"></kbd>
+                        <kbd class="bg-primary capinfo"></kbd>
+                        <kbd class="bg-primary">M.CAP Rank - <b class="mcaprank"></b></kbd>
+                    </small>
                     <p class="lead updateTimeInfo"></p>
                 </div>
                 <div class="col-sm-3 text-right">
@@ -68,6 +72,8 @@
                     <b class="col"> Change </b>
                     <b class="col"> % Change </b>
                     <b class="col"> Pre Close</b>
+                    <b class="col"> 52W High </b>
+                    <b class="col"> 52W Low </b>
                 </div>
 
                 <div class="mt-1 row text-center d-flex align-items-center">
@@ -78,24 +84,30 @@
                     <div class="col"><kbd class="change">0</kbd></div>
                     <div class="col"><kbd class="pchange">0</kbd></div>
                     <div class="col preclose"> 0</div>
+                    <div class="col whigh"> 0 </div>
+                    <div class="col wlow"> 0 </div>
                 </div>
                 <hr>
                 <div class="row text-center d-flex align-items-center">
-                    <b class="col"> 52W High </b>
-                    <b class="col"> 52W Low </b>
+                    <b class="col"> M Cap (Cr.) </b>
                     <b class="col"> EPS </b>
                     <b class="col"> PE </b>
                     <b class="col"> IND PE </b>
-                    <b class="col"> M Cap (Cr.) </b>
+                    <b class="col"> PB </b>
+                    <b class="col"> IND PB </b>
+                    <b class="col"> DIV. Yld. </b>
+                    <b class="col"> Sec. DIV. Yld. </b>
                 </div>
 
                 <div class="mt-1 row text-center d-flex align-items-center">
-                    <div class="col whigh"> 0 </div>
-                    <div class="col wlow"> 0 </div>
+                    <div class="col mcap"> 0 </div>
                     <div class="col eps"> 0 </div>
                     <div class="col pe"> 0 </div>
                     <div class="col indpe"> 0 </div>
-                    <div class="col mcap"> 0 </div>
+                    <div class="col pb"> 0 </div>
+                    <div class="col indpb"> 0 </div>
+                    <div class="col divyld"> 0 </div>
+                    <div class="col secdivyld"> 0 </div>
                 </div>
             </div>
 
@@ -155,6 +167,8 @@
             </div>
 
             <div class="charts">
+
+                <div id="container-shareholding" class="mt-2 mb-2 border rounded" style="min-width: 310px"></div>
                 <div id="container-intra" style="height: 400px; min-width: 310px"></div>
                 <div id="container-finance" style="height: 400px; min-width: 310px"></div>
                 <h1 class="historicalchartdata lead text-center"></h1>

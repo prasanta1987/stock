@@ -12,8 +12,9 @@ const sellMarkup = document.querySelector('.sell')
 
 const symbol = window.location.pathname.replace('/', '')
 
+
 const fetchStockData = (symbol) => {
-	fetch(`/stock/${symbol}`, { method: 'POST' })
+	fetch(`/stock/${symbol}`, fetchOption)
 		.then(res => res.json())
 		.then(data => {
 			// console.log(data)
@@ -58,10 +59,7 @@ const fetchStockData = (symbol) => {
 			document.querySelector('.dhigh').innerHTML = dHigh
 			document.querySelector('.dlow').innerHTML = dLow
 			document.querySelector('.open').innerHTML = openPrice
-			document.querySelector('.eps').innerHTML = eps
-			document.querySelector('.pe').innerHTML = symbolPe
-			document.querySelector('.indpe').innerHTML = indPe
-			document.querySelector('.mcap').innerHTML = marketCap
+
 			changeMarkup.innerHTML = `${changePrice}`
 			pchangeMarkup.innerHTML = `${pChange}%`
 			document.querySelector('.wlow').innerHTML = `
@@ -78,11 +76,121 @@ const fetchStockData = (symbol) => {
 			getIntraChartData(data.info.symbol, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
 			getStocknews(data.info.symbol)
 			showAddBtn()
+
+			fetch(`/tickertapeSearch/${symbol}`, fetchOption)
+				.then(res => res.json())
+				.then(data => {
+					getTickerTapeInfo(data)
+					getShareHolding(data)
+				})
+				.catch(err => {
+					console.log(err)
+				})
+
 		})
 		.catch(err => {
 			console.log(err)
 			console.log('Retrying Last Action')
 			setTimeout(() => fetchStockData(symbol), 10000)
+		})
+}
+
+const getShareHolding = (sid) => {
+	fetch(`/tickertapeShareHolding/${sid}`, fetchOption)
+		.then(res => res.json())
+		.then(data => {
+			let dateSets = []
+
+			let diiHolding = [], promoholding = [], MfHolding = [], fiiHolding = [], otherHolding = []
+
+			data.data.map(datas => {
+				dateSets.push(moment(new Date(datas.date).getTime()).format('MMM-YYYY'))
+				console.log(datas.data)
+				let otherPartyHolding = 100 - (datas.data.diPctT + datas.data.pmPctT + datas.data.mfPctT + datas.data.fiPctT)
+				diiHolding.push(datas.data.diPctT)
+				promoholding.push(datas.data.pmPctT)
+				MfHolding.push(datas.data.mfPctT)
+				fiiHolding.push(datas.data.fiPctT)
+				otherHolding.push(otherPartyHolding)
+			})
+
+			shareHoldingChart(dateSets, diiHolding, promoholding, MfHolding, fiiHolding, otherHolding)
+		})
+		.catch(err => {
+			console.log(err)
+		})
+}
+
+const shareHoldingChart = (dateSets, diiHolding, promoholding, MfHolding, fiiHolding, otherHolding) => {
+	Highcharts.chart('container-shareholding', {
+		chart: {
+			type: 'bar'
+		},
+		title: {
+			text: 'Share Holding pattern'
+		},
+		xAxis: {
+			categories: dateSets
+		},
+		yAxis: {
+			min: 0,
+			max: 100,
+			title: {
+				text: ''
+			}
+		},
+		legend: {
+			reversed: true
+		},
+		plotOptions: {
+			series: {
+				stacking: 'normal'
+			}
+		},
+		series: [
+			{
+				name: 'Other Parties',
+				data: otherHolding
+			},
+			{
+				name: 'Foreign Institutional Holdings',
+				data: fiiHolding
+			},
+			{
+				name: 'Domestic Institutional Holdings',
+				data: diiHolding
+			},
+			{
+				name: 'Mutual Fund Holdings',
+				data: MfHolding
+			},
+			{
+				name: 'Total Promoter Holding',
+				data: promoholding
+			}
+		]
+	});
+}
+
+const getTickerTapeInfo = (sid) => {
+
+	fetch(`/tickerInfo/${sid}`, fetchOption)
+		.then(res => res.json())
+		.then(data => {
+			// console.log(data)
+			document.querySelector('.eps').innerHTML = data.data.ratios.eps.toFixed(2)
+			document.querySelector('.pe').innerHTML = data.data.ratios.pe.toFixed(2)
+			document.querySelector('.indpe').innerHTML = data.data.ratios.indpe.toFixed(2)
+			document.querySelector('.mcap').innerHTML = data.data.ratios.marketCap.toFixed(2)
+			document.querySelector('.pb').innerHTML = data.data.ratios.pb.toFixed(2)
+			document.querySelector('.indpb').innerHTML = data.data.ratios.indpb.toFixed(2)
+			document.querySelector('.capinfo').innerHTML = data.data.ratios.marketCapLabel
+			document.querySelector('.mcaprank').innerHTML = data.data.ratios.mrktCapRank
+			document.querySelector('.divyld').innerHTML = (data.data.ratios.divYield == null) ? 0 : `${data.data.ratios.divYield.toFixed(2)} %`
+			document.querySelector('.secdivyld').innerHTML = (data.data.ratios.inddy == null) ? 0 : `${data.data.ratios.inddy.toFixed(2)} %`
+		})
+		.catch(err => {
+			console.log(err)
 		})
 }
 
@@ -193,6 +301,7 @@ const getIntraChartData = (symbol, wHigh, wLow, openPrice, dHigh, dLow) => {
 	fetch(`/growwChanrt/${symbol}`, { method: 'POST' })
 		.then(res => res.json())
 		.then(data => {
+			// console.log(data)
 			let graphData = []
 			data.livePointsDtos.map(datas => {
 				graphData.push([returnGmtTime(datas.tsInMillis), datas.ltp])
@@ -463,9 +572,11 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 									changePrice = data.dayChange.toFixed(2),
 									low = data.low.toFixed(2),
 									high = data.high.toFixed(2),
-									time = parseInt(`${data.tsInMillis}000`)
+									time = parseInt(`${data.tsInMillis}000`);
 
-								series.addPoint([returnGmtTime(time), closePrice], true, true);
+								console.log(time)
+
+								series.addPoint([time, closePrice], true, true);
 
 								if (preClose < closePrice) {
 									cmpMarkup.classList.remove('bg-danger')
@@ -533,7 +644,7 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 							// }
 
 
-						}, 5000);
+						}, 1000);
 					}
 			}
 		},

@@ -16,9 +16,9 @@ fs.exists(userPrifileFile, (res) => {
 })
 
 const nseHeader = {
-    headers: {
-        "Cookie": `nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTU5ODcyODI2NCwiZXhwIjoxNjMwMjY0MjY0fQ.0e6VxQtZmjmwr_uQVecyPJ_haKgKChUJOh8N4AjeMNE`
-    }
+    // headers: {
+    //     "Cookie": `nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTU5ODcyODI2NCwiZXhwIjoxNjMwMjY0MjY0fQ.0e6VxQtZmjmwr_uQVecyPJ_haKgKChUJOh8N4AjeMNE`
+    // }
 }
 
 // require('events').EventEmitter.defaultMaxListeners = 0
@@ -476,6 +476,37 @@ app.post('/getMMI', (req, res) => {
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
+
+app.post('/tickertapeShareHolding/:symbol', (req, res) => {
+    let symbol = req.params.symbol
+    const url = `https://api.tickertape.in/stocks/holdings/${symbol}`
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
+app.post('/tickertapeChartData/:symbol', (req, res) => {
+    let symbol = req.params.symbol
+    const url = `https://api.tickertape.in/stocks/charts/inter/${symbol}?duration=max`
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
+app.post('/tickertapeSearch/:text', (req, res) => {
+    let text = req.params.text
+    const url = `https://api.tickertape.in/search?text=${text}`
+    axios.get(url)
+        .then(data => {
+            data.data.data.stocks.map(tickers => {
+                if (tickers.ticker == text) {
+                    res.status(200).json(tickers.sid)
+                }
+            })
+        })
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
 
 // End Ticker Tape
 
