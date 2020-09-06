@@ -32,6 +32,7 @@ const getUserData = async () => {
         }
         if (document.querySelector('.mycardcontainer')) userData.watchList.map(item => buildCards(item))
         if (document.querySelector('.mycardcontainer')) refreshData(userData)
+        if (document.querySelector('.tradebook')) getTransactions()
     } catch (error) {
         console.log(error)
         setTimeout(getUserData, 5000)

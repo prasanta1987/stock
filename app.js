@@ -11,7 +11,13 @@ const userPrifileFile = path.join(__dirname, './user_profile/userProfile.json')
 fs.exists(userPrifileFile, (res) => {
     if (!res) {
         fs.mkdirSync(path.join(__dirname, './user_profile'))
-        fs.writeFileSync(userPrifileFile, '{}')
+        fs.writeFileSync(userPrifileFile,
+            {
+                name: null,
+                watchList: [],
+                transactions: []
+            }
+        )
     }
 })
 
@@ -48,7 +54,7 @@ const userProfileCheck = (req, res, next) => {
 
 
 app.get('/watchlist', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/watchlist.html')));
-app.get('/userProfile', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/registration.html')));
+app.get('/tradebook', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/tradebook.html')));
 app.get('/', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/home.html')));
 app.get('/:symbol', userProfileCheck, (req, res) => res.sendFile(path.join(__dirname, '/public/symbol.html')));
 
@@ -92,12 +98,13 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
         symbol: name,
         date: date,
         price: parseFloat(price),
-        qty: parseInt(qty)
+        qty: parseInt(qty),
+        type: 'BUY'
     }
 
     let userData = getUserProfile()
 
-    userData.transactions.buy.push(data)
+    userData.transactions.push(data)
 
     try {
         fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
@@ -120,11 +127,12 @@ app.post('/sellShare/:symbol/:price/:qty/:date', (req, res) => {
         symbol: name,
         date: date,
         price: parseFloat(price),
-        qty: parseInt(qty)
+        qty: parseInt(qty),
+        type: 'SELL'
     }
 
     let userData = getUserProfile()
-    userData.transactions.sell.push(data)
+    userData.transactions.push(data)
 
     try {
         fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
@@ -493,6 +501,14 @@ app.post('/tickertapeChartData/:symbol', (req, res) => {
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
 
+app.post('/tickertapeSummery/:symbol', (req, res) => {
+    let symbol = req.params.symbol
+    const url = `https://api.tickertape.in/stocks/summary/${symbol}`
+    axios.get(url)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
 app.post('/tickertapeSearch/:text', (req, res) => {
     let text = req.params.text
     const url = `https://api.tickertape.in/search?text=${text}`
@@ -507,8 +523,9 @@ app.post('/tickertapeSearch/:text', (req, res) => {
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
 
-
 // End Ticker Tape
+
+
 
 // Groww Data
 app.post('/growwLiveData/:symbol', (req, res) => {

@@ -4,13 +4,15 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Market Snapshot</title>
+        <title>Profile</title>
+
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
             integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
         <link rel="stylesheet" href="./assets/styles.css">
     </head>
 
     <body>
+
         <div class="sticky-top nav">
             <div class="container-fluid d-flex align-items-center">
                 <div class="brand">
@@ -33,32 +35,26 @@
             </div>
         </div>
 
-        <div class="container-fluid">
-
-            <div class="row">
-                <div class="col-sm-12 col-md-12 col-lg-6">
-                    <p class="lead display-4 text-center">Top Gainers</p>
-                    <div class="gainers"></div>
-                </div>
-                <div class="col-sm-12 col-md-12 col-lg-6">
-                    <p class="lead display-4 text-center">Top Loosers</p>
-                    <div class="loosers"></div>
-                </div>
-            </div>
-
-            <div class="row mt-5 mb-5">
-                <div class="col-sm-12 col-md-12 col-lg-6">
-                    <p class="lead display-4 text-center">Active by Traded Value</p>
-                    <div class="value"></div>
-                </div>
-                <div class="col-sm-12 col-md-12 col-lg-6">
-                    <p class="lead display-4 text-center">Active by Traded Volume</p>
-                    <div class="volume"></div>
-                </div>
+        <div class="container tradebook">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr class="text-center">
+                            <th>SYMBOL</th>
+                            <th>Date</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Type</th>
+                            <th>Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody class="tradedata"></tbody>
+                </table>
             </div>
         </div>
+
         <script src="./assets/common.js"></script>
-        <script src="./assets/home.js"></script>
+        <script src="./assets/tradebook.js"></script>
     </body>
 
 </html>
