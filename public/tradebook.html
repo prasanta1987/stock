@@ -36,7 +36,10 @@
         </div>
 
         <div class="container tradebook">
-            <div class="table-responsive">
+
+            <!-- All Trades -->
+            <div class="table-responsive border rounded mt-5">
+                <h3 class="lead text-center mt-3 mb-3">All Trades</h3>
                 <table class="table table-hover">
                     <thead>
                         <tr class="text-center">
@@ -51,6 +54,27 @@
                     <tbody class="tradedata"></tbody>
                 </table>
             </div>
+
+            <!-- PL Statement -->
+            <div class="table-responsive border rounded mt-5">
+                <h3 class="lead text-center mt-3 mb-3">PL Statement</h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr class="text-center">
+                            <th>SYMBOL</th>
+                            <th>Buy Price</th>
+                            <th>Buy Qty</th>
+                            <th>Sell Price</th>
+                            <th>Sell Qty</th>
+                            <th>P&L</th>
+                        </tr>
+                    </thead>
+                    <tbody class="pldata"></tbody>
+                </table>
+            </div>
+
+
+
         </div>
 
         <script src="./assets/common.js"></script>

@@ -1,9 +1,10 @@
 const tradeDataMarkup = document.querySelector('.tradedata')
+const plDataMarkup = document.querySelector('.pldata')
+
+let boughtSymbols = []
+let soldSymbols = []
 
 const getTransactions = () => {
-
-    let boughtSymbols = []
-    let soldSymbols = []
 
     userData.transactions.map(data => {
         if (data.type == 'BUY' && !boughtSymbols.includes(data.symbol)) boughtSymbols.push(data.symbol)
@@ -23,7 +24,29 @@ const getTransactions = () => {
             `
     })
 
-    console.log(boughtSymbols)
-    console.log(soldSymbols)
+    extractSymbols()
 
+}
+
+const extractSymbols = () => {
+
+    boughtSymbols.map(mySymbol => {
+
+        let totalBuyQty = 0, totalBuyPrice = 0;
+        userData.transactions.map(data => {
+
+            if (data.symbol == mySymbol) {
+                if (data.type == 'BUY') {
+                    totalBuyQty += data.qty
+                    totalBuyPrice += data.price
+                }
+            }
+
+        })
+
+        let avgBuyBrice = totalBuyPrice / totalBuyQty
+
+        console.log(mySymbol, totalBuyQty, avgBuyBrice)
+
+    })
 }
