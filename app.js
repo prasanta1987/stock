@@ -99,7 +99,8 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
         date: date,
         price: parseFloat(price),
         qty: parseInt(qty),
-        type: 'BUY'
+        type: 'BUY',
+        status: 'pending'
     }
 
     let userData = getUserProfile()
@@ -142,6 +143,60 @@ app.post('/sellShare/:symbol/:price/:qty/:date', (req, res) => {
     }
 
 })
+
+app.post('/sellOrder/:id/:symbol/:qty/:price/:date', (req, res) => {
+
+    const trID = req.params.id
+    const symbol = req.params.symbol
+    const qty = req.params.qty
+    const price = req.params.price
+    const date = req.params.date
+
+    let userData = getUserProfile()
+    let trns = userData.transactions
+
+    let errors = {}
+
+    for (let i = 0; i < trns.length; i++) {
+        if (trns[i].id == trID) {
+            if (trns[i].type == 'SELL') {
+                errors.error = 'Order Already Exist'
+            }
+            if (trns[i].qty == qty) {
+                trns[i].status = 'Complete'
+            }
+        }
+    }
+
+    if (Object.keys(errors).length > 0) {
+
+        res.status(501).json({ errors })
+
+    } else {
+        let data = {
+            id: parseInt(trID),
+            symbol: symbol,
+            date: date,
+            price: parseFloat(price),
+            qty: parseInt(qty),
+            type: 'SELL',
+            status: 'completed'
+        }
+
+        userData.transactions.push(data)
+
+        try {
+            fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+            res.status(200).json({ "message": "Data Written Successfully" })
+        } catch (error) {
+            console.log(error)
+            res.status(501).json({ "error": "Something Went Wrong" })
+        }
+    }
+
+})
+
+
 
 app.post('/removeSymbol/:symbol', (req, res) => {
 
