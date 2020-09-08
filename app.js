@@ -153,49 +153,55 @@ app.post('/sellOrder/:id/:symbol/:qty/:price/:date', (req, res) => {
     const date = req.params.date
 
     let userData = getUserProfile()
-    let trns = userData.transactions
 
-    let errors = {}
-
-    for (let i = 0; i < trns.length; i++) {
-        if (trns[i].id == trID) {
-            if (trns[i].type == 'SELL') {
-                errors.error = 'Order Already Exist'
-            }
-            if (trns[i].qty == qty) {
-                trns[i].status = 'Complete'
-            }
-        }
+    let data = {
+        id: parseInt(trID),
+        symbol: symbol,
+        date: date,
+        price: parseFloat(price),
+        qty: parseInt(qty),
+        type: 'SELL',
+        status: 'completed'
     }
 
-    if (Object.keys(errors).length > 0) {
+    userData.transactions.push(data)
 
-        res.status(501).json({ errors })
-
-    } else {
-        let data = {
-            id: parseInt(trID),
-            symbol: symbol,
-            date: date,
-            price: parseFloat(price),
-            qty: parseInt(qty),
-            type: 'SELL',
-            status: 'completed'
-        }
-
-        userData.transactions.push(data)
-
-        try {
-            fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
-            res.status(200).json({ "message": "Data Written Successfully" })
-        } catch (error) {
-            console.log(error)
-            res.status(501).json({ "error": "Something Went Wrong" })
-        }
+    try {
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+        res.status(200).json({ "message": "Data Written Successfully" })
+    } catch (error) {
+        console.log(error)
+        res.status(501).json({ "error": "Something Went Wrong" })
     }
 
 })
 
+app.post(`/deleteTrans/:id`, (req, res) => {
+
+    const trID = req.params.id
+
+    let userData = getUserProfile()
+    let trns = userData.transactions
+
+    for (let i = 0; i < trns.length; i++) {
+        if (trns[i].id == trID) {
+            console.log(i, trns[i].symbol)
+            trns.splice(i, 1)
+        }
+    }
+
+    userData.transactions = trns
+
+    try {
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+        res.status(200).json({ message: "Data Written Successfully" })
+    } catch (error) {
+        console.log(error)
+        res.status(501).json({ error: "Something Went Wrong" })
+    }
+
+
+})
 
 
 app.post('/removeSymbol/:symbol', (req, res) => {

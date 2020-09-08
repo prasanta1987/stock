@@ -131,3 +131,19 @@ const getMMI = () => {
 }
 
 setInterval(getMMI, 10000)
+
+const returnAvlShare = (symbol) => {
+
+    let totalBuyQty = 0, totalSellQty = 0;
+
+    userData.transactions.map(x => {
+        if (x.symbol == symbol) {
+            if (x.type == 'BUY') totalBuyQty += x.qty
+            if (x.type == 'SELL') totalSellQty += x.qty
+        }
+    })
+
+    let avlShare = totalBuyQty - totalSellQty
+
+    return avlShare
+}

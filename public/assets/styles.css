@@ -29,7 +29,10 @@
     width: 50%;
     position: relative;
 }
+
+.symbolsearch{position: relative;}
 .searchcontainer{
+    z-index: 99;
     position: absolute;
     width: 100%;
     margin:0 !important;
