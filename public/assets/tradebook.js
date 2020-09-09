@@ -22,7 +22,7 @@ const getTransactions = () => {
                     ${(data.type == 'BUY')
                 ? `<td>0</td><td>${(data.qty * data.price).toFixed(2)}</td>`
                 : `<td>${(data.qty * data.price).toFixed(2)}</td><td>0</td>`}
-                
+                    
                 ${(data.status == 'PENDING')
                 ? `<td>
                     <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#sellordermodal" onClick="sellModal('${data.symbol}','${data.id}')">Sell</button>
@@ -52,21 +52,17 @@ const getTransactions = () => {
 
 const extractSymbols = () => {
 
-    boughtSymbols.map(mySymbol => {
+    boughtSymbols.map(async (mySymbol) => {
 
-        let totalBuyQty = 0, totalBuyPrice = 0;
-        userData.transactions.map(data => {
+        let res = await fetch(`/growwLiveData/${mySymbol}`, fetchOption)
+        let data = await res.json()
 
-            if (data.symbol == mySymbol) {
-                if (data.type == 'BUY') {
-                    totalBuyQty += data.qty
-                    totalBuyPrice += data.price
-                }
-            }
-
-        })
-        let avgBuyBrice = totalBuyPrice / totalBuyQty
+        if (document.querySelector(`#${mySymbol}`)) {
+            console.log(data)
+            document.querySelectorAll(`#${mySymbol}`).forEach(ele => ele.innerHTML = data.ltp)
+        }
     })
+
 }
 
 const sellModal = (symbol, trID) => {
