@@ -145,9 +145,7 @@ app.post('/sellShare/:id/:symbol/:qty/:price/:date', (req, res) => {
     let avlShare = returnAvlShare(symbol)
     let errors = {}
 
-    if (parseInt(qty) > avlShare) {
-        errors.error = 'Sell Quantity Must be Lower Than Buy Available Share Qty'
-    }
+    if (parseInt(qty) > avlShare) errors.error = 'Sell Quantity Must be Lower Than Buy Available Share Qty'
 
     if (Object.keys(errors).length > 0) {
         res.status(200).json(errors)
@@ -164,13 +162,20 @@ app.post('/sellShare/:id/:symbol/:qty/:price/:date', (req, res) => {
         }
 
         userData.transactions.push(data)
+        if (parseInt(qty) == avlShare) {
+            for (let i = 0; i < userData.transactions.length; i++) {
+                if (userData.transactions[i].id == trID) {
+                    userData.transactions[i].status = 'COMPLETED'
+                }
+            }
+        }
 
         try {
             fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
-            res.status(200).json({ "message": "Data Written Successfully" })
+            res.status(200).json({ message: "Data Written Successfully" })
         } catch (error) {
             console.log(error)
-            res.status(501).json({ "error": "Something Went Wrong" })
+            res.status(501).json({ error: "Something Went Wrong" })
         }
 
     }
@@ -180,14 +185,23 @@ app.post('/sellShare/:id/:symbol/:qty/:price/:date', (req, res) => {
 app.post(`/deleteTrans/:id`, (req, res) => {
 
     const trID = req.params.id
+    let boID = ''
 
     let userData = getUserProfile()
     let trns = userData.transactions
 
     for (let i = 0; i < trns.length; i++) {
+
         if (trns[i].id == trID) {
-            console.log(i, trns[i].symbol)
+            boID = trns[i].buyOrderID
             trns.splice(i, 1)
+        }
+
+    }
+
+    for (let i = 0; i < trns.length; i++) {
+        if (trns[i].id == boID) {
+            trns[i].status = 'PENDING'
         }
     }
 
@@ -200,7 +214,6 @@ app.post(`/deleteTrans/:id`, (req, res) => {
         console.log(error)
         res.status(501).json({ error: "Something Went Wrong" })
     }
-
 
 })
 

@@ -26,8 +26,8 @@ const getTransactions = () => {
                 ${(data.status == 'PENDING')
                 ? `<td>
                     <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#sellordermodal" onClick="sellModal('${data.symbol}','${data.id}')">Sell</button>
-                    <button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">Delete</button></td>`
-                : `<td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">Delete</button></td>`}
+                    <button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">DELETE</button></td>`
+                : `<td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">DELETE</button></td>`}
                 
                 </tr>`
         if (data.type == 'BUY') {
@@ -111,7 +111,7 @@ const addSellTrns = () => {
     fetch(`/sellShare/${boID}/${symbol}/${sQty}/${sPrice}/${sDate}`, fetchOption)
         .then(res => res.json())
         .then(data => {
-            console.log(data)
+            if (data.message) location.reload()
         })
         .catch(err => {
             console.log(err)
