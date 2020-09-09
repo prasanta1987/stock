@@ -68,6 +68,22 @@ const getUserProfile = () => {
     return userData
 }
 
+const returnAvlShare = (symbol) => {
+
+    let totalBuyQty = 0, totalSellQty = 0;
+    let userData = getUserProfile()
+    userData.transactions.map(x => {
+        if (x.symbol == symbol) {
+            if (x.type == 'BUY') totalBuyQty += x.qty
+            if (x.type == 'SELL') totalSellQty += x.qty
+        }
+    })
+
+    let avlShare = totalBuyQty - totalSellQty
+
+    return avlShare
+}
+
 // Start of Local file Handling
 
 app.post('/updateName/:name', (req, res) => {
@@ -100,7 +116,7 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
         price: parseFloat(price),
         qty: parseInt(qty),
         type: 'BUY',
-        status: 'pending'
+        status: 'PENDING'
     }
 
     let userData = getUserProfile()
@@ -116,35 +132,7 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
 
 })
 
-app.post('/sellShare/:symbol/:price/:qty/:date', (req, res) => {
-
-    const name = req.params.symbol
-    const price = req.params.price
-    const qty = req.params.qty
-    const date = req.params.date
-
-    let data = {
-        id: new Date().getTime(),
-        symbol: name,
-        date: date,
-        price: parseFloat(price),
-        qty: parseInt(qty),
-        type: 'SELL'
-    }
-
-    let userData = getUserProfile()
-    userData.transactions.push(data)
-
-    try {
-        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
-        res.status(200).json({ "message": "Data Written Successfully" })
-    } catch (error) {
-        res.status(501).json({ "error": "Something Went Wrong" })
-    }
-
-})
-
-app.post('/sellOrder/:id/:symbol/:qty/:price/:date', (req, res) => {
+app.post('/sellShare/:id/:symbol/:qty/:price/:date', (req, res) => {
 
     const trID = req.params.id
     const symbol = req.params.symbol
@@ -154,24 +142,37 @@ app.post('/sellOrder/:id/:symbol/:qty/:price/:date', (req, res) => {
 
     let userData = getUserProfile()
 
-    let data = {
-        id: parseInt(trID),
-        symbol: symbol,
-        date: date,
-        price: parseFloat(price),
-        qty: parseInt(qty),
-        type: 'SELL',
-        status: 'completed'
+    let avlShare = returnAvlShare(symbol)
+    let errors = {}
+
+    if (parseInt(qty) > avlShare) {
+        errors.error = 'Sell Quantity Must be Lower Than Buy Available Share Qty'
     }
 
-    userData.transactions.push(data)
+    if (Object.keys(errors).length > 0) {
+        res.status(200).json(errors)
+    } else {
+        let data = {
+            id: new Date().getTime(),
+            buyOrderID: parseInt(trID),
+            symbol: symbol,
+            date: date,
+            price: parseFloat(price),
+            qty: parseInt(qty),
+            type: 'SELL',
+            status: 'COMPLETED'
+        }
 
-    try {
-        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
-        res.status(200).json({ "message": "Data Written Successfully" })
-    } catch (error) {
-        console.log(error)
-        res.status(501).json({ "error": "Something Went Wrong" })
+        userData.transactions.push(data)
+
+        try {
+            fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+            res.status(200).json({ "message": "Data Written Successfully" })
+        } catch (error) {
+            console.log(error)
+            res.status(501).json({ "error": "Something Went Wrong" })
+        }
+
     }
 
 })
@@ -606,7 +607,6 @@ app.post('/growwChanrt/:symbol', (req, res) => {
         .then(data => res.status(200).json(data.data))
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
-
 
 
 const port = process.env.PORT || 3000

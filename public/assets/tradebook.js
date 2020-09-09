@@ -13,7 +13,7 @@ const getTransactions = () => {
         if (data.type == 'SELL' && !soldSymbols.includes(data.symbol)) soldSymbols.push(data.symbol)
         tradeDataMarkup.innerHTML +=
             `
-                <tr class="text-center my${data.id}">
+                <tr class="text-center ${data.id}">
                     <td>${data.symbol}</td>
                     <td>${data.date}</td>
                     <td>${data.price.toFixed(2)}</td>
@@ -22,7 +22,13 @@ const getTransactions = () => {
                     ${(data.type == 'BUY')
                 ? `<td>0</td><td>${(data.qty * data.price).toFixed(2)}</td>`
                 : `<td>${(data.qty * data.price).toFixed(2)}</td><td>0</td>`}
-                    <td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">Delete</button></td >
+                
+                ${(data.status == 'PENDING')
+                ? `<td>
+                    <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#sellordermodal" onClick="sellModal('${data.symbol}','${data.id}')">Sell</button>
+                    <button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">Delete</button></td>`
+                : `<td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">Delete</button></td>`}
+                
                 </tr>`
         if (data.type == 'BUY') {
             totalDebit += data.qty * data.price
@@ -65,33 +71,47 @@ const extractSymbols = () => {
 
 const sellModal = (symbol, trID) => {
 
-    document.querySelector('#symbolname').innerHTML = symbol
-    document.querySelector('#symbolname').setAttribute('data-ID', trID)
-    document.querySelector('.avlshare').innerHTML = returnAvlShare(symbol)
+    document.querySelector('.symbolname').innerHTML = symbol
+    document.querySelector('.symbolname').setAttribute('data-ID', trID)
+    document.querySelector('.avlshare').innerHTML = returnAvlShares(symbol)
 }
 
 
 
-const addTrns = (type) => {
+const addTrns = () => {
 
     let symbol = document.querySelector('.symbsrch').value
-    let sDate = document.querySelector('#solddate').value
-    let sQty = document.querySelector('#soldqty').value
-    let sPrice = document.querySelector('#soldprice').value
-
-    let url = ''
+    let sDate = document.querySelector('#buydate').value
+    let sQty = document.querySelector('#buyqty').value
+    let sPrice = document.querySelector('#buyprice').value
     sDate = moment(new Date(sDate).getTime()).format('DD-MMM-YYYY')
 
-    if (type == 'BUY') {
-        url = `/buyShare/${symbol}/${sPrice}/${sQty}/${sDate}`
-    } else if (type == 'SELL') {
-        url = `/sellShare/${symbol}/${sPrice}/${sQty}/${sDate}`
-    }
+    let url = `/buyShare/${symbol}/${sPrice}/${sQty}/${sDate}`
 
     fetch(url, fetchOption)
         .then(res => res.json())
         .then(data => {
             if (data.message) location.reload()
+        })
+        .catch(err => {
+            console.log(err)
+        })
+}
+
+const addSellTrns = () => {
+
+    let symbol = document.querySelector('.symbolname').innerHTML
+    let boID = document.querySelector('.symbolname').getAttribute('data-id')
+    let sDate = document.querySelector('#solddate').value
+    let sQty = document.querySelector('#soldqty').value
+    let sPrice = document.querySelector('#soldprice').value
+
+    sDate = moment(new Date(sDate).getTime()).format('DD-MMM-YYYY')
+
+    fetch(`/sellShare/${boID}/${symbol}/${sQty}/${sPrice}/${sDate}`, fetchOption)
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
         })
         .catch(err => {
             console.log(err)

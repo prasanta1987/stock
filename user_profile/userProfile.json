@@ -1,1 +1,1 @@
-{"name":"PK","watchList":["BANDHANBNK","SPENCERS"],"transactions":[]}
+{"name":"PK","watchList":["BANDHANBNK","SPENCERS"],"transactions":[{"id":1599663888088,"symbol":"IDFC","date":"04-Sep-2020","price":27.5,"qty":50,"type":"BUY","status":"PENDING"},{"id":1599668116479,"buyOrderID":1599663888088,"symbol":"IDFC","date":"09-Sep-2020","price":28,"qty":50,"type":"SELL","status":"COMPLETED"}]}
