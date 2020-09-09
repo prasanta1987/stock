@@ -122,6 +122,7 @@ const deleteTrns = (trID) => {
     fetch(`/deleteTrans/${trID}`, fetchOption)
         .then(res => res.json())
         .then(data => {
+            // console.log(data)
             location.reload()
         })
         .catch(err => {

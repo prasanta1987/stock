@@ -185,7 +185,7 @@ app.post('/sellShare/:id/:symbol/:qty/:price/:date', (req, res) => {
 app.post(`/deleteTrans/:id`, (req, res) => {
 
     const trID = req.params.id
-    let boID = ''
+    let boID = '', type = '', symbol = ''
 
     let userData = getUserProfile()
     let trns = userData.transactions
@@ -193,19 +193,41 @@ app.post(`/deleteTrans/:id`, (req, res) => {
     for (let i = 0; i < trns.length; i++) {
 
         if (trns[i].id == trID) {
-            boID = trns[i].buyOrderID
+
+            symbol = trns[i].symbol
+
+            if (trns[i].type == 'SELL') {
+                type = 'SELL'
+                boID = trns[i].buyOrderID
+            } else {
+                type = 'BUY'
+            }
+
             trns.splice(i, 1)
         }
 
     }
-
-    for (let i = 0; i < trns.length; i++) {
-        if (trns[i].id == boID) {
-            trns[i].status = 'PENDING'
+    if (type == 'SELL') {
+        for (let i = 0; i < trns.length; i++) {
+            if (trns[i].id == boID) {
+                trns[i].status = 'PENDING'
+            }
         }
     }
 
     userData.transactions = trns
+
+    if (type == 'BUY') {
+        for (let i = 0; i < userData.transactions.length; i++) {
+            if (userData.transactions[i].buyOrderID == trID) {
+                trns.splice(i, 1)
+            }
+        }
+    }
+
+    userData.transactions = trns
+
+    // res.status(200).json(userData)
 
     try {
         fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
