@@ -8,14 +8,41 @@ const getTransactions = () => {
 
     let totalDebit = 0, totalCredit = 0;
 
-    userData.transactions.map(data => {
-        if (data.type == 'BUY' && !boughtSymbols.includes(data.symbol)) boughtSymbols.push(data.symbol)
-        if (data.type == 'SELL' && !soldSymbols.includes(data.symbol)) soldSymbols.push(data.symbol)
+    userData.buyOrder.map(data => {
+        if (!boughtSymbols.includes(data.symbol)) boughtSymbols.push(data.symbol)
         tradeDataMarkup.innerHTML +=
             `
                 <tr class="text-center ${data.id}">
                     <td>${data.symbol}</td>
-                    <td>${data.date}</td>
+                    <td>${moment(data.date).format('DD-MMM-YYYY @ HH:mm:ss')}</td>
+                    <td>${data.price.toFixed(2)}</td>
+                    <td>${data.qty}</td>
+                    <td><kbd class="bg-light ${(data.type == 'BUY' ? 'text-danger' : 'text-success')}">${data.type}</kbd></td>
+                    ${(data.type == 'BUY')
+                ? `<td>0</td><td>${(data.qty * data.price).toFixed(2)}</td>`
+                : `<td>${(data.qty * data.price).toFixed(2)}</td><td>0</td>`}
+                    
+                ${(data.status == 'PENDING')
+                ? `<td>
+                    <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#sellordermodal" onClick="sellModal('${data.symbol}','${data.id}')">Sell</button>
+                    <button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">DELETE</button></td>`
+                : `<td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}')">DELETE</button></td>`}
+                
+                </tr>`
+        if (data.type == 'BUY') {
+            totalDebit += data.qty * data.price
+        } else {
+            totalCredit += data.qty * data.price
+        }
+
+    })
+    userData.sellOrder.map(data => {
+        if (!soldSymbols.includes(data.symbol)) soldSymbols.push(data.symbol)
+        tradeDataMarkup.innerHTML +=
+            `
+                <tr class="text-center ${data.id}">
+                    <td>${data.symbol}</td>
+                    <td>${moment(data.date).format('DD-MMM-YYYY @ HH:mm:ss')}</td>
                     <td>${data.price.toFixed(2)}</td>
                     <td>${data.qty}</td>
                     <td><kbd class="bg-light ${(data.type == 'BUY' ? 'text-danger' : 'text-success')}">${data.type}</kbd></td>
@@ -78,21 +105,13 @@ const addTrns = () => {
 
     let symbol = document.querySelector('.symbsrch').value
     let bDate = document.querySelector('#buydate').value
-    let bQty = document.querySelectorAll('#buyqty')
-    let bPrice = document.querySelectorAll('#buyprice')
-    bDate = moment(new Date(bDate).getTime()).format('DD-MMM-YYYY')
+    let bQty = document.querySelector('#buyqty').value
+    let bPrice = document.querySelector('#buyprice').value
 
-    let totalBuyQty = 0, totalBuyPrice = 0, trades = 0, avgBuyBrice = 0;
-    bQty.forEach(qty => {
-        totalBuyQty += (isNaN(parseInt(qty.value))) ? 0 : parseInt(qty.value);
-        (!isNaN(parseInt(qty.value))) && trades++
-    })
+    bDate = new Date(bDate).getTime()
 
-    bPrice.forEach(qty => totalBuyPrice += (isNaN(parseFloat(qty.value))) ? 0 : parseFloat(qty.value))
 
-    avgBuyBrice = (totalBuyPrice / trades).toFixed(2)
-
-    let url = `/buyShare/${symbol}/${avgBuyBrice}/${totalBuyQty}/${bDate}`
+    let url = `/buyShare/${symbol}/${bPrice}/${bQty}/${bDate}`
 
     fetch(url, fetchOption)
         .then(res => res.json())
@@ -107,14 +126,13 @@ const addTrns = () => {
 const addSellTrns = () => {
 
     let symbol = document.querySelector('.symbolname').innerHTML
-    let boID = document.querySelector('.symbolname').getAttribute('data-id')
     let sDate = document.querySelector('#solddate').value
     let sQty = document.querySelector('#soldqty').value
     let sPrice = document.querySelector('#soldprice').value
 
-    sDate = moment(new Date(sDate).getTime()).format('DD-MMM-YYYY')
+    sDate = new Date(sDate).getTime()
 
-    fetch(`/sellShare/${boID}/${symbol}/${sQty}/${sPrice}/${sDate}`, fetchOption)
+    fetch(`/sellShare/${symbol}/${sQty}/${sPrice}/${sDate}`, fetchOption)
         .then(res => res.json())
         .then(data => {
             if (data.message) location.reload()

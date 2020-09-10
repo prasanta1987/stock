@@ -72,10 +72,16 @@ const returnAvlShare = (symbol) => {
 
     let totalBuyQty = 0, totalSellQty = 0;
     let userData = getUserProfile()
-    userData.transactions.map(x => {
+
+    userData.buyOrder.map(x => {
         if (x.symbol == symbol) {
-            if (x.type == 'BUY') totalBuyQty += x.qty
-            if (x.type == 'SELL') totalSellQty += x.qty
+            totalBuyQty += x.qty
+        }
+    })
+
+    userData.sellOrder.map(x => {
+        if (x.symbol == symbol) {
+            totalSellQty += x.qty
         }
     })
 
@@ -112,7 +118,7 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
     let data = {
         id: new Date().getTime(),
         symbol: name,
-        date: date,
+        date: parseInt(date),
         price: parseFloat(price),
         qty: parseInt(qty),
         type: 'BUY',
@@ -121,7 +127,13 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
 
     let userData = getUserProfile()
 
-    userData.transactions.push(data)
+    userData.buyOrder.push(data)
+
+    userData.buyOrder.sort((a, b) => {
+        return a.date - b.date
+    })
+
+    // res.status(200).json({ message: userData })
 
     try {
         fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
@@ -132,9 +144,8 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
 
 })
 
-app.post('/sellShare/:id/:symbol/:qty/:price/:date', (req, res) => {
+app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
 
-    const trID = req.params.id
     const symbol = req.params.symbol
     const qty = req.params.qty
     const price = req.params.price
@@ -145,30 +156,47 @@ app.post('/sellShare/:id/:symbol/:qty/:price/:date', (req, res) => {
     let avlShare = returnAvlShare(symbol)
     let errors = {}
 
+    let gotOrders = 0, remainningOrder = 0, tobePlaced = 0;
+
     if (parseInt(qty) > avlShare) errors.error = 'Sell Quantity Must be Lower Than Buy Available Share Qty'
+
 
     if (Object.keys(errors).length > 0) {
         res.status(200).json(errors)
     } else {
-        let data = {
-            id: new Date().getTime(),
-            buyOrderID: parseInt(trID),
-            symbol: symbol,
-            date: date,
-            price: parseFloat(price),
-            qty: parseInt(qty),
-            type: 'SELL',
-            status: 'COMPLETED'
-        }
+        for (let i = 0; i < userData.buyOrder.length; i++) {
+            if (userData.buyOrder[i].symbol == symbol && userData.buyOrder[i].status == 'PENDING') {
+                if (gotOrders < qty) {
 
-        userData.transactions.push(data)
-        if (parseInt(qty) == avlShare) {
-            for (let i = 0; i < userData.transactions.length; i++) {
-                if (userData.transactions[i].id == trID) {
-                    userData.transactions[i].status = 'COMPLETED'
+                    remainningOrder = qty - gotOrders
+
+                    if (remainningOrder > userData.buyOrder[i].qty) {
+                        tobePlaced = userData.buyOrder[i].qty
+                    } else {
+                        tobePlaced = remainningOrder
+                    }
+
+                    let data = {
+                        id: new Date().getTime(),
+                        buyOrderID: userData.buyOrder[i].id,
+                        symbol: symbol,
+                        date: date,
+                        price: parseFloat(price),
+                        qty: tobePlaced,
+                        type: 'SELL',
+                        status: 'COMPLETED'
+                    }
+
+                    if ((userData.buyOrder[i].qty - tobePlaced) == 0) userData.buyOrder[i].status = 'COMPLETED'
+
+                    userData.sellOrder.push(data)
+
+                    gotOrders += userData.buyOrder[i].qty
+
                 }
             }
         }
+
 
         try {
             fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
@@ -179,6 +207,40 @@ app.post('/sellShare/:id/:symbol/:qty/:price/:date', (req, res) => {
         }
 
     }
+
+    // res.status(200).json(userData)
+    // if (Object.keys(errors).length > 0) {
+    //     res.status(200).json(errors)
+    // } else {
+    //     let data = {
+    //         id: new Date().getTime(),
+    //         buyOrderID: parseInt(trID),
+    //         symbol: symbol,
+    //         date: date,
+    //         price: parseFloat(price),
+    //         qty: parseInt(qty),
+    //         type: 'SELL',
+    //         status: 'COMPLETED'
+    //     }
+
+    //     userData.transactions.push(data)
+    //     if (parseInt(qty) == avlShare) {
+    //         for (let i = 0; i < userData.transactions.length; i++) {
+    //             if (userData.transactions[i].id == trID) {
+    //                 userData.transactions[i].status = 'COMPLETED'
+    //             }
+    //         }
+    //     }
+
+    //     try {
+    //         fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+    //         res.status(200).json({ message: "Data Written Successfully" })
+    //     } catch (error) {
+    //         console.log(error)
+    //         res.status(501).json({ error: "Something Went Wrong" })
+    //     }
+
+    // }
 
 })
 

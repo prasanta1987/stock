@@ -138,10 +138,15 @@ const returnAvlShares = (symbol) => {
 
     let totalBuyQty = 0, totalSellQty = 0;
 
-    userData.transactions.map(x => {
+    userData.buyOrder.map(x => {
         if (x.symbol == symbol) {
-            if (x.type == 'BUY') totalBuyQty += x.qty
-            if (x.type == 'SELL') totalSellQty += x.qty
+            totalBuyQty += x.qty
+        }
+    })
+
+    userData.sellOrder.map(x => {
+        if (x.symbol == symbol) {
+            totalSellQty += x.qty
         }
     })
 
