@@ -30,37 +30,47 @@
             "price": 500,
             "qty": 10,
             "type": "BUY",
-            "status": "PENDING"
+            "status": "COMPLETED"
         }
     ],
     "sellOrder": [
         {
-            "id": 1599766949364,
+            "id": 1599768732173,
             "buyOrderID": 1599750290632,
             "symbol": "AXISBANK",
-            "date": "11-Sep-2020",
-            "price": 500,
+            "date": 1600891860000,
+            "price": 300,
             "qty": 5,
             "type": "SELL",
             "status": "COMPLETED"
         },
         {
-            "id": 1599766949364,
+            "id": 1599768732173,
             "buyOrderID": 1599748932880,
             "symbol": "AXISBANK",
-            "date": "11-Sep-2020",
-            "price": 500,
+            "date": 1600891860000,
+            "price": 300,
             "qty": 10,
             "type": "SELL",
             "status": "COMPLETED"
         },
         {
-            "id": 1599766949364,
+            "id": 1599768732173,
             "buyOrderID": 1599752191464,
             "symbol": "AXISBANK",
-            "date": "11-Sep-2020",
-            "price": 500,
+            "date": 1600891860000,
+            "price": 300,
             "qty": 1,
+            "type": "SELL",
+            "status": "COMPLETED"
+        },
+        {
+            "id": 1599768750669,
+            "buyOrderID": 1599752191464,
+            "symbol": "AXISBANK",
+            "date": 1599768720000,
+            "price": 400,
+            "qty": 9,
             "type": "SELL",
             "status": "COMPLETED"
         }

@@ -180,16 +180,24 @@ app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
                         id: new Date().getTime(),
                         buyOrderID: userData.buyOrder[i].id,
                         symbol: symbol,
-                        date: date,
+                        date: parseInt(date),
                         price: parseFloat(price),
                         qty: tobePlaced,
                         type: 'SELL',
                         status: 'COMPLETED'
                     }
-
-                    if ((userData.buyOrder[i].qty - tobePlaced) == 0) userData.buyOrder[i].status = 'COMPLETED'
-
                     userData.sellOrder.push(data)
+
+                    let totalSellOrderMade = 0
+                    userData.sellOrder.map(x => {
+                        if (x.buyOrderID == userData.buyOrder[i].id) {
+                            totalSellOrderMade += x.qty
+                        }
+                    })
+
+
+                    if ((userData.buyOrder[i].qty - totalSellOrderMade) == 0) userData.buyOrder[i].status = 'COMPLETED'
+
 
                     gotOrders += userData.buyOrder[i].qty
 
