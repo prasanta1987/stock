@@ -3,6 +3,8 @@ const plDataMarkup = document.querySelector('.pldata')
 
 let boughtSymbols = []
 let boughtSids = []
+let currentHoldingSids = []
+let currentHoldingSymbols = []
 
 const getTransactions = () => {
 
@@ -171,11 +173,11 @@ const pasteSymbol = (sid, symbol) => {
 
 const getHoldings = () => {
 
-    let avgPrice = 0
-
     for (let i = 0; i < boughtSymbols.length; i++) {
 
         if (returnAvlShares(boughtSymbols[i]) > 0) {
+            currentHoldingSids.push(boughtSids[i])
+            currentHoldingSymbols.push(boughtSymbols[i])
             document.querySelector('.holdingdata').innerHTML += `
                 <tr class="text-center" id="${boughtSymbols[i]}">
                     <td>${boughtSymbols[i]}</td>
@@ -201,9 +203,9 @@ const getHoldings = () => {
 let PL = 0
 const getCMPData = () => {
     if (sessionStorage.marketStat != 'Closed') {
-        boughtSymbols.map(async (mySymbol) => genCmp(mySymbol))
+        currentHoldingSymbols.map(async (mySymbol) => genCmp(mySymbol))
     } else {
-        tickerTapeBatchData(boughtSids.join())
+        tickerTapeBatchData(currentHoldingSids.join())
     }
 
     if (sessionStorage.marketStat != 'Closed') setTimeout(getCMPData, 1000)
@@ -215,14 +217,33 @@ const genCmp = async (mySymbol) => {
         let res = await fetch(`/growwLiveData/${mySymbol}`, fetchOption)
         let data = await res.json()
 
+        console.log(data)
+
+        let preClose = data.close
+
         if (document.querySelector(`#${mySymbol}`)) {
             let buyQty = parseInt(document.querySelector(`#${mySymbol}-qty`).innerHTML)
             let buyPrice = parseFloat(document.querySelector(`#${mySymbol}-price`).innerHTML)
-            let cmp = parseFloat(data.ltp)
-            let totalPl = ((cmp - buyPrice) * buyQty).toFixed(2)
+            let cmp = data.ltp
+            let totalPl = parseFloat(((cmp - buyPrice) * buyQty).toFixed(2))
 
-            document.querySelectorAll(`#${mySymbol}-cmp`).forEach(ele => ele.innerHTML = cmp)
-            document.querySelectorAll(`#${mySymbol}-pl`).forEach(ele => ele.innerHTML = totalPl)
+            document.querySelectorAll(`#${mySymbol}-cmp`).forEach(ele => {
+                ele.innerHTML = cmp
+
+                if (preClose > cmp) {
+                    ele.style.color = '#dc3545'
+                } else {
+                    ele.style.color = '#28a745'
+                }
+            })
+            document.querySelectorAll(`#${mySymbol}-pl`).forEach(ele => {
+                ele.innerHTML = totalPl
+                if (totalPl < 0) {
+                    ele.style.color = '#dc3545'
+                } else {
+                    ele.style.color = '#28a745'
+                }
+            })
 
             PL += parseFloat(totalPl)
             let PLMarkup = document.querySelector('#tpl')
@@ -243,13 +264,30 @@ const tickerTapeBatchData = (sids) => {
         .then(res => res.json())
         .then(data => {
             data.data.map(values => {
+                console.log(values)
+                let preClose = values.c
                 let buyQty = (document.querySelector(`.${values.sid}-qty`)) && parseInt(document.querySelector(`.${values.sid}-qty`).innerHTML);
                 let buyPrice = (document.querySelector(`.${values.sid}-price`)) && parseFloat(document.querySelector(`.${values.sid}-price`).innerHTML);
-                let cmp = values.price
-                let totalPl = ((cmp - buyPrice) * buyQty).toFixed(2)
+                let cmp = parseFloat(values.price)
+                let totalPl = parseFloat(((cmp - buyPrice) * buyQty).toFixed(2))
 
-                if (document.querySelector(`.${values.sid}-cmp`)) document.querySelector(`.${values.sid}-cmp`).innerHTML = cmp
-                if (document.querySelector(`.${values.sid}-pl`)) document.querySelector(`.${values.sid}-pl`).innerHTML = totalPl
+                if (document.querySelector(`.${values.sid}-cmp`)) {
+                    document.querySelector(`.${values.sid}-cmp`).innerHTML = cmp
+                    if (preClose > cmp) {
+                        document.querySelector(`.${values.sid}-cmp`).style.color = '#dc3545'
+                    } else {
+                        document.querySelector(`.${values.sid}-cmp`).style.color = '#28a745'
+                    }
+                }
+                if (document.querySelector(`.${values.sid}-pl`)) {
+                    document.querySelector(`.${values.sid}-pl`).innerHTML = totalPl
+                    if (totalPl < 0) {
+                        document.querySelector(`.${values.sid}-pl`).style.color = '#dc3545'
+                    } else {
+                        document.querySelector(`.${values.sid}-pl`).style.color = '#28a745'
+                    }
+                }
+
                 PL += parseFloat(totalPl)
             })
 
