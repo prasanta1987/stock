@@ -216,40 +216,6 @@ app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
 
     }
 
-    // res.status(200).json(userData)
-    // if (Object.keys(errors).length > 0) {
-    //     res.status(200).json(errors)
-    // } else {
-    //     let data = {
-    //         id: new Date().getTime(),
-    //         buyOrderID: parseInt(trID),
-    //         symbol: symbol,
-    //         date: date,
-    //         price: parseFloat(price),
-    //         qty: parseInt(qty),
-    //         type: 'SELL',
-    //         status: 'COMPLETED'
-    //     }
-
-    //     userData.transactions.push(data)
-    //     if (parseInt(qty) == avlShare) {
-    //         for (let i = 0; i < userData.transactions.length; i++) {
-    //             if (userData.transactions[i].id == trID) {
-    //                 userData.transactions[i].status = 'COMPLETED'
-    //             }
-    //         }
-    //     }
-
-    //     try {
-    //         fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
-    //         res.status(200).json({ message: "Data Written Successfully" })
-    //     } catch (error) {
-    //         console.log(error)
-    //         res.status(501).json({ error: "Something Went Wrong" })
-    //     }
-
-    // }
-
 })
 
 app.post(`/deleteTrans/:id`, (req, res) => {
@@ -258,44 +224,28 @@ app.post(`/deleteTrans/:id`, (req, res) => {
     let boID = '', type = '', symbol = ''
 
     let userData = getUserProfile()
-    let trns = userData.transactions
+    let buyTrns = userData.buyOrder
+    let sellTrns = userData.sellOrder
 
-    for (let i = 0; i < trns.length; i++) {
-
-        if (trns[i].id == trID) {
-
-            symbol = trns[i].symbol
-
-            if (trns[i].type == 'SELL') {
-                type = 'SELL'
-                boID = trns[i].buyOrderID
-            } else {
-                type = 'BUY'
+    for (let i = 0; i < buyTrns.length; i++) {
+        if (buyTrns[i].id == trID) {
+            for (let j = 0; j < sellTrns.length; j++) {
+                if (sellTrns[i].buyOrderID == trID) {
+                    sellTrns.splice(i, 1)
+                }
             }
-
-            trns.splice(i, 1)
-        }
-
-    }
-    if (type == 'SELL') {
-        for (let i = 0; i < trns.length; i++) {
-            if (trns[i].id == boID) {
-                trns[i].status = 'PENDING'
-            }
+            buyTrns.splice(i, 1)
         }
     }
 
-    userData.transactions = trns
-
-    if (type == 'BUY') {
-        for (let i = 0; i < userData.transactions.length; i++) {
-            if (userData.transactions[i].buyOrderID == trID) {
-                trns.splice(i, 1)
-            }
+    for (let i = 0; i < sellTrns.length; i++) {
+        if (sellTrns[i].id == trID) {
+            sellTrns.splice(i, 1)
         }
     }
 
-    userData.transactions = trns
+    userData.buyOrder = buyTrns
+    userData.sellOrder = sellTrns
 
     // res.status(200).json(userData)
 
