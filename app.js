@@ -90,6 +90,29 @@ const returnAvlShare = (symbol) => {
     return avlShare
 }
 
+const returnAvlQtyPerOrder = (trId) => {
+
+    let userData = getUserProfile()
+    let holdingQty = 0, soldQty = 0;
+
+    userData.buyOrder.map(x => {
+        if (x.id == trId) {
+            holdingQty += x.qty
+        }
+    })
+
+    userData.sellOrder.map(x => {
+        if (x.buyOrderID == trId) {
+            soldQty += x.qty
+        }
+    })
+
+    let avlQtyPerOrder = holdingQty - soldQty
+
+    return avlQtyPerOrder
+
+}
+
 // Start of Local file Handling
 
 app.post('/updateName/:name', (req, res) => {
@@ -170,8 +193,8 @@ app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
 
                     remainningOrder = qty - gotOrders
 
-                    if (remainningOrder > userData.buyOrder[i].qty) {
-                        tobePlaced = userData.buyOrder[i].qty
+                    if (remainningOrder > returnAvlQtyPerOrder(userData.buyOrder[i].id)) {
+                        tobePlaced = returnAvlQtyPerOrder(userData.buyOrder[i].id)
                     } else {
                         tobePlaced = remainningOrder
                     }
@@ -199,12 +222,13 @@ app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
                     if ((userData.buyOrder[i].qty - totalSellOrderMade) == 0) userData.buyOrder[i].status = 'COMPLETED'
 
 
-                    gotOrders += userData.buyOrder[i].qty
+                    gotOrders += tobePlaced
 
                 }
             }
         }
 
+        // res.status(200).json(userData)
 
         try {
             fs.writeFileSync(userPrifileFile, JSON.stringify(userData))

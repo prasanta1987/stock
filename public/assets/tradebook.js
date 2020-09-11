@@ -135,7 +135,8 @@ const addSellTrns = () => {
     fetch(`/sellShare/${symbol}/${sQty}/${sPrice}/${sDate}`, fetchOption)
         .then(res => res.json())
         .then(data => {
-            if (data.message) location.reload()
+            console.log(data)
+            // if (data.message) location.reload()
         })
         .catch(err => {
             console.log(err)
