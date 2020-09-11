@@ -15,7 +15,7 @@ const getTransactions = () => {
             `
                 <tr class="text-center ${data.id}">
                     <td>${data.symbol}</td>
-                    <td>${moment(data.date).format('DD-MMM-YYYY @ HH:mm:ss')}</td>
+                    <td>${moment(data.date).format('DD-MMM-YY')}</td>
                     <td>${data.price.toFixed(2)}</td>
                     <td>${data.qty}</td>
                     <td><kbd class="bg-light ${(data.type == 'BUY' ? 'text-danger' : 'text-success')}">${data.type}</kbd></td>
@@ -42,7 +42,7 @@ const getTransactions = () => {
             `
                 <tr class="text-center ${data.id}">
                     <td>${data.symbol}</td>
-                    <td>${moment(data.date).format('DD-MMM-YYYY @ HH:mm:ss')}</td>
+                    <td>${moment(data.date).format('DD-MMM-YY')}</td>
                     <td>${data.price.toFixed(2)}</td>
                     <td>${data.qty}</td>
                     <td><kbd class="bg-light ${(data.type == 'BUY' ? 'text-danger' : 'text-success')}">${data.type}</kbd></td>
@@ -175,7 +175,8 @@ const getHoldings = () => {
 
     for (let i = 0; i < boughtSymbols.length; i++) {
 
-        document.querySelector('.holdingdata').innerHTML += `
+        if (returnAvlShares(boughtSymbols[i]) > 0) {
+            document.querySelector('.holdingdata').innerHTML += `
                 <tr class="text-center" id="${boughtSymbols[i]}">
                     <td>${boughtSymbols[i]}</td>
                     <td class="${boughtSids[i]}-price" id="${boughtSymbols[i]}-price">${retAvgSharePrice(boughtSymbols[i])}</td>
@@ -184,7 +185,7 @@ const getHoldings = () => {
                     <td class="${boughtSids[i]}-pl" id="${boughtSymbols[i]}-pl">~</td>
                 </tr>
             `
-
+        }
     }
 
     document.querySelector('.holdingdata').innerHTML += `
@@ -242,8 +243,8 @@ const tickerTapeBatchData = (sids) => {
         .then(res => res.json())
         .then(data => {
             data.data.map(values => {
-                let buyQty = parseInt(document.querySelector(`.${values.sid}-qty`).innerHTML)
-                let buyPrice = parseFloat(document.querySelector(`.${values.sid}-price`).innerHTML)
+                let buyQty = (document.querySelector(`.${values.sid}-qty`)) && parseInt(document.querySelector(`.${values.sid}-qty`).innerHTML);
+                let buyPrice = (document.querySelector(`.${values.sid}-price`)) && parseFloat(document.querySelector(`.${values.sid}-price`).innerHTML);
                 let cmp = values.price
                 let totalPl = ((cmp - buyPrice) * buyQty).toFixed(2)
 
