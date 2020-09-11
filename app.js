@@ -242,7 +242,7 @@ app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
 
 })
 
-app.post(`/deleteTrans/:id`, (req, res) => {
+app.post('/deleteTrans/:id', (req, res) => {
 
     const trID = req.params.id
     let boID = '', type = '', symbol = ''
@@ -254,8 +254,9 @@ app.post(`/deleteTrans/:id`, (req, res) => {
     for (let i = 0; i < buyTrns.length; i++) {
         if (buyTrns[i].id == trID) {
             for (let j = 0; j < sellTrns.length; j++) {
-                if (sellTrns[i].buyOrderID == trID) {
-                    sellTrns.splice(i, 1)
+                if (sellTrns[j].buyOrderID == trID) {
+                    // sellTrns.splice(j, 1)
+                    sellTrns[j].status = 'DELETE'
                 }
             }
             buyTrns.splice(i, 1)
@@ -271,15 +272,15 @@ app.post(`/deleteTrans/:id`, (req, res) => {
     userData.buyOrder = buyTrns
     userData.sellOrder = sellTrns
 
-    // res.status(200).json(userData)
+    res.status(200).json(userData)
 
-    try {
-        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
-        res.status(200).json({ message: "Data Written Successfully" })
-    } catch (error) {
-        console.log(error)
-        res.status(501).json({ error: "Something Went Wrong" })
-    }
+    // try {
+    //     fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+    //     res.status(200).json({ message: "Data Written Successfully" })
+    // } catch (error) {
+    //     console.log(error)
+    //     res.status(501).json({ error: "Something Went Wrong" })
+    // }
 
 })
 

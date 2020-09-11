@@ -135,8 +135,7 @@ const addSellTrns = () => {
     fetch(`/sellShare/${symbol}/${sQty}/${sPrice}/${sDate}`, fetchOption)
         .then(res => res.json())
         .then(data => {
-            console.log(data)
-            // if (data.message) location.reload()
+            if (data.message) location.reload()
         })
         .catch(err => {
             console.log(err)
@@ -147,8 +146,8 @@ const deleteTrns = (trID) => {
     fetch(`/deleteTrans/${trID}`, fetchOption)
         .then(res => res.json())
         .then(data => {
-            // console.log(data)
-            location.reload()
+            console.log(data)
+            // location.reload()
         })
         .catch(err => {
             console.log(err)

@@ -6,80 +6,42 @@
     ],
     "buyOrder": [
         {
-            "id": 1599807426528,
+            "id": 1599812983853,
             "symbol": "AXISBANK",
-            "date": 1599807360000,
+            "date": 1599812940000,
             "price": 500,
-            "qty": 5,
-            "type": "BUY",
-            "status": "COMPLETED"
-        },
-        {
-            "id": 1599807441000,
-            "symbol": "AXISBANK",
-            "date": 1599807480000,
-            "price": 550,
             "qty": 10,
-            "type": "BUY",
-            "status": "COMPLETED"
-        },
-        {
-            "id": 1599807456663,
-            "symbol": "AXISBANK",
-            "date": 1599807660000,
-            "price": 600,
-            "qty": 5,
             "type": "BUY",
             "status": "COMPLETED"
         }
     ],
     "sellOrder": [
         {
-            "id": 1599809082946,
-            "buyOrderID": 1599807426528,
+            "id": 1599812996631,
+            "buyOrderID": 1599812983853,
             "symbol": "AXISBANK",
-            "date": 1599809040000,
-            "price": 800,
+            "date": 1599812940000,
+            "price": 600,
             "qty": 5,
             "type": "SELL",
             "status": "COMPLETED"
         },
         {
-            "id": 1599809082947,
-            "buyOrderID": 1599807441000,
+            "id": 1599813015824,
+            "buyOrderID": 1599812983853,
             "symbol": "AXISBANK",
-            "date": 1599809040000,
-            "price": 800,
-            "qty": 9,
-            "type": "SELL",
-            "status": "COMPLETED"
-        },
-        {
-            "id": 1599809100803,
-            "buyOrderID": 1599807441000,
-            "symbol": "AXISBANK",
-            "date": 1599809040000,
-            "price": 900,
-            "qty": 1,
-            "type": "SELL",
-            "status": "COMPLETED"
-        },
-        {
-            "id": 1599809100803,
-            "buyOrderID": 1599807456663,
-            "symbol": "AXISBANK",
-            "date": 1599809040000,
-            "price": 900,
+            "date": 1599899400000,
+            "price": 700,
             "qty": 4,
             "type": "SELL",
             "status": "COMPLETED"
         },
         {
-            "id": 1599809120137,
-            "buyOrderID": 1599807456663,
+            "id": 1599813028812,
+            "buyOrderID": 1599812983853,
             "symbol": "AXISBANK",
-            "date": 1599809100000,
-            "price": 1000,
+            "date": 1601541000000,
+            "price": 800,
             "qty": 1,
             "type": "SELL",
             "status": "COMPLETED"
