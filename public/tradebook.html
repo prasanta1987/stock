@@ -42,7 +42,25 @@
 
         <div class="container-fluid tradebook">
 
-            <!-- All Trades -->
+            <!-- Holdings Start Here -->
+            <div class="table-responsive border rounded mt-5">
+                <h3 class="lead text-center mt-3 mb-3">Holdings</h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr class="text-center">
+                            <th>SYMBOL</th>
+                            <th>Avg. Price</th>
+                            <th>Buy Qty</th>
+                            <th>CMP</th>
+                            <th>P&L</th>
+                        </tr>
+                    </thead>
+                    <tbody class="holdingdata"></tbody>
+                </table>
+            </div>
+            <!-- End Of Holdings -->
+
+            <!-- All Trades Start -->
             <div class="table-responsive mt-5 border rounded trade-table">
                 <h3 class="lead text-center mt-2 mb-2">All Trades</h3>
                 <table class="table table-hover">
@@ -61,25 +79,7 @@
                     <tbody class="tradedata"></tbody>
                 </table>
             </div>
-
-            <!-- PL Statement -->
-            <div class="table-responsive border rounded mt-5">
-                <h3 class="lead text-center mt-3 mb-3">PL Statement</h3>
-                <table class="table table-hover">
-                    <thead>
-                        <tr class="text-center">
-                            <th>SYMBOL</th>
-                            <th>Buy Price</th>
-                            <th>Buy Qty</th>
-                            <th>Sell Price</th>
-                            <th>Sell Qty</th>
-                            <th>P&L</th>
-                        </tr>
-                    </thead>
-                    <tbody class="pldata"></tbody>
-                </table>
-            </div>
-
+            <!-- All Trades End -->
 
             <!-- Transaction MODAL STRAT -->
             <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

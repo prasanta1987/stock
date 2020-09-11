@@ -131,9 +131,10 @@ app.post('/updateName/:name', (req, res) => {
 
 })
 
-app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
+app.post('/buyShare/:symbol/:sid/:price/:qty/:date', (req, res) => {
 
     const name = req.params.symbol
+    const sid = req.params.sid
     const price = req.params.price
     const qty = req.params.qty
     const date = req.params.date
@@ -141,6 +142,7 @@ app.post('/buyShare/:symbol/:price/:qty/:date', (req, res) => {
     let data = {
         id: new Date().getTime(),
         symbol: name,
+        sid: sid,
         date: parseInt(date),
         price: parseFloat(price),
         qty: parseInt(qty),
@@ -242,47 +244,44 @@ app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
 
 })
 
-app.post('/deleteTrans/:id', (req, res) => {
+app.post('/deleteTrans/:id/:type', (req, res) => {
 
     const trID = parseInt(req.params.id)
-    let boID = '', type = '', symbol = ''
+    const type = req.params.type
 
     let userData = getUserProfile()
     let buyTrns = userData.buyOrder
     let sellTrns = userData.sellOrder
 
-    for (let i = 0; i < buyTrns.length; i++) {
-        if (buyTrns[i].id == trID) {
+    if (type == 'BUY') {
+        buyTrns.map(() => {
+            let pos = buyTrns.map(e => { return e.id }).indexOf(trID)
+            buyTrns.splice(pos, 1)
+        })
 
-            sellTrns.map(() => {
-                let pos = sellTrns.map(e => { return e.buyOrderID }).indexOf(trID)
-                console.log(pos)
-                sellTrns.splice(pos, 1)
-            })
-            buyTrns.splice(i, 1)
-        }
-    }
-
-
-
-    for (let i = 0; i < sellTrns.length; i++) {
-        if (sellTrns[i].id == trID) {
-            sellTrns.splice(i, 1)
-        }
+        sellTrns.map(() => {
+            let pos = sellTrns.map(e => { return e.buyOrderID }).indexOf(trID)
+            sellTrns.splice(pos, 1)
+        })
+    } else if (type == 'SELL') {
+        sellTrns.map(() => {
+            let pos = sellTrns.map(e => { return e.buyOrderID }).indexOf(trID)
+            sellTrns.splice(pos, 1)
+        })
     }
 
     userData.buyOrder = buyTrns
     userData.sellOrder = sellTrns
 
-    res.status(200).json(userData)
+    // res.status(200).json(userData)
 
-    // try {
-    //     fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
-    //     res.status(200).json({ message: "Data Written Successfully" })
-    // } catch (error) {
-    //     console.log(error)
-    //     res.status(501).json({ error: "Something Went Wrong" })
-    // }
+    try {
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+        res.status(200).json({ message: "Data Written Successfully" })
+    } catch (error) {
+        console.log(error)
+        res.status(501).json({ error: "Something Went Wrong" })
+    }
 
 })
 
@@ -611,9 +610,9 @@ app.post('/activeByVolume', (req, res) => {
 
 })
 
+
+
 // Start Ticker Tape Datas
-
-
 
 app.post('/batchTickerInfo/:symbol', (req, res) => {
     let symbols = req.params.symbol
@@ -676,6 +675,20 @@ app.post('/tickertapeSearch/:text', (req, res) => {
             })
         })
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
+app.post('/tickertapeSymbolSearch/:text', (req, res) => {
+
+    let text = req.params.text
+    const url = `https://api.tickertape.in/search?text=${text}`
+    axios.get(url)
+        .then(data => {
+            res.status(200).json(data.data)
+        })
+        .catch((err) => {
+            console.log(err)
+            res.status(500).json({ "error": "Failed to Fetch" })
+        })
 })
 
 // End Ticker Tape

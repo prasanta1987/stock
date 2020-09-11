@@ -122,7 +122,6 @@ const filterSymbols = (userAddedSymbols) => {
 
 }
 
-
 const getMMI = () => {
     fetch('getMMI', { method: 'POST' })
         .then(res => res.json())
@@ -153,4 +152,39 @@ const returnAvlShares = (symbol) => {
     let avlShare = totalBuyQty - totalSellQty
 
     return avlShare
+}
+
+const returnAvlQtyPerOrder = (trId) => {
+
+    let holdingQty = 0, soldQty = 0;
+
+    userData.buyOrder.map(x => {
+        if (x.id == trId) {
+            holdingQty += x.qty
+        }
+    })
+
+    userData.sellOrder.map(x => {
+        if (x.buyOrderID == trId) {
+            soldQty += x.qty
+        }
+    })
+
+    let avlQtyPerOrder = holdingQty - soldQty
+
+    return avlQtyPerOrder
+
+}
+
+const retAvgSharePrice = (symbol) => {
+    let totalBuyQty = 0, totalBuyValue = 0, avgPrice = 0;
+
+    userData.buyOrder.map(x => {
+        if (x.symbol == symbol) {
+            totalBuyQty += returnAvlQtyPerOrder(x.id)
+            totalBuyValue += (returnAvlQtyPerOrder(x.id) * x.price)
+        }
+    })
+    avgPrice = (totalBuyValue / totalBuyQty).toFixed(2)
+    return avgPrice
 }
