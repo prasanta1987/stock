@@ -244,7 +244,7 @@ app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
 
 app.post('/deleteTrans/:id', (req, res) => {
 
-    const trID = req.params.id
+    const trID = parseInt(req.params.id)
     let boID = '', type = '', symbol = ''
 
     let userData = getUserProfile()
@@ -253,15 +253,17 @@ app.post('/deleteTrans/:id', (req, res) => {
 
     for (let i = 0; i < buyTrns.length; i++) {
         if (buyTrns[i].id == trID) {
-            for (let j = 0; j < sellTrns.length; j++) {
-                if (sellTrns[j].buyOrderID == trID) {
-                    // sellTrns.splice(j, 1)
-                    sellTrns[j].status = 'DELETE'
-                }
-            }
+
+            sellTrns.map(() => {
+                let pos = sellTrns.map(e => { return e.buyOrderID }).indexOf(trID)
+                console.log(pos)
+                sellTrns.splice(pos, 1)
+            })
             buyTrns.splice(i, 1)
         }
     }
+
+
 
     for (let i = 0; i < sellTrns.length; i++) {
         if (sellTrns[i].id == trID) {
