@@ -304,8 +304,13 @@ const getBseData = async (symbol, closePrice) => {
     }
 }
 
+data = ["SBIN", "PNB", "BANKBARODA", "UNIONBANK", "IOB", "BANKINDIA", "CANBK", "UCOBANK", "CENTRALBK"]
 fetch('/growwBatchData', {
-    method: 'POST'
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
 })
     .then(res => res.json())
     .then(data => {

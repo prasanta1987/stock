@@ -37,7 +37,9 @@ const nseHeader = {
 // https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20FINANCIAL%20SERVICES
 
 const app = express()
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.raw());
 
 const userProfileCheck = (req, res, next) => {
 
@@ -402,7 +404,6 @@ app.post('/stock/:symbol', (req, res) => {
 
     symb = symb.replace('&', '%26')
     const url = `https://www.nseindia.com/api/quote-equity?symbol=${symb}`
-    console.log(url)
     axios.get(url, nseHeader)
         .then(data => res.status(200).json(data.data))
         .catch(err => res.status(500).json(err))
@@ -716,13 +717,18 @@ app.post('/growwChanrt/:symbol', (req, res) => {
 
 app.post('/growwBatchData', (req, res) => {
 
+    let payload = {
+        "exchange": "NSE",
+        "symbolList": req.body
+    }
+
     let growwHeader = {
         method: 'post',
         url: 'https://groww.in/v1/api/stocks_data/v1/accord_points/latest_prices_ohlc_batch',
         headers: {
             'Content-Type': 'application/json',
         },
-        data: { "exchange": "NSE", "symbolList": ["SBIN", "PNB", "BANKBARODA", "UNIONBANK", "IOB", "BANKINDIA", "CANBK", "UCOBANK", "CENTRALBK"] }
+        data: payload
     }
 
 
