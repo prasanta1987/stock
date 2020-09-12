@@ -3,6 +3,7 @@ const path = require("path");
 const axios = require("axios").default;
 const HTMLParser = require('node-html-parser');
 const fs = require('fs')
+const bodyParser = require('body-parser')
 
 const BSESymbol = require('./bseEqComp')
 
@@ -36,7 +37,7 @@ const nseHeader = {
 // https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20FINANCIAL%20SERVICES
 
 const app = express()
-
+app.use(bodyParser.json())
 
 const userProfileCheck = (req, res, next) => {
 
@@ -442,7 +443,6 @@ app.get('/historicalData/:symbol/:fromDate/:toDate', (req, res) => {
             // Det format DD-MM-YYYY
             const url = `https://www1.nseindia.com/products/dynaContent/common/productsSymbolMapping.jsp?symbol=${symb}&segmentLink=3&symbolCount=${symbolCount}&series=EQ&dateRange=+&fromDate=${fromDate}&toDate=${toDate}&dataType=PRICEVOLUMEDELIVERABLE`
 
-            console.log(url)
             axios.get(url, {
                 headers: {
                     "Sec-Fetch-Mode": "cors",
@@ -695,7 +695,7 @@ app.post('/tickertapeSymbolSearch/:text', (req, res) => {
 
 
 
-// Groww Data
+// Groww Data Start
 app.post('/growwLiveData/:symbol', (req, res) => {
 
     const symbol = req.params.symbol.toUpperCase()
@@ -714,6 +714,24 @@ app.post('/growwChanrt/:symbol', (req, res) => {
         .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
 })
 
+app.post('/growwBatchData', (req, res) => {
+
+    let growwHeader = {
+        method: 'post',
+        url: 'https://groww.in/v1/api/stocks_data/v1/accord_points/latest_prices_ohlc_batch',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        data: { "exchange": "NSE", "symbolList": ["SBIN", "PNB", "BANKBARODA", "UNIONBANK", "IOB", "BANKINDIA", "CANBK", "UCOBANK", "CENTRALBK"] }
+    }
+
+
+    axios(growwHeader)
+        .then(data => res.status(200).json(data.data))
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
+// Groww Data End
 
 const port = process.env.PORT || 3000
 

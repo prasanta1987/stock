@@ -78,40 +78,6 @@ const buildCards = async (symbol) => {
             let vwap = data.priceInfo.vwap
             let changePrice = (closePrice - preClosePrice).toFixed(2)
 
-            let buyPrice = 0
-            let buyQty = 0
-
-            let sellPrice = 0
-            let sellQty = 0
-
-
-            if (userData.transactions.buy) {
-
-                userData.transactions.buy.map(value => {
-                    if (value.symbol == symbol) {
-                        buyPrice += value.price * value.qty
-                        buyQty += value.qty
-                    }
-                })
-
-            }
-            if (userData.transactions.sell) {
-                userData.transactions.sell.map(value => {
-                    if (value.symbol == symbol) {
-                        sellPrice += value.price * value.qty
-                        sellQty += value.qty
-                    }
-                })
-            }
-
-            let avlShare = buyQty - sellQty //Available Share Qty
-            let avgBuyPrice = buyPrice / buyQty //Average Buy Price
-            let currentGain = ((closePrice - avgBuyPrice) * avlShare).toFixed(2); //Curent Gain / Loss
-            currentGain = (isNaN(currentGain)) ? 0 : currentGain
-            let retAginstInv = sellPrice - (avgBuyPrice * sellQty); // Total Return
-            retAginstInv = (isNaN(retAginstInv)) ? 0 : retAginstInv
-            let invested = (isNaN(avlShare * avgBuyPrice)) ? 0 : (avlShare * avgBuyPrice)
-
             if (document.querySelector(`.${symbol}`)) {
                 let cmpMarkup = document.querySelector(`.${symbol}-cmp`)
 
@@ -140,7 +106,7 @@ const buildCards = async (symbol) => {
                         
                         <div class="row">
 
-                            <div class="mt-3 d-flex flex-column justify-content-center nav-link col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
+                            <div class="d-flex flex-column justify-content-center nav-link col-sm-12 col-md-3 col-lg-3 text-center text-md-left text-lg-left">
                                 <a href="/${data.info.symbol}"><h3 class="text-primary lead">${data.info.companyName} (${data.info.symbol})</h3></a>
                                 <kbd class="bg-info"><small class="d-block">Last Update: <span class="upd">${data.metadata.lastUpdateTime}</span></small></kbd>
                                 
@@ -148,10 +114,6 @@ const buildCards = async (symbol) => {
                                     <div class="input-group input-group-sm">
                                         <input onChange="calcReturn('${symbol}')" id="${symbol}-buyingPrice" type="number" placeholder="Price" class="form-control">
                                         <input onChange="calcReturn('${symbol}')" id="${symbol}-buyQty" type="number" placeholder="Qty" class="form-control">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-success ${symbol}-buy-btn" onClick="buyShares('${symbol}')" type="button">BUY</button>
-                                            <button ${(avlShare == 0) && 'disabled'} class="btn btn-danger ${symbol}-sell-btn" onClick="sellShares('${symbol}')" type="button">SELL</button>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -207,17 +169,11 @@ const buildCards = async (symbol) => {
                                             <span>Gain/Loss : <b id="${symbol}-prloss">0</b></span>
                                             <span>Change : <b id="${symbol}-prlossPer">0</b></span>
                                         </kbd>
-                                        <kbd class="mt-1 bg-dark d-flex justify-content-between">
-                                            <span>Avl. Investment : <b id="${symbol}-invested">${invested}</b></span>
-                                            <span>Curent Gain/Loss. : <b id="${symbol}-cgl">${currentGain}</b></span>
-                                            <span>Gain/Loss : <b id="${symbol}-ttlrtn">${retAginstInv}</b></span>
-                                            <span>Share Avl. : <b id="${symbol}-avlshare">${avlShare}</b></span>
-                                        </kdb>
                                     </div>
                                 </div>
 
-                </div>
-                </div>
+                            </div>
+                     </div>
                 </div>
             </div>
                     `
@@ -281,42 +237,6 @@ const calcReturn = (symbol) => {
     netReturn.innerHTML = rtrn
     prloss.innerHTML = gain
     prlossPer.innerHTML = `${gainPercentage} %`
-}
-
-const buyShares = async (symbol) => {
-
-    const buyingPrice = parseFloat(document.querySelector(`#${symbol}-buyingPrice`).value) || parseFloat(document.querySelector(`.${symbol}-cmp`).innerHTML)
-    const buyQty = parseFloat(document.querySelector(`#${symbol}-buyQty`).value) || 0
-    const today = moment().format('DD-MM-yyyy')
-
-    try {
-        let res = await fetch(`/buyShare/${symbol}/${buyingPrice}/${buyQty}/${today}`, { method: 'POST' })
-        let data = await res.json()
-        console.log(data)
-        setTimeout(getUserData, 1000)
-        setTimeout(getMyWatchList, 1000)
-    } catch (error) {
-        console.log(error)
-    }
-
-}
-
-const sellShares = async (symbol) => {
-
-    const buyingPrice = parseFloat(document.querySelector(`#${symbol}-buyingPrice`).value) || parseFloat(document.querySelector(`.${symbol}-cmp`).innerHTML)
-    const buyQty = parseFloat(document.querySelector(`#${symbol}-buyQty`).value) || 0
-    const today = moment().format('DD-MM-yyyy')
-
-    try {
-        let res = await fetch(`/sellShare/${symbol}/${buyingPrice}/${buyQty}/${today}`, { method: 'POST' })
-        let data = await res.json()
-        console.log(data)
-        setTimeout(getUserData, 1000)
-        setTimeout(getMyWatchList, 1000)
-    } catch (error) {
-        console.log(error)
-    }
-
 }
 
 industrySelector.addEventListener('change', (e) => {
@@ -383,3 +303,14 @@ const getBseData = async (symbol, closePrice) => {
         console.log('Last Action Failed, Retrying One More Time')
     }
 }
+
+fetch('/growwBatchData', {
+    method: 'POST'
+})
+    .then(res => res.json())
+    .then(data => {
+        console.log(data)
+    })
+    .catch(err => {
+        console.log(err)
+    })
