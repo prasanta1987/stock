@@ -28,14 +28,6 @@ const nseHeader = {
     // }
 }
 
-// require('events').EventEmitter.defaultMaxListeners = 0
-// https://www.nseindia.com/api/search/autocomplete?q=reliance
-// https://www.nse-india.com/api/historical/cm/equity?symbol=SHREECEM&series=[%22EQ%22]&from=26-06-2018&to=26-06-2020
-// https://www.nse-india.com/api/chart-databyindex?index=TATASTEELEQN&preopen=true
-// https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=SBIN
-
-// https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20FINANCIAL%20SERVICES
-
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -385,7 +377,6 @@ app.post('/marketStatus', (req, res) => {
         .catch((err) => res.status(500).json(err))
 })
 
-
 app.post('/index/:sector', (req, res) => {
 
     let sector = (req.params.sector).toUpperCase()
@@ -396,7 +387,6 @@ app.post('/index/:sector', (req, res) => {
         .catch(err => res.status(500).json(err))
 
 })
-
 
 // Get Individual Stock Data
 app.post('/stock/:symbol', (req, res) => {
@@ -728,7 +718,6 @@ app.post('/growwBatchData', (req, res) => {
         headers: { 'Content-Type': 'application/json' },
         data: payload
     }
-
 
     axios(growwHeader)
         .then(data => res.status(200).json(data.data))

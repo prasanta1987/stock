@@ -13,10 +13,11 @@
 
 .cardclose{
     position: absolute;
-    left: 24px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 20px;
     z-index: 9999;
+    top: -10px;
+    right: 10px;
 }
 
 .nav{
@@ -96,3 +97,28 @@ ul{list-style: none;}
 }
 .highcharts-data-table table{width: 100%;text-align: center;}
 .trade-table{font-size: 15px;}
+.wlcard{
+    font-size: 15px;
+}
+.mktdepth{
+    height: 5px;
+}
+.mycardcontainer{
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+    grid-gap: 5px;
+    justify-content: center;   
+}
+
+.cardlinks{
+    text-decoration: none !important;
+    color: #555;
+    transition: 0.5s;
+    display: block;
+}
+
+.cardlinks:hover{
+    font-weight: bold;
+    letter-spacing: 5px;
+    color: #555;
+}

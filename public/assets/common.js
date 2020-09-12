@@ -31,7 +31,7 @@ const getUserData = async () => {
             document.querySelector('#name').setAttribute('placeholder', data.name)
         }
         if (document.querySelector('.mycardcontainer')) userData.watchList.map(item => buildCards(item))
-        if (document.querySelector('.mycardcontainer')) refreshData(userData)
+        // if (document.querySelector('.mycardcontainer')) refreshData(userData)
         if (document.querySelector('.tradebook')) getTransactions()
     } catch (error) {
         console.log(error)
