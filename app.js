@@ -725,9 +725,7 @@ app.post('/growwBatchData', (req, res) => {
     let growwHeader = {
         method: 'post',
         url: 'https://groww.in/v1/api/stocks_data/v1/accord_points/latest_prices_ohlc_batch',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         data: payload
     }
 
