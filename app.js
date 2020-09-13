@@ -708,10 +708,9 @@ app.post('/growwChanrt/:symbol', (req, res) => {
 app.post('/growwBatchData', (req, res) => {
 
     let payload = {
-        "exchange": "NSE",
-        "symbolList": req.body
+        exchange: "NSE",
+        symbolList: req.body
     }
-
     let growwHeader = {
         method: 'post',
         url: 'https://groww.in/v1/api/stocks_data/v1/accord_points/latest_prices_ohlc_batch',
@@ -725,6 +724,32 @@ app.post('/growwBatchData', (req, res) => {
 })
 
 // Groww Data End
+
+// Screener Data Start
+
+app.post('/screenerData/:symbol', (req, res) => {
+
+    const symbol = req.params.symbol.toUpperCase()
+    const url = `https://www.screener.in/company/${symbol}/consolidated/`
+    axios.get(url)
+        .then(data => {
+            let cashFlow = HTMLParser.parse(data.data).querySelector('#cash-flow table').innerHTML
+            let balanceSheet = HTMLParser.parse(data.data).querySelector('#balance-sheet table').innerHTML
+            let plStatement = HTMLParser.parse(data.data).querySelector('#profit-loss table').innerHTML
+            let quaterResult = HTMLParser.parse(data.data).querySelector('#quarters table').innerHTML
+            res.status(200).json(
+                {
+                    cashFlow: cashFlow,
+                    balanceSheet: balanceSheet,
+                    plStatement: plStatement,
+                    quaterResult: quaterResult
+                }
+            )
+        })
+        .catch(() => res.status(500).json({ "error": "Failed to Fetch" }))
+})
+
+// Screner Data End
 
 const port = process.env.PORT || 3000
 

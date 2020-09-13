@@ -15,9 +15,8 @@
     position: absolute;
     cursor: pointer;
     font-size: 20px;
-    z-index: 9999;
-    top: -10px;
-    right: 10px;
+    top: -14px;
+    right: 6px;
 }
 
 .nav{
@@ -105,7 +104,7 @@ ul{list-style: none;}
 }
 .mycardcontainer{
     display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+    grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
     grid-gap: 5px;
     justify-content: center;   
 }
@@ -113,12 +112,15 @@ ul{list-style: none;}
 .cardlinks{
     text-decoration: none !important;
     color: #555;
-    transition: 0.5s;
+    transition: 0.25s;
     display: block;
 }
 
 .cardlinks:hover{
     font-weight: bold;
-    letter-spacing: 5px;
     color: #555;
 }
+
+.screener-data h3 {font-size: 20px; text-align: center;font-weight: bold;}
+.screener-data button{all: unset;}
+.screener-data a{display: none;}

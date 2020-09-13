@@ -86,6 +86,7 @@ const fetchStockData = (symbol) => {
 				.catch(err => {
 					console.log(err)
 				})
+			getScreenerData()
 
 		})
 		.catch(err => {
@@ -93,6 +94,20 @@ const fetchStockData = (symbol) => {
 			console.log('Retrying Last Action')
 			setTimeout(() => fetchStockData(symbol), 10000)
 		})
+}
+
+const getScreenerData = () => {
+
+	fetch(`/screenerData/${symbol}`, fetchOption)
+		.then(res => res.json())
+		.then(data => {
+			console.log(data)
+			document.querySelector('.cashflow').innerHTML = data.cashFlow
+			document.querySelector('.quater').innerHTML = data.quaterResult
+			document.querySelector('.balanceSheet').innerHTML = data.balanceSheet
+			document.querySelector('.plStatement').innerHTML = data.plStatement
+		})
+		.catch(err => console.log(err))
 }
 
 const getShareHolding = (sid) => {
