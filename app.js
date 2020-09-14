@@ -158,7 +158,7 @@ app.post('/buyShare/:symbol/:sid/:price/:qty/:date', (req, res) => {
     // res.status(200).json({ message: userData })
 
     try {
-        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData, null, 4))
         res.status(200).json({ "message": "Data Written Successfully" })
     } catch (error) {
         res.status(501).json({ "error": 'Something Went Wrong' })
@@ -230,7 +230,7 @@ app.post('/sellShare/:symbol/:qty/:price/:date', (req, res) => {
         // res.status(200).json(userData)
 
         try {
-            fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+            fs.writeFileSync(userPrifileFile, JSON.stringify(userData, null, 4))
             res.status(200).json({ message: "Data Written Successfully" })
         } catch (error) {
             console.log(error)
@@ -282,7 +282,7 @@ app.post('/deleteTrans/:id/:type', (req, res) => {
     // res.status(200).json(userData)
 
     try {
-        fs.writeFileSync(userPrifileFile, JSON.stringify(userData))
+        fs.writeFileSync(userPrifileFile, JSON.stringify(userData, null, 4))
         res.status(200).json({ message: "Data Written Successfully" })
     } catch (error) {
         console.log(error)
