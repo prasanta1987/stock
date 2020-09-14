@@ -13,17 +13,20 @@ const getMyOrders = () => {
     userData.buyOrder.map(order => {
         if (!boughtSymbols.includes(order.symbol)) {
             boughtSymbols.push(order.symbol)
-            let pNl = ((retAvgSharePrice(order.symbol).avgSellPrice - retAvgSharePrice(order.symbol).avgBuyPrice) * retAvgSharePrice(order.symbol).totalSellQty).toFixed(2)
-            document.querySelector('.pldata').innerHTML += `
-            <tr class="text-center ${order.symbol}-pl">
-                <td>${order.symbol}</td>
-                <td>${retAvgSharePrice(order.symbol).avgBuyPrice}</td>
-                <td>${retAvgSharePrice(order.symbol).avgSellPrice}</td>
-                <td>${retAvgSharePrice(order.symbol).totalSellQty}</td>
-                <td>${pNl}</td>
-            </tr>
-        `
-            totalPL += parseFloat(pNl)
+            if (retAvgSharePrice(order.symbol).totalSellQty > 0) {
+                let pNl = ((retAvgSharePrice(order.symbol).avgSellPrice - retAvgSharePrice(order.symbol).avgBuyPrice) * retAvgSharePrice(order.symbol).totalSellQty).toFixed(2)
+                document.querySelector('.pldata').innerHTML += `
+                    <tr class="text-center ${order.symbol}-pl">
+                        <td>${order.symbol}</td>
+                        <td>${retAvgSharePrice(order.symbol).avgBuyPrice}</td>
+                        <td>${retAvgSharePrice(order.symbol).avgSellPrice}</td>
+                        <td>${retAvgSharePrice(order.symbol).totalSellQty}</td>
+                        <td>${pNl}</td>
+                        <td id="${order.symbol}-cmp">~</td>
+                    </tr>
+                `
+                totalPL += parseFloat(pNl)
+            }
         }
     })
     document.querySelector('.pldata').innerHTML += `
@@ -232,7 +235,7 @@ const growwBatchData = () => {
     const growFetchOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentHoldingSymbols)
+        body: JSON.stringify(boughtSymbols)
     }
 
     fetch('/growwBatchData', growFetchOptions)
@@ -263,20 +266,24 @@ const genGrowwCpm = (olhc) => {
         let totalPl = parseFloat(((cmp - buyPrice) * buyQty).toFixed(2))
 
         if (document.querySelector(`#${values.symbol}-cmp`)) {
-            document.querySelector(`#${values.symbol}-cmp`).innerHTML = cmp
-            if (preClose > cmp) {
-                document.querySelector(`#${values.symbol}-cmp`).style.color = '#dc3545'
-            } else {
-                document.querySelector(`#${values.symbol}-cmp`).style.color = '#28a745'
-            }
+            document.querySelectorAll(`#${values.symbol}-cmp`).forEach(ele => {
+                ele.innerHTML = cmp
+                if (preClose > cmp) {
+                    ele.style.color = '#dc3545'
+                } else {
+                    ele.style.color = '#28a745'
+                }
+            })
         }
         if (document.querySelector(`#${values.symbol}-pl`)) {
-            document.querySelector(`#${values.symbol}-pl`).innerHTML = totalPl
-            if (totalPl < 0) {
-                document.querySelector(`#${values.symbol}-pl`).style.color = '#dc3545'
-            } else {
-                document.querySelector(`#${values.symbol}-pl`).style.color = '#28a745'
-            }
+            document.querySelectorAll(`#${values.symbol}-pl`).forEach(ele => {
+                ele.innerHTML = totalPl
+                if (totalPl < 0) {
+                    ele.style.color = '#dc3545'
+                } else {
+                    ele.style.color = '#28a745'
+                }
+            })
         }
 
         PL += parseFloat(totalPl)
