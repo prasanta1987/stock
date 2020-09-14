@@ -5,7 +5,8 @@ const HTMLParser = require('node-html-parser');
 const fs = require('fs')
 const bodyParser = require('body-parser')
 
-const BSESymbol = require('./bseEqComp')
+const BSESymbol = require('./bseEqComp');
+const { json } = require('body-parser');
 
 const userPrifileFile = path.join(__dirname, './user_profile/userProfile.json')
 
@@ -13,11 +14,12 @@ fs.exists(userPrifileFile, (res) => {
     if (!res) {
         fs.mkdirSync(path.join(__dirname, './user_profile'))
         fs.writeFileSync(userPrifileFile,
-            {
+            JSON.stringify({
                 name: null,
                 watchList: [],
-                transactions: []
-            }
+                buyOrder: [],
+                sellOrder: []
+            })
         )
     }
 })
@@ -248,21 +250,30 @@ app.post('/deleteTrans/:id/:type', (req, res) => {
     let buyTrns = userData.buyOrder
     let sellTrns = userData.sellOrder
 
+    console.log(trID)
     if (type == 'BUY') {
-        buyTrns.map(() => {
-            let pos = buyTrns.map(e => { return e.id }).indexOf(trID)
-            buyTrns.splice(pos, 1)
-        })
+        for (let i = 0; i < buyTrns.length; i++) {
+            if (buyTrns[i].id == trID) {
+                buyTrns.splice(i, 1)
+                for (let j = 0; j < sellTrns.length; j++) {
+                    if (sellTrns[j].buyOrderID == trID) {
+                        sellTrns.splice(j, 1)
+                    }
+                }
+            }
+        }
 
-        sellTrns.map(() => {
-            let pos = sellTrns.map(e => { return e.buyOrderID }).indexOf(trID)
-            sellTrns.splice(pos, 1)
-        })
     } else if (type == 'SELL') {
-        sellTrns.map(() => {
-            let pos = sellTrns.map(e => { return e.buyOrderID }).indexOf(trID)
-            sellTrns.splice(pos, 1)
-        })
+        for (let i = 0; i < sellTrns.length; i++) {
+            if (sellTrns[i].id == trID) {
+                for (let j = 0; j < buyTrns.length; j++) {
+                    if (buyTrns[j].id == sellTrns[i].buyOrderID) {
+                        buyTrns[j].status = 'PENDING'
+                    }
+                }
+                sellTrns.splice(i, 1)
+            }
+        }
     }
 
     userData.buyOrder = buyTrns
@@ -387,6 +398,14 @@ app.post('/index/:sector', (req, res) => {
         .catch(err => res.status(500).json(err))
 
 })
+app.post('/allIndices', (req, res) => {
+
+    axios.get(`https://www.nseindia.com/api/allIndices`, nseHeader)
+        .then(data => res.status(200).json(data.data))
+        .catch(err => res.status(500).json(err))
+
+})
+
 
 // Get Individual Stock Data
 app.post('/stock/:symbol', (req, res) => {

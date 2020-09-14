@@ -31,8 +31,12 @@ const getUserData = async () => {
             document.querySelector('#name').setAttribute('placeholder', data.name)
         }
         if (document.querySelector('.mycardcontainer')) userData.watchList.map(item => buildCards(item))
-        // if (document.querySelector('.mycardcontainer')) refreshData(userData)
-        if (document.querySelector('.tradebook')) getTransactions()
+        // if (document.querySelector('.tradebook')) getTransactions()
+        if (document.querySelector('.tradebook')) {
+            getMyOrders()
+            getTransactions()
+            getHoldings()
+        }
     } catch (error) {
         console.log(error)
         setTimeout(getUserData, 5000)
@@ -177,14 +181,42 @@ const returnAvlQtyPerOrder = (trId) => {
 }
 
 const retAvgSharePrice = (symbol) => {
-    let totalBuyQty = 0, totalBuyValue = 0, avgPrice = 0;
+    let avlBuyQty = 0, avlBuyPrice = 0, avlAvgPrice = 0;
+    let totalBuyQty = 0, totalBuyPrice = 0, avgBuyPrice = 0;
+    let totalSellQty = 0, totalSellPrice = 0, avgSellPrice = 0;
 
     userData.buyOrder.map(x => {
-        if (x.symbol == symbol) {
-            totalBuyQty += returnAvlQtyPerOrder(x.id)
-            totalBuyValue += (returnAvlQtyPerOrder(x.id) * x.price)
+        if (x.symbol == symbol && x.status == 'PENDING') {
+            avlBuyQty += returnAvlQtyPerOrder(x.id)
+            avlBuyPrice += (returnAvlQtyPerOrder(x.id) * x.price)
         }
     })
-    avgPrice = (totalBuyValue / totalBuyQty).toFixed(2)
-    return avgPrice
+
+    userData.sellOrder.map(x => {
+        if (x.symbol == symbol) {
+            totalSellQty += x.qty
+            totalSellPrice += (x.qty * x.price)
+
+            userData.buyOrder.map(y => {
+                if (y.id == x.buyOrderID) {
+                    totalBuyQty += y.id
+                    totalBuyPrice += y.id * y.price
+                }
+            })
+        }
+    })
+
+
+
+    avlAvgPrice = (avlBuyPrice / avlBuyQty).toFixed(2)
+    avgBuyPrice = (totalBuyPrice / totalBuyQty).toFixed(2)
+    avgSellPrice = (totalSellPrice / totalSellQty).toFixed(2)
+
+
+    return {
+        avlAvgPrice: (isNaN(avlAvgPrice)) ? 0 : avlAvgPrice,
+        avgBuyPrice: (isNaN(avgBuyPrice)) ? 0 : avgBuyPrice,
+        avgSellPrice: (isNaN(avgSellPrice)) ? 0 : avgSellPrice,
+        totalSellQty: totalSellQty
+    }
 }

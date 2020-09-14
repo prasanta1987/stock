@@ -7,6 +7,33 @@ let boughtSids = []
 let currentHoldingSids = []
 let currentHoldingSymbols = []
 
+const getMyOrders = () => {
+
+    let totalPL = 0
+    userData.buyOrder.map(order => {
+        if (!boughtSymbols.includes(order.symbol)) {
+            boughtSymbols.push(order.symbol)
+            let pNl = ((retAvgSharePrice(order.symbol).avgSellPrice - retAvgSharePrice(order.symbol).avgBuyPrice) * retAvgSharePrice(order.symbol).totalSellQty).toFixed(2)
+            document.querySelector('.pldata').innerHTML += `
+            <tr class="text-center ${order.symbol}-pl">
+                <td>${order.symbol}</td>
+                <td>${retAvgSharePrice(order.symbol).avgBuyPrice}</td>
+                <td>${retAvgSharePrice(order.symbol).avgSellPrice}</td>
+                <td>${retAvgSharePrice(order.symbol).totalSellQty}</td>
+                <td>${pNl}</td>
+            </tr>
+        `
+            totalPL += parseFloat(pNl)
+        }
+    })
+    document.querySelector('.pldata').innerHTML += `
+    <tr class="text-center" style="font-weight:bold">
+        <td colspan="4">Total Gain / Loss</td>
+        <td>${totalPL.toFixed(2)}</td>
+    </tr>
+    `
+}
+
 const getTransactions = () => {
 
     let totalDebit = 0, totalCredit = 0;
@@ -75,8 +102,6 @@ const getTransactions = () => {
             <td>${totalDebit.toFixed(2)}</td>
             <td><button class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#exampleModal">Add Trade</button></td>
         </tr>`
-
-    getHoldings()
 }
 
 const sellModal = (symbol, trID) => {
@@ -180,7 +205,7 @@ const getHoldings = () => {
             document.querySelector('.holdingdata').innerHTML += `
                 <tr class="text-center" id="${boughtSymbols[i]}">
                     <td>${boughtSymbols[i]}</td>
-                    <td class="${boughtSids[i]}-price" id="${boughtSymbols[i]}-price">${retAvgSharePrice(boughtSymbols[i])}</td>
+                    <td class="${boughtSids[i]}-price" id="${boughtSymbols[i]}-price">${retAvgSharePrice(boughtSymbols[i]).avlAvgPrice}</td>
                     <td class="${boughtSids[i]}-qty" id="${boughtSymbols[i]}-qty">${returnAvlShares(boughtSymbols[i])}</td>
                     <td class="${boughtSids[i]}-cmp" id="${boughtSymbols[i]}-cmp">~</td>
                     <td class="${boughtSids[i]}-pl" id="${boughtSymbols[i]}-pl">~</td>
