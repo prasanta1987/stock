@@ -93,8 +93,6 @@ const refreshData = (userData) => {
         .catch(err => {
             console.log(err)
         })
-
-    if (sessionStorage.marketStat != 'Closed') setTimeout(() => refreshData(userData), 1000)
 }
 
 const updateStockData = (olhc) => {
@@ -145,4 +143,5 @@ const updateStockData = (olhc) => {
         buyBar.style.width = `${buyPercentage}%`
         sellBar.style.width = `${sellPercentage}%`
     })
+    if (sessionStorage.marketStat != 'Closed') setTimeout(() => refreshData(userData), 1000)
 }
