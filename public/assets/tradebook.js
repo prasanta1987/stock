@@ -266,7 +266,8 @@ const genGrowwCpm = (olhc) => {
         let totalPl = parseFloat(((cmp - buyPrice) * buyQty).toFixed(2))
 
         if (document.querySelector(`#${values.symbol}-cmp`)) {
-            document.querySelectorAll(`#${values.symbol}-cmp`).forEach(ele => {
+            let elem = document.querySelectorAll(`#${values.symbol}-cmp`)
+            elem.forEach(ele => {
                 ele.innerHTML = cmp
                 if (preClose > cmp) {
                     ele.style.color = '#dc3545'
@@ -276,14 +277,13 @@ const genGrowwCpm = (olhc) => {
             })
         }
         if (document.querySelector(`#${values.symbol}-pl`)) {
-            document.querySelectorAll(`#${values.symbol}-pl`).forEach(ele => {
-                ele.innerHTML = totalPl
-                if (totalPl < 0) {
-                    ele.style.color = '#dc3545'
-                } else {
-                    ele.style.color = '#28a745'
-                }
-            })
+            let ele = document.querySelector(`#${values.symbol}-pl`)
+            ele.innerHTML = totalPl
+            if (totalPl < 0) {
+                ele.style.color = '#dc3545'
+            } else {
+                ele.style.color = '#28a745'
+            }
         }
 
         PL += parseFloat(totalPl)
