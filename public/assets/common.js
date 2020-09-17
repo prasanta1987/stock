@@ -36,6 +36,7 @@ const getUserData = async () => {
             getMyOrders()
             getTransactions()
             getHoldings()
+            growwBatchData()
         }
     } catch (error) {
         console.log(error)

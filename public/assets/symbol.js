@@ -591,19 +591,15 @@ const intraGrpah = (datas, wHigh, wLow, openPrice, dHigh, dLow) => {
 								let res = await fetch(`/growwLiveData/${symbol}`, { 'method': 'POST' })
 								let data = await res.json()
 
-								console.log('Live Data Received')
-
-								let closePrice = data.ltp.toFixed(2),
+								let closePrice = data.ltp,
 									preClose = data.close,
-									pChange = data.dayChangePerc.toFixed(2),
-									changePrice = data.dayChange.toFixed(2),
-									low = data.low.toFixed(2),
-									high = data.high.toFixed(2),
-									time = parseInt(`${data.tsInMillis}000`);
+									pChange = parseFloat(data.dayChangePerc.toFixed(2)),
+									changePrice = parseFloat(data.dayChange.toFixed(2)),
+									low = parseFloat(data.low.toFixed(2)),
+									high = parseFloat(data.high.toFixed(2)),
+									time = returnGmtTime(parseInt(`${data.tsInMillis}000`))
 
-								console.log(time)
-
-								series.addPoint([time, closePrice], true, true);
+								series.addPoint([time, closePrice]);
 
 								if (preClose < closePrice) {
 									cmpMarkup.classList.remove('bg-danger')

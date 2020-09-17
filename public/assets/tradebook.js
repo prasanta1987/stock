@@ -3,109 +3,9 @@ const plDataMarkup = document.querySelector('.pldata')
 const symbSer = document.querySelector('.symbsrch')
 
 let boughtSymbols = []
-let boughtSids = []
-let currentHoldingSids = []
 let currentHoldingSymbols = []
 
-const getMyOrders = () => {
-
-    let totalPL = 0
-    userData.buyOrder.map(order => {
-        if (!boughtSymbols.includes(order.symbol)) {
-            boughtSymbols.push(order.symbol)
-            if (retAvgSharePrice(order.symbol).totalSellQty > 0) {
-                let pNl = ((retAvgSharePrice(order.symbol).avgSellPrice - retAvgSharePrice(order.symbol).avgBuyPrice) * retAvgSharePrice(order.symbol).totalSellQty).toFixed(2)
-                document.querySelector('.pldata').innerHTML += `
-                    <tr class="text-center ${order.symbol}-pl">
-                        <td>${order.symbol}</td>
-                        <td>${retAvgSharePrice(order.symbol).avgBuyPrice}</td>
-                        <td>${retAvgSharePrice(order.symbol).avgSellPrice}</td>
-                        <td>${retAvgSharePrice(order.symbol).totalSellQty}</td>
-                        <td>${pNl}</td>
-                        <td id="${order.symbol}-cmp">~</td>
-                    </tr>
-                `
-                totalPL += parseFloat(pNl)
-            }
-        }
-    })
-    document.querySelector('.pldata').innerHTML += `
-    <tr class="text-center" style="font-weight:bold">
-        <td colspan="4">Total Gain / Loss</td>
-        <td>${totalPL.toFixed(2)}</td>
-    </tr>
-    `
-}
-
-const getTransactions = () => {
-
-    let totalDebit = 0, totalCredit = 0;
-
-    userData.buyOrder.map(data => {
-        if (!boughtSymbols.includes(data.symbol)) boughtSymbols.push(data.symbol)
-        if (!boughtSids.includes(data.sid)) boughtSids.push(data.sid)
-        tradeDataMarkup.innerHTML +=
-            `
-                <tr class="text-center ${data.id}">
-                    <td>${data.symbol}</td>
-                    <td>${moment(data.date).format('DD-MMM-YY')}</td>
-                    <td>${data.price.toFixed(2)}</td>
-                    <td>${data.qty}</td>
-                    <td><kbd class="bg-light ${(data.type == 'BUY' ? 'text-danger' : 'text-success')}">${data.type}</kbd></td>
-                    ${(data.type == 'BUY')
-                ? `<td>0</td><td>${(data.qty * data.price).toFixed(2)}</td>`
-                : `<td>${(data.qty * data.price).toFixed(2)}</td><td>0</td>`}
-                    
-                ${(data.status == 'PENDING')
-                ? `<td>
-                    <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#sellordermodal" onClick="sellModal('${data.symbol}','${data.id}')">Sell</button>
-                    <button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}','BUY')">DELETE</button></td>`
-                : `<td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}','BUY')">DELETE</button></td>`}
-                
-                </tr>`
-        if (data.type == 'BUY') {
-            totalDebit += data.qty * data.price
-        } else {
-            totalCredit += data.qty * data.price
-        }
-
-    })
-    userData.sellOrder.map(data => {
-        tradeDataMarkup.innerHTML +=
-            `
-                <tr class="text-center ${data.id}">
-                    <td>${data.symbol}</td>
-                    <td>${moment(data.date).format('DD-MMM-YY')}</td>
-                    <td>${data.price.toFixed(2)}</td>
-                    <td>${data.qty}</td>
-                    <td><kbd class="bg-light ${(data.type == 'BUY' ? 'text-danger' : 'text-success')}">${data.type}</kbd></td>
-                    ${(data.type == 'BUY')
-                ? `<td>0</td><td>${(data.qty * data.price).toFixed(2)}</td>`
-                : `<td>${(data.qty * data.price).toFixed(2)}</td><td>0</td>`}
-                    
-                ${(data.status == 'PENDING')
-                ? `<td>
-                    <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#sellordermodal" onClick="sellModal('${data.symbol}','${data.id}')">Sell</button>
-                    <button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}','SELL')">DELETE</button></td>`
-                : `<td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}','SELL')">DELETE</button></td>`}
-                
-                </tr>`
-        if (data.type == 'BUY') {
-            totalDebit += data.qty * data.price
-        } else {
-            totalCredit += data.qty * data.price
-        }
-
-    })
-
-    tradeDataMarkup.innerHTML += `
-        <tr class="text-center" style="font-weight:bold">
-            <td colspan="5">TOTAL</td>
-            <td>${totalCredit.toFixed(2)}</td>
-            <td>${totalDebit.toFixed(2)}</td>
-            <td><button class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#exampleModal">Add Trade</button></td>
-        </tr>`
-}
+let PL = 0, PLwrtCMP = 0;
 
 const sellModal = (symbol, trID) => {
 
@@ -203,15 +103,14 @@ const getHoldings = () => {
     for (let i = 0; i < boughtSymbols.length; i++) {
 
         if (returnAvlShares(boughtSymbols[i]) > 0) {
-            currentHoldingSids.push(boughtSids[i])
             currentHoldingSymbols.push(boughtSymbols[i])
             document.querySelector('.holdingdata').innerHTML += `
                 <tr class="text-center" id="${boughtSymbols[i]}">
                     <td>${boughtSymbols[i]}</td>
-                    <td class="${boughtSids[i]}-price" id="${boughtSymbols[i]}-price">${retAvgSharePrice(boughtSymbols[i]).avlAvgPrice}</td>
-                    <td class="${boughtSids[i]}-qty" id="${boughtSymbols[i]}-qty">${returnAvlShares(boughtSymbols[i])}</td>
-                    <td class="${boughtSids[i]}-cmp" id="${boughtSymbols[i]}-cmp">~</td>
-                    <td class="${boughtSids[i]}-pl" id="${boughtSymbols[i]}-pl">~</td>
+                    <td id="${boughtSymbols[i]}-price">${retAvgSharePrice(boughtSymbols[i]).avlAvgPrice}</td>
+                    <td id="${boughtSymbols[i]}-qty">${returnAvlShares(boughtSymbols[i])}</td>
+                    <td id="${boughtSymbols[i]}-cmp">~</td>
+                    <td id="${boughtSymbols[i]}-pl">~</td>
                 </tr>
             `
         }
@@ -223,14 +122,117 @@ const getHoldings = () => {
                     <td id="tpl">~</td>
                 </tr>
     `
-    growwBatchData()
 }
 
-let PL = 0
+const getMyOrders = () => {
+
+    let totalPL = 0
+    userData.buyOrder.map(order => {
+        if (!boughtSymbols.includes(order.symbol)) {
+            boughtSymbols.push(order.symbol)
+            if (retAvgSharePrice(order.symbol).totalSellQty > 0) {
+
+                let avgSellprice = retAvgSharePrice(order.symbol).avgSellPrice,
+                    avgBuyPrice = retAvgSharePrice(order.symbol).avgBuyPrice,
+                    totalSellQty = retAvgSharePrice(order.symbol).totalSellQty;
+
+                let pNl = parseFloat(((avgSellprice - avgBuyPrice) * totalSellQty).toFixed(2))
+
+                document.querySelector('.pldata').innerHTML += `
+                    <tr class="text-center ${order.symbol}-pl">
+                        <td>${order.symbol}</td>
+                        <td class="${order.symbol}-avgBP">${retAvgSharePrice(order.symbol).avgBuyPrice}</td>
+                        <td class="${order.symbol}-avgSP">${retAvgSharePrice(order.symbol).avgSellPrice}</td>
+                        <td class="${order.symbol}-avgSQ">${retAvgSharePrice(order.symbol).totalSellQty}</td>
+                        <td class="${order.symbol}-avgpl">${pNl}</td>
+                        <td class="${order.symbol}-avgcmp" id="${order.symbol}-cmp">~</td>
+                        <td class="${order.symbol}-avgcmpPL">~</td>
+                    </tr>
+                `
+                totalPL += parseFloat(pNl)
+            }
+        }
+    })
+    document.querySelector('.pldata').innerHTML += `
+    <tr class="text-center" style="font-weight:bold">
+        <td colspan="4">Total Gain / Loss</td>
+        <td>${totalPL.toFixed(2)}</td>
+        <td></td>
+        <td class="pnlwrtcmp">~</td>
+    </tr>
+    `
+}
+
+const getTransactions = () => {
+
+    let totalDebit = 0, totalCredit = 0;
+
+    userData.buyOrder.map(data => {
+        if (!boughtSymbols.includes(data.symbol)) boughtSymbols.push(data.symbol)
+        tradeDataMarkup.innerHTML +=
+            `
+                <tr class="text-center ${data.id}">
+                    <td>${data.symbol}</td>
+                    <td>${moment(data.date).format('DD-MMM-YY')}</td>
+                    <td>${data.price.toFixed(2)}</td>
+                    <td>${data.qty}</td>
+                    <td><kbd class="bg-light ${(data.type == 'BUY' ? 'text-danger' : 'text-success')}">${data.type}</kbd></td>
+                    ${(data.type == 'BUY')
+                ? `<td>0</td><td>${(data.qty * data.price).toFixed(2)}</td>`
+                : `<td>${(data.qty * data.price).toFixed(2)}</td><td>0</td>`}
+                    
+                ${(data.status == 'PENDING')
+                ? `<td>
+                    <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#sellordermodal" onClick="sellModal('${data.symbol}','${data.id}')">Sell</button>
+                    <button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}','BUY')">DELETE</button></td>`
+                : `<td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}','BUY')">DELETE</button></td>`}
+                
+                </tr>`
+        if (data.type == 'BUY') {
+            totalDebit += data.qty * data.price
+        } else {
+            totalCredit += data.qty * data.price
+        }
+
+    })
+    userData.sellOrder.map(data => {
+        tradeDataMarkup.innerHTML +=
+            `
+                <tr class="text-center ${data.id}">
+                    <td>${data.symbol}</td>
+                    <td>${moment(data.date).format('DD-MMM-YY')}</td>
+                    <td>${data.price.toFixed(2)}</td>
+                    <td>${data.qty}</td>
+                    <td><kbd class="bg-light ${(data.type == 'BUY' ? 'text-danger' : 'text-success')}">${data.type}</kbd></td>
+                    ${(data.type == 'BUY')
+                ? `<td>0</td><td>${(data.qty * data.price).toFixed(2)}</td>`
+                : `<td>${(data.qty * data.price).toFixed(2)}</td><td>0</td>`}
+                    
+                ${(data.status == 'PENDING')
+                ? `<td>
+                    <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#sellordermodal" onClick="sellModal('${data.symbol}','${data.id}')">Sell</button>
+                    <button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}','SELL')">DELETE</button></td>`
+                : `<td><button class="btn btn-sm btn-outline-danger" onClick="deleteTrns('${data.id}','SELL')">DELETE</button></td>`}
+                
+                </tr>`
+        if (data.type == 'BUY') {
+            totalDebit += data.qty * data.price
+        } else {
+            totalCredit += data.qty * data.price
+        }
+
+    })
+
+    tradeDataMarkup.innerHTML += `
+        <tr class="text-center" style="font-weight:bold">
+            <td colspan="5">TOTAL</td>
+            <td>${totalCredit.toFixed(2)}</td>
+            <td>${totalDebit.toFixed(2)}</td>
+            <td><button class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#exampleModal">Add Trade</button></td>
+        </tr>`
+}
 
 const growwBatchData = () => {
-
-    PL = 0
 
     const growFetchOptions = {
         method: 'POST',
@@ -241,7 +243,7 @@ const growwBatchData = () => {
     fetch('/growwBatchData', growFetchOptions)
         .then(res => res.json())
         .then(data => {
-            genGrowwCpm(data.livePointsMap)
+            genGrowwCMP(data.livePointsMap)
 
         })
         .catch(err => {
@@ -251,7 +253,7 @@ const growwBatchData = () => {
     if (sessionStorage.marketStat != 'Closed') setTimeout(growwBatchData, 1000)
 }
 
-const genGrowwCpm = (olhc) => {
+const genGrowwCMP = (olhc) => {
 
     Object.keys(olhc).map(ticker => {
         let values = olhc[ticker]
@@ -276,6 +278,8 @@ const genGrowwCpm = (olhc) => {
                 }
             })
         }
+
+
         if (document.querySelector(`#${values.symbol}-pl`)) {
             let ele = document.querySelector(`#${values.symbol}-pl`)
             ele.innerHTML = totalPl
@@ -288,13 +292,41 @@ const genGrowwCpm = (olhc) => {
 
         PL += parseFloat(totalPl)
 
+
+        let avgBuyPriceMarkup = (document.querySelector(`.${values.symbol}-avgBP`)) && parseFloat(document.querySelector(`.${values.symbol}-avgBP`).innerHTML);
+        let avgSellpriceMarkup = (document.querySelector(`.${values.symbol}-avgSP`)) && parseFloat(document.querySelector(`.${values.symbol}-avgSP`).innerHTML)
+        let avgSellQtyMarkup = (document.querySelector(`.${values.symbol}-avgSQ`)) && parseFloat(document.querySelector(`.${values.symbol}-avgSQ`).innerHTML)
+        let avgCMPMarkup = (document.querySelector(`.${values.symbol}-avgcmp`)) && parseFloat(document.querySelector(`.${values.symbol}-avgcmp`).innerHTML)
+
+        let pnlWrtCMP = ((avgSellpriceMarkup - avgCMPMarkup) * avgSellQtyMarkup);
+
+        if (document.querySelector(`.${values.symbol}-avgcmpPL`)) {
+
+            let ele = document.querySelector(`.${values.symbol}-avgcmpPL`)
+            ele.innerHTML = pnlWrtCMP.toFixed(2)
+
+            if (pnlWrtCMP < 0) {
+                ele.style.color = '#dc3545'
+            } else {
+                ele.style.color = '#28a745'
+            }
+        }
+
+        PLwrtCMP += pnlWrtCMP
+
     })
 
     let PLMarkup = document.querySelector('#tpl')
+    let PLWRTCMPMarkup = document.querySelector('.pnlwrtcmp')
 
-    PLMarkup.innerHTML = PL.toFixed(2);
-    (PL < 0) ? PLMarkup.classList.add('text-danger') : PLMarkup.classList.add('text-success')
+    PLMarkup.innerHTML = PL;
+    PLWRTCMPMarkup.innerHTML = PLwrtCMP;
 
+    (PL < 0) ? PLMarkup.classList.add('text-danger') : PLMarkup.classList.add('text-success');
+    (PLwrtCMP < 0) ? PLWRTCMPMarkup.classList.add('text-danger') : PLMarkup.classList.add('text-success')
+
+    PL = 0
+    PLwrtCMP = 0
 }
 
 
