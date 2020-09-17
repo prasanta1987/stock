@@ -31,7 +31,6 @@ const getUserData = async () => {
             document.querySelector('#name').setAttribute('placeholder', data.name)
         }
         if (document.querySelector('.mycardcontainer')) userData.watchList.map(item => buildCards(item))
-        // if (document.querySelector('.tradebook')) getTransactions()
         if (document.querySelector('.tradebook')) {
             getMyOrders()
             getTransactions()

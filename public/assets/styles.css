@@ -108,6 +108,7 @@ ul{list-style: none;}
     grid-gap: 5px;
     justify-content: center;   
 }
+.mycardcontainer .mycard {transition: 0.5s;}
 
 .cardlinks{
     text-decoration: none !important;

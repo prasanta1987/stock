@@ -256,6 +256,7 @@ const growwBatchData = () => {
 const genGrowwCMP = (olhc) => {
 
     Object.keys(olhc).map(ticker => {
+
         let values = olhc[ticker]
         // console.log(values)
 
