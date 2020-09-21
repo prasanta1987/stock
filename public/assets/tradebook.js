@@ -320,8 +320,8 @@ const genGrowwCMP = (olhc) => {
     let PLMarkup = document.querySelector('#tpl')
     let PLWRTCMPMarkup = document.querySelector('.pnlwrtcmp')
 
-    PLMarkup.innerHTML = PL;
-    PLWRTCMPMarkup.innerHTML = PLwrtCMP;
+    PLMarkup.innerHTML = parseFloat(PL.toFixed(2));
+    PLWRTCMPMarkup.innerHTML = parseFloat(PLwrtCMP.toFixed(2));
 
     (PL < 0) ? PLMarkup.classList.add('text-danger') : PLMarkup.classList.add('text-success');
     (PLwrtCMP < 0) ? PLWRTCMPMarkup.classList.add('text-danger') : PLMarkup.classList.add('text-success')

@@ -25,9 +25,9 @@ fs.exists(userPrifileFile, (res) => {
 })
 
 const nseHeader = {
-    // headers: {
-    //     "Cookie": `nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTU5ODcyODI2NCwiZXhwIjoxNjMwMjY0MjY0fQ.0e6VxQtZmjmwr_uQVecyPJ_haKgKChUJOh8N4AjeMNE`
-    // }
+    headers: {
+        "Cookie": `_ga=GA1.2.1950123595.1596210121; nsit=FuD3r0vdDYWDKoprJREZZhAq; _gid=GA1.2.642523135.1600712894; _gat_UA-143761337-1=1; ak_bmsc=FBA369276E8E2C48EA66945F9A89F15A312C75C4DE710000BCF0685FDC624F56~plACkJVdrMWYiFRNilAkfqnFz1KFZOira4Fiw2+uJiWXq4aOz3cW5cM5w/O8x6vAh+GhlQGVLgfmtZLty533OGA/hf/3Y1b5XACFrUdozXQHF/fCDWOyExTKavJeIdzdgS1mNfoWaFp6XKAIdE/fOO+lfMF+Cy/hFCses2U9J/3ZCWj+I7t8Lwz571n4yE+DS+qcdfWkztXq77rDVuEDnORWuiEKlNAw7uagar8oxk9+4Ubn3EsAVIOiarudWalO98; nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTYwMDcxMjkxNCwiZXhwIjoxNjAwNzE2NTE0fQ.pSHM1cUfeVoijeaN1vWNo44bpTQKe3vDqqNtC_eb7CA; RT="z=1&dm=nseindia.com&si=4cde98c3-a57b-4bc6-91e4-6fd3911e0770&ss=kfcv4kas&sl=1&tt=375&bcn=%2F%2F684d0d40.akstat.io%2F"; bm_sv=298FE54C429C2660F5C36F77D077B8A8~KT+KF6TqTcraUUgrnRd/bNWxTuwtbqd6I+Wk6fkhoMmGT2800v7fUuJGS0DoZVnRjwG9EBYD0k7RIkGY1Z9CByYQYoZci8aEeFyNjqd40s+G0MaD77XbwqXVHN+8KCay2tQreO2jnvVpB1oPJT71Erd5PIgLyhAuAEa1ncM3VJ8=`
+    }
 }
 
 const app = express()
