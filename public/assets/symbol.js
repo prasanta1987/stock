@@ -12,36 +12,64 @@ const sellMarkup = document.querySelector('.sell')
 
 const symbol = window.location.pathname.replace('/', '')
 
+const getTickerTapeInfo = (sid) => {
 
-const fetchStockData = (symbol) => {
-	fetch(`/stock/${symbol}`, fetchOption)
+	fetch(`/tickerInfo/${sid}`, fetchOption)
 		.then(res => res.json())
 		.then(data => {
-			// console.log(data)
-			let sector = data.metadata.pdSectorInd
-			let preClose = (data.priceInfo.previousClose).toFixed(2)
-			let closePrice = (data.priceInfo.close > 0) ? data.priceInfo.close : data.priceInfo.lastPrice
-			let changePrice = (closePrice - preClose).toFixed(2)
-			let pChange = ((changePrice / preClose) * 100).toFixed(2)
-			let openPrice = (data.priceInfo.open).toFixed(2)
-			let dHigh = (data.priceInfo.intraDayHighLow.max).toFixed(2)
-			let dLow = (data.priceInfo.intraDayHighLow.min).toFixed(2)
-			let ttlShare = (data.securityInfo.issuedCap / 10000000).toFixed(2)
-			let marketCap = (ttlShare * closePrice).toFixed(2)
-			let symbolPe = data.metadata.pdSymbolPe
-			let indPe = data.metadata.pdSectorPe
-			let eps = isFinite(closePrice / symbolPe) ? (closePrice / symbolPe).toFixed(2) : 0
+			console.log(data)
+			document.querySelector('.stockname').innerHTML = data.data.info.name
+			document.querySelector('.industryinfo').innerHTML = data.data.info.sector
+			document.querySelector('.eps').innerHTML = data.data.ratios.eps.toFixed(2)
+			document.querySelector('.pe').innerHTML = data.data.ratios.pe.toFixed(2)
+			document.querySelector('.whigh').innerHTML = data.data.ratios["52wHigh"]
+			document.querySelector('.wlow').innerHTML = data.data.ratios["52wLow"]
+			document.querySelector('.indpe').innerHTML = data.data.ratios.indpe.toFixed(2)
+			document.querySelector('.mcap').innerHTML = data.data.ratios.marketCap.toFixed(2)
+			document.querySelector('.pb').innerHTML = data.data.ratios.pb.toFixed(2)
+			document.querySelector('.indpb').innerHTML = data.data.ratios.indpb.toFixed(2)
+			document.querySelector('.capinfo').innerHTML = data.data.ratios.marketCapLabel
+			document.querySelector('.mcaprank').innerHTML = data.data.ratios.mrktCapRank
+			document.querySelector('.divyld').innerHTML = (data.data.ratios.divYield == null) ? 0 : `${data.data.ratios.divYield.toFixed(2)} %`
+			document.querySelector('.secdivyld').innerHTML = (data.data.ratios.inddy == null) ? 0 : `${data.data.ratios.inddy.toFixed(2)} %`
+			document.querySelector('.m1ret').innerHTML = `${data.data.ratios["4wpct"].toFixed(2)} %`
+			document.querySelector('.y1ret').innerHTML = `${data.data.ratios["52wpct"].toFixed(2)} %`
 
-			companyName.innerHTML = data.info.companyName
+			fetchStockData(data.data.sid, data.data.info.ticker)
+		})
+		.catch(err => {
+			console.log(err)
+		})
+}
 
-			document.title = `${symbol} ${closePrice} ${(preClose < closePrice) ? '▲' : '▼'} ${(data.priceInfo.pChange).toFixed(2)}%`
-			updateTimeInfo.innerHTML = data.metadata.lastUpdateTime
-			document.querySelector('.industryinfo').innerHTML = data.metadata.industry
+const fetchStockData = (sid, symbol) => {
+	fetch(`/batchTickerInfo/${sid}`, { method: 'POST' })
+		.then(res => res.json())
+		.then(data => {
+			let values = data.data[0]
+
+			let openPrice = values.o,
+				highPrice = values.h,
+				lowPrice = values.l,
+				closePrice = values.price,
+				preClosePrice = values.c,
+				changePrice = values.change,
+				pChange = ((changePrice / preClosePrice) * 100).toFixed(2)
+
 			cmpMarkup.innerHTML = closePrice
-			if (preClose < closePrice) {
+			changeMarkup.innerHTML = changePrice
+			pchangeMarkup.innerHTML = `${pChange}%`
+			document.querySelector('.preclose').innerHTML = preClosePrice
+			document.querySelector('.dhigh').innerHTML = highPrice
+			document.querySelector('.dlow').innerHTML = lowPrice
+			document.querySelector('.open').innerHTML = openPrice
+
+
+			if (preClosePrice < closePrice) {
 				cmpMarkup.classList.remove('bg-danger')
 				changeMarkup.classList.remove('bg-danger')
 				pchangeMarkup.classList.remove('bg-danger')
+
 
 				cmpMarkup.classList.add('bg-success')
 				changeMarkup.classList.add('bg-success')
@@ -55,39 +83,10 @@ const fetchStockData = (symbol) => {
 				changeMarkup.classList.add('bg-danger')
 				pchangeMarkup.classList.add('bg-danger')
 			}
-			document.querySelector('.preclose').innerHTML = preClose
-			document.querySelector('.dhigh').innerHTML = dHigh
-			document.querySelector('.dlow').innerHTML = dLow
-			document.querySelector('.open').innerHTML = openPrice
-
-			changeMarkup.innerHTML = `${changePrice}`
-			pchangeMarkup.innerHTML = `${pChange}%`
-			document.querySelector('.wlow').innerHTML = `
-				<span class="d-block">${data.priceInfo.weekHighLow.min}</span>
-				<small class="d-block">${data.priceInfo.weekHighLow.minDate}</small>`
-
-			document.querySelector('.whigh').innerHTML = `
-				<span class="d-block">${data.priceInfo.weekHighLow.max}</span>
-				<small class="d-block">${data.priceInfo.weekHighLow.maxDate}</small>`
-			getSectorData(sector)
-			getMarketDepth(symbol)
-			getChartData(data.info.symbol, data.info.companyName, data.info.activeSeries[0])
-			getFinData(data.info.symbol)
-			getIntraChartData(data.info.symbol, data.priceInfo.weekHighLow.max, data.priceInfo.weekHighLow.min, openPrice, dHigh, dLow)
-			getStocknews(data.info.symbol)
+			document.title = `${symbol} ${closePrice} ${(closePrice > openPrice) ? '▲' : '▼'} ${pChange}%`
 			showAddBtn()
-
-			fetch(`/tickertapeSearch/${symbol}`, fetchOption)
-				.then(res => res.json())
-				.then(data => {
-					getTickerTapeInfo(data)
-					getShareHolding(data)
-				})
-				.catch(err => {
-					console.log(err)
-				})
-			getScreenerData()
-
+			getShareHolding(sid)
+			getScreenerData(symbol)
 		})
 		.catch(err => {
 			console.log(err)
@@ -96,7 +95,7 @@ const fetchStockData = (symbol) => {
 		})
 }
 
-const getScreenerData = () => {
+const getScreenerData = (symbol) => {
 
 	fetch(`/screenerData/${symbol}`, fetchOption)
 		.then(res => res.json())
@@ -197,30 +196,6 @@ const shareHoldingChart = (dateSets, dataSets) => {
 	});
 }
 
-const getTickerTapeInfo = (sid) => {
-
-	fetch(`/tickerInfo/${sid}`, fetchOption)
-		.then(res => res.json())
-		.then(data => {
-			console.log(data)
-			document.querySelector('.eps').innerHTML = data.data.ratios.eps.toFixed(2)
-			document.querySelector('.pe').innerHTML = data.data.ratios.pe.toFixed(2)
-			document.querySelector('.indpe').innerHTML = data.data.ratios.indpe.toFixed(2)
-			document.querySelector('.mcap').innerHTML = data.data.ratios.marketCap.toFixed(2)
-			document.querySelector('.pb').innerHTML = data.data.ratios.pb.toFixed(2)
-			document.querySelector('.indpb').innerHTML = data.data.ratios.indpb.toFixed(2)
-			document.querySelector('.capinfo').innerHTML = data.data.ratios.marketCapLabel
-			document.querySelector('.mcaprank').innerHTML = data.data.ratios.mrktCapRank
-			document.querySelector('.divyld').innerHTML = (data.data.ratios.divYield == null) ? 0 : `${data.data.ratios.divYield.toFixed(2)} %`
-			document.querySelector('.secdivyld').innerHTML = (data.data.ratios.inddy == null) ? 0 : `${data.data.ratios.inddy.toFixed(2)} %`
-			document.querySelector('.m1ret').innerHTML = `${data.data.ratios["4wpct"].toFixed(2)} %`
-			document.querySelector('.y1ret').innerHTML = `${data.data.ratios["52wpct"].toFixed(2)} %`
-		})
-		.catch(err => {
-			console.log(err)
-		})
-}
-
 const showAddBtn = () => {
 	addBookmark.innerHTML = ''
 	if (!userData.watchList.includes(symbol)) {
@@ -230,71 +205,7 @@ const showAddBtn = () => {
 	}
 }
 
-const getMarketDepth = (symbol) => {
-	fetch(`/marketDepth/${symbol}`, { method: 'POST' })
-		.then(res => res.json())
-		.then(data => {
-			buyMarkup.innerHTML = ''
-			sellMarkup.innerHTML = ''
-			// console.log(data)
-			data.marketDeptOrderBook.ask.map(askPrice => {
-				buyMarkup.innerHTML += `
-					<span class="d-flex justify-content-between">
-						<span>${askPrice.price}</span>
-						<span>${askPrice.quantity}</span>
-					</span>
-				`
-			})
-			data.marketDeptOrderBook.bid.map(sellPrice => {
-				sellMarkup.innerHTML += `
-					<span class="d-flex justify-content-between">
-						<span>${sellPrice.price}</span>
-						<span>${sellPrice.quantity}</span>
-					</span>
-				`
-			})
-			document.querySelector('.totBid').innerHTML = data.marketDeptOrderBook.totalBuyQuantity
-			document.querySelector('.totAsk').innerHTML = data.marketDeptOrderBook.totalSellQuantity
-			document.querySelector('.deliverystat').innerHTML = `
-				<span>Total Traded Qty. <b>${data.securityWiseDP.quantityTraded}</b></span>
-				<span>Delivery Qty. <b>${data.securityWiseDP.deliveryQuantity}</b></span>
-				<span>Delivery Percentage <b>${data.securityWiseDP.deliveryToTradedQuantity}%</b></span>
-			`
-
-			if (sessionStorage.marketStat != 'Closed') setTimeout(() => getMarketDepth(symbol), 1000)
-		})
-		.catch(err => {
-			console.log(err)
-			setTimeout(() => getMarketDepth(symbol), 5000)
-		})
-}
-
-const getSectorData = (sector) => {
-
-	fetch(`/index/${sector}`, { method: 'POST' })
-		.then(res => res.json())
-		.then(data => {
-			if (Object.keys(data).length > 0) {
-				let change = (data.metadata.change).toFixed(2)
-				document.querySelector('.indexname').innerHTML = data.metadata.indexName
-				document.querySelector('.indexltp').innerHTML = data.metadata.last
-
-				sectordata.innerHTML = `
-				<span class="d-block ${(change > 0) ? 'text-success' : 'text-danger'}">
-					<span>${change}</span>
-					<span>(${(data.metadata.percChange).toFixed(2)}%)</span>
-				<span>
-			`
-				setTimeout(() => getSectorData(sector), 10000)
-			}
-		})
-		.catch(err => {
-			console.log(err)
-			setTimeout(() => getSectorData(sector), 10000)
-		})
-}
-
-fetchStockData(symbol)
+getTickerTapeInfo(symbol)
 
 const getStocknews = (symbol) => {
 
@@ -323,153 +234,6 @@ const getStocknews = (symbol) => {
 			setTimeout(() => getStocknews(symbol), 10000)
 		})
 }
-
-const getIntraChartData = (symbol, wHigh, wLow, openPrice, dHigh, dLow) => {
-	fetch(`/growwChanrt/${symbol}`, { method: 'POST' })
-		.then(res => res.json())
-		.then(data => {
-			// console.log(data)
-			let graphData = []
-			data.livePointsDtos.map(datas => {
-				graphData.push([returnGmtTime(datas.tsInMillis), datas.ltp])
-			})
-			intraGrpah(graphData, wHigh, wLow, openPrice, dHigh, dLow)
-		})
-		.catch(err => {
-			console.log(err)
-			console.log('Retrying Last Action')
-			setTimeout(() => getIntraChartData(symbol, wHigh, wLow, openPrice, dHigh, dLow), 2000)
-		})
-}
-
-const getFinData = (symbol) => {
-
-	fetch(`/historicalFinancialResult/${symbol}`, { method: 'POST' })
-		.then(res => res.json())
-		.then(data => {
-			let totalInc = []
-			let totalExp = []
-			let paTax = []
-
-			if (data.resCmpData != null) {
-				data.resCmpData.map(values => {
-					// console.log(values)
-					let totalIncome = values.re_total_inc || values.re_tot_inc
-					let totalExpeceBeforeTax = values.re_tot_exp_exc_pro_cont || values.re_oth_tot_exp
-					let taxExpence = values.re_tax
-					let pat = values.re_con_pro_loss
-					totalIncome = (isNaN(totalIncome) ? 0 : totalIncome)
-					totalExpeceBeforeTax = (isNaN(totalExpeceBeforeTax) ? 0 : totalExpeceBeforeTax)
-					pat = (isNaN(pat) ? 0 : pat)
-					let date = new Date(values.re_to_dt).getTime()
-					totalInc.push([date, parseFloat(totalIncome)])
-					totalExp.push([date, parseFloat(totalExpeceBeforeTax)])
-					paTax.push([date, parseFloat(pat)])
-				})
-				plotFinanData(totalInc, totalExp, paTax, symbol)
-			}
-
-		})
-		.catch(err => {
-			console.log(err)
-			console.log('Retrying Last Action')
-			setTimeout(() => getFinData(symbol), 2000)
-		})
-}
-
-const fetchHistoricalData = async (symbol, series, startDate, endDate) => {
-
-	let url = `/getHistoricalData/${symbol}/${series}/${startDate}/${endDate}`
-	try {
-		let res = await fetch(url, { method: 'POST' })
-		let data = await res.json()
-
-		return data
-
-	} catch (err) {
-		console.log(err)
-		setTimeout(() => fetchHistoricalData(symbol, series, startDate, endDate), 5000)
-	}
-}
-
-const getChartData = (symbol, companyName, series) => {
-
-	historicalchartdata.innerHTML = 'Loading Historical Data, It may Take some times.'
-	const toDate = moment().format('DD-MM-yyyy')
-	const fromDate = moment().subtract(100, 'days').format('DD-MM-yyyy')
-	let ohlc = [], vwapData = [], volume = []
-	fetchHistoricalData(symbol, series, fromDate, toDate)
-		.then(res => {
-			res.data.map(values => {
-				let date = returnGmtTime(values.mTIMESTAMP)
-				ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-				vwapData.push([date, values.VWAP])
-				volume.push([date, values.CH_TOT_TRADED_QTY])
-				historicalchartdata.innerHTML = ''
-			})
-
-			ohlc = ohlc.reverse()
-			vwapData = vwapData.reverse()
-			volume = volume.reverse()
-
-			plotGraphData(ohlc, vwapData, companyName, symbol, volume)
-		})
-}
-
-const getFinalData = (symbol, companyName, series, cumData) => {
-
-	let ohlc = [], vwapData = [], volume = []
-	cumData.map(values => {
-		// let date = values.mTIMESTAMP
-		let date = returnGmtTime(values.mTIMESTAMP)
-		ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-		vwapData.push([date, values.VWAP])
-		volume.push([date, values.CH_TOT_TRADED_QTY])
-	})
-
-	ohlc = ohlc.reverse()
-	vwapData = vwapData.reverse()
-	volume = volume.reverse()
-
-	historicalchartdata.innerHTML = ''
-
-	plotGraphData(ohlc, vwapData, companyName, symbol, volume)
-}
-
-const getAllHistoricaldata = (symbol, companyName, series, cumData) => {
-
-	const lastdate = cumData[cumData.length - 1].mTIMESTAMP
-	const toDate = moment(new Date(lastdate).getTime()).subtract(1, 'days').format('DD-MM-yyyy')
-	const fromDate = moment(new Date(lastdate).getTime()).subtract(100, 'days').format('DD-MM-yyyy')
-
-	historicalchartdata.innerHTML = `Data Fetched upto ${lastdate}`
-
-	fetchHistoricalData(symbol, series, fromDate, toDate)
-		.then(res => {
-			if (res.data.length > 2) {
-				res.data.map(values => cumData.push(values))
-				// setTimeout(() => getAllHistoricaldata(symbol, companyName, series, cumData), 50)
-				getAllHistoricaldata(symbol, companyName, series, cumData)
-			} else {
-				let ohlc = [], vwapData = [], volume = []
-				cumData.map(values => {
-					let date = returnGmtTime(values.mTIMESTAMP)
-					// let date = values.mTIMESTAMP
-					ohlc.push([date, values.CH_OPENING_PRICE, values.CH_TRADE_HIGH_PRICE, values.CH_TRADE_LOW_PRICE, values.CH_CLOSING_PRICE])
-					vwapData.push([date, values.VWAP])
-					volume.push([date, values.CH_TOT_TRADED_QTY])
-				})
-				ohlc = ohlc.reverse()
-				vwapData = vwapData.reverse()
-				volume = volume.reverse()
-
-				plotGraphData(ohlc, vwapData, companyName, symbol, volume)
-				historicalchartdata.innerHTML = ''
-			}
-		})
-
-}
-
 
 // Historical Graph
 const plotGraphData = (ohlc, vwapData, companyName, symbol, volume) => {

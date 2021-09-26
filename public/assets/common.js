@@ -35,7 +35,8 @@ const getUserData = async () => {
             getMyOrders()
             getTransactions()
             getHoldings()
-            growwBatchData()
+            // growwBatchData()
+            tickerTapeBatchData()
         }
     } catch (error) {
         console.log(error)
@@ -51,23 +52,25 @@ if (companyname) {
 
         let name = companyname.value
         if (name.length > 2) {
-            fetch(`/searchSymbol/${name}`, { method: 'POST' })
+            fetch(`/tickertapeSymbolSearch/${name}`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data.data.stocks)
                     suggestionresponse.innerHTML = ''
-                    data.symbols.map(ele => {
+                    data.data.stocks.map(ele => {
                         suggestionresponse.innerHTML += `
-                    <span class="p-1 border suggestion">
-                        <span class="name text-dark"><a href="/${ele.symbol}">${ele.symbol_info}</a></span>
-                        <button id="${ele.symbol}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.symbol}')">ADD</button>
-                    </span>`
+                        <span class="p-1 border suggestion">
+                            <span class="name text-dark">
+                                <a href="/${ele.sid}">${ele.name} <b>(${ele.ticker})</b> </a>
+                            </span>
+                            <button id="${ele.sid}" class="btn btn-sm btn-outline-success" onClick="addSymbolToprofile('${ele.sid}')">ADD</button>
+                        </span>`
 
                     })
-
                     filterSymbols(userData.watchList)
-
                 })
                 .catch(err => console.log(err))
+
         } else {
             suggestionresponse.innerHTML = ''
         }
@@ -137,18 +140,39 @@ const getMMI = () => {
 
 setInterval(getMMI, 10000)
 
-const returnAvlShares = (symbol) => {
+// const returnAvlShares = (symbol) => {
+
+//     let totalBuyQty = 0, totalSellQty = 0;
+
+//     userData.buyOrder.map(x => {
+//         if (x.symbol == symbol) {
+//             totalBuyQty += x.qty
+//         }
+//     })
+
+//     userData.sellOrder.map(x => {
+//         if (x.symbol == symbol) {
+//             totalSellQty += x.qty
+//         }
+//     })
+
+//     let avlShare = totalBuyQty - totalSellQty
+
+//     return avlShare
+// }
+
+const returnAvlShares = (sid) => {
 
     let totalBuyQty = 0, totalSellQty = 0;
 
     userData.buyOrder.map(x => {
-        if (x.symbol == symbol) {
+        if (x.sid == sid) {
             totalBuyQty += x.qty
         }
     })
 
     userData.sellOrder.map(x => {
-        if (x.symbol == symbol) {
+        if (x.sid == sid) {
             totalSellQty += x.qty
         }
     })
@@ -158,65 +182,73 @@ const returnAvlShares = (symbol) => {
     return avlShare
 }
 
-const returnAvlQtyPerOrder = (trId) => {
+const returnTotalBuyQty = (trId) => {
 
-    let holdingQty = 0, soldQty = 0;
+    let totalBuyQty = 0;
 
     userData.buyOrder.map(x => {
         if (x.id == trId) {
-            holdingQty += x.qty
+            totalBuyQty += x.qty
         }
     })
 
+    return totalBuyQty
+
+}
+
+const returnTotalSellQty = (buyOrderID) => {
+    soldQty = 0;
+
     userData.sellOrder.map(x => {
-        if (x.buyOrderID == trId) {
+        if (x.buyOrderID == buyOrderID) {
             soldQty += x.qty
         }
     })
 
-    let avlQtyPerOrder = holdingQty - soldQty
-
-    return avlQtyPerOrder
+    return soldQty
 
 }
 
-const retAvgSharePrice = (symbol) => {
-    let avlBuyQty = 0, avlBuyPrice = 0, avlAvgPrice = 0;
-    let totalBuyQty = 0, totalBuyPrice = 0, avgBuyPrice = 0;
-    let totalSellQty = 0, totalSellPrice = 0, avgSellPrice = 0;
+const retAvgSharePrice = (sid) => {
+    let totalBuyQty = 0, totalBuyPrice = 0;
+    let totalSellQty = 0, totalSellPrice = 0;
+    let totalHoldingQty = 0, totalHoldingPrice = 0
 
     userData.buyOrder.map(x => {
-        if (x.symbol == symbol && x.status == 'PENDING') {
-            avlBuyQty += returnAvlQtyPerOrder(x.id)
-            avlBuyPrice += (returnAvlQtyPerOrder(x.id) * x.price)
+        if (x.sid == sid && x.status == 'COMPLETED') {
+            totalBuyQty += returnTotalBuyQty(x.id)
+            totalBuyPrice += (returnTotalBuyQty(x.id) * x.price)
         }
     })
 
     userData.sellOrder.map(x => {
-        if (x.symbol == symbol) {
-            totalSellQty += x.qty
-            totalSellPrice += (x.qty * x.price)
 
-            userData.buyOrder.map(y => {
-                if (y.id == x.buyOrderID) {
-                    totalBuyQty += y.id
-                    totalBuyPrice += y.id * y.price
-                }
-            })
+        if (x.sid == sid && x.status == 'COMPLETED') {
+            totalSellQty += returnTotalSellQty(x.buyOrderID)
+            totalSellPrice += (returnTotalSellQty(x.buyOrderID) * x.price)
         }
     })
 
-
-
-    avlAvgPrice = (avlBuyPrice / avlBuyQty).toFixed(2)
-    avgBuyPrice = (totalBuyPrice / totalBuyQty).toFixed(2)
-    avgSellPrice = (totalSellPrice / totalSellQty).toFixed(2)
-
+    userData.buyOrder.map(x => {
+        if (x.sid == sid && x.status == 'PENDING') {
+            totalHoldingQty += returnTotalBuyQty(x.id)
+            totalHoldingPrice += (returnTotalBuyQty(x.id) * x.price)
+        }
+    })
 
     return {
-        avlAvgPrice: (isNaN(avlAvgPrice)) ? 0 : avlAvgPrice,
-        avgBuyPrice: (isNaN(avgBuyPrice)) ? 0 : avgBuyPrice,
-        avgSellPrice: (isNaN(avgSellPrice)) ? 0 : avgSellPrice,
-        totalSellQty: totalSellQty
+        totalBuyQty: totalBuyQty,
+        totalBuyPrice: totalBuyPrice,
+        avgBuyPrice: (totalBuyPrice / totalBuyQty).toFixed(2),
+
+        totalSellQty: totalSellQty,
+        totalSellPrice: totalSellPrice,
+        avgSellPrice: (totalSellPrice / totalSellQty).toFixed(2),
+
+        totalHoldingQty: totalHoldingQty,
+        totalHoldingPrice: totalHoldingPrice,
+        avgHoldingPrice: (totalHoldingPrice / totalHoldingQty).toFixed(2)
+
+
     }
 }

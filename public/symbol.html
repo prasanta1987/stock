@@ -1,229 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-            integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-        <link rel="stylesheet" href="./assets/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="./assets/styles.css">
 
-        <script src="https://code.highcharts.com/stock/highstock.js"></script>
-        <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-        <script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
 
-        <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js"></script>
 
-    </head>
+</head>
 
-    <body>
+<body>
 
-        <div class="sticky-top nav">
-            <div class="container-fluid d-flex align-items-center">
-                <div class="brand">
-                    <h4>Stock View</h4>
+    <div class="sticky-top nav">
+        <div class="container-fluid d-flex align-items-center">
+            <div class="brand">
+                <h4>Stock View</h4>
+            </div>
+            <div class="menu flex-grow-1 ml-2">
+                <ul class="d-flex m-0">
+                    <li class="nav-link"><a href="/">Home</a></li>
+                    <li class="nav-link"><a href="/watchlist">WatchList</a></li>
+                    <!-- <li class="nav-link"><a href="/tradebook">Trade Book</a></li> -->
+                    <li class="nav-link"><b class="MMI"></b></li>
+                </ul>
+            </div>
+
+            <div class="search">
+                <input type="text" class="form-control companyname" placeholder="Find Stocks by Company Name">
+                <div class="searchcontainer">
+                    <div class="suggestionresponse"></div>
                 </div>
-                <div class="menu flex-grow-1 ml-2">
-                    <ul class="d-flex m-0">
-                        <li class="nav-link"><a href="/">Home</a></li>
-                        <li class="nav-link"><a href="/watchlist">WatchList</a></li>
-                        <li class="nav-link"><a href="/tradebook">Trade Book</a></li>
-                        <li class="nav-link"><b class="MMI"></b></li>
-                    </ul>
-                </div>
+            </div>
 
-                <div class="search">
-                    <input type="text" class="form-control companyname" placeholder="Find Stocks by Company Name">
-                    <div class="searchcontainer">
-                        <div class="suggestionresponse"></div>
-                    </div>
-                </div>
+        </div>
+    </div>
 
+    <span class="bookmark"></span>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-9">
+                <h1 class="lead stockname"></h1>
+                <small style="font-size: 15px;">
+                    <kbd class="bg-primary industryinfo"></kbd>
+                    <kbd class="bg-primary capinfo"></kbd>
+                    <kbd class="bg-primary">M.CAP Rank - <b class="mcaprank"></b></kbd>
+                </small>
+                <p class="lead updateTimeInfo"></p>
+            </div>
+            <div class="col-sm-3 text-right">
+                <div class="">
+                    <h1 class="lead m-0 indexname"></h1>
+                    <p class="lead mb-0 mt-2 indexltp"></p>
+                    <div class="sectordata m-0"></div>
+                </div>
             </div>
         </div>
 
-        <span class="bookmark"></span>
-
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-9">
-                    <h1 class="lead stockname"></h1>
-                    <small style="font-size: 15px;">
-                        <kbd class="bg-primary industryinfo"></kbd>
-                        <kbd class="bg-primary capinfo"></kbd>
-                        <kbd class="bg-primary">M.CAP Rank - <b class="mcaprank"></b></kbd>
-                    </small>
-                    <p class="lead updateTimeInfo"></p>
-                </div>
-                <div class="col-sm-3 text-right">
-                    <div class="">
-                        <h1 class="lead m-0 indexname"></h1>
-                        <p class="lead mb-0 mt-2 indexltp"></p>
-                        <div class="sectordata m-0"></div>
-                    </div>
-                </div>
+        <div class="border rounded symbol-info p-2">
+            <div class="row text-center d-flex align-items-center">
+                <b class="col"> Open </b>
+                <b class="col"> High</b>
+                <b class="col"> Low </b>
+                <b class="col"> CMP </b>
+                <b class="col"> Change </b>
+                <b class="col"> % Change </b>
+                <b class="col"> Pre Close</b>
+                <b class="col"> 52W High </b>
+                <b class="col"> 52W Low </b>
             </div>
 
-            <div class="border rounded symbol-info p-2">
-                <div class="row text-center d-flex align-items-center">
-                    <b class="col"> Open </b>
-                    <b class="col"> High</b>
-                    <b class="col"> Low </b>
-                    <b class="col"> CMP </b>
-                    <b class="col"> Change </b>
-                    <b class="col"> % Change </b>
-                    <b class="col"> Pre Close</b>
-                    <b class="col"> 52W High </b>
-                    <b class="col"> 52W Low </b>
-                </div>
-
-                <div class="mt-1 row text-center d-flex align-items-center">
-                    <div class="col open"> 0 </div>
-                    <div class="col dhigh"> 0</div>
-                    <div class="col dlow"> 0 </div>
-                    <div class="col"> <kbd class="cmp">0</kbd></div>
-                    <div class="col"><kbd class="change">0</kbd></div>
-                    <div class="col"><kbd class="pchange">0</kbd></div>
-                    <div class="col preclose"> 0</div>
-                    <div class="col whigh"> 0 </div>
-                    <div class="col wlow"> 0 </div>
-                </div>
-
-                <hr>
-
-                <div class="row text-center d-flex align-items-center">
-                    <b class="col"> M Cap (Cr.) </b>
-                    <b class="col"> EPS </b>
-                    <b class="col"> PE </b>
-                    <b class="col"> IND PE </b>
-                    <b class="col"> PB </b>
-                    <b class="col"> IND PB </b>
-                    <b class="col"> DIV. Yld. </b>
-                    <b class="col"> Sec. DIV. Yld. </b>
-                </div>
-
-                <div class="mt-1 row text-center d-flex align-items-center">
-                    <div class="col mcap"> 0 </div>
-                    <div class="col eps"> 0 </div>
-                    <div class="col pe"> 0 </div>
-                    <div class="col indpe"> 0 </div>
-                    <div class="col pb"> 0 </div>
-                    <div class="col indpb"> 0 </div>
-                    <div class="col divyld"> 0 </div>
-                    <div class="col secdivyld"> 0 </div>
-                </div>
-
-                <hr>
-
-                <div class="row text-center d-flex align-items-center">
-                    <b class="col"> 1M Return</b>
-                    <b class="col"> 1Y Return </b>
-                </div>
-
-                <div class="mt-1 row text-center d-flex align-items-center">
-                    <div class="col m1ret"> 0 </div>
-                    <div class="col y1ret"> 0 </div>
-                </div>
-
+            <div class="mt-1 row text-center d-flex align-items-center">
+                <div class="col open"> 0 </div>
+                <div class="col dhigh"> 0</div>
+                <div class="col dlow"> 0 </div>
+                <div class="col"> <kbd class="cmp">0</kbd></div>
+                <div class="col"><kbd class="change">0</kbd></div>
+                <div class="col"><kbd class="pchange">0</kbd></div>
+                <div class="col preclose"> 0</div>
+                <div class="col whigh"> 0 </div>
+                <div class="col wlow"> 0 </div>
             </div>
 
+            <hr>
 
-            <div id="container-intra" class="mt-2 mb-2 border rounded" style="height: 400px; min-width: 310px"></div>
-
-
-            <div class="mt-3 mb-3 border border-info rounded">
-                <h1 class="border border-info bg-info pb-2 text-light lead text-center heading col-sm-12">Market
-                    Depth
-                </h1>
-
-                <div class="row pl-3 pr-3">
-                    <div class="col-sm-6">
-                        <span class="d-flex justify-content-between">
-                            <b>Ask Price</b>
-                            <b>Quantity</b>
-                        </span>
-                        <hr class="mt-0">
-                        <div class="buy"></div>
-                        <hr class="mt-0">
-                        <span class="d-flex justify-content-between">
-                            <b>Total Sell Quantity</b>
-                            <b class="totAsk">0</b>
-                        </span>
-                    </div>
-                    <div class="col-sm-6">
-                        <span class="d-flex justify-content-between">
-                            <b>Bid Price</b>
-                            <b>Quantity</b>
-                        </span>
-                        <hr class="mt-0">
-                        <div class="sell"></div>
-                        <hr class="mt-0">
-                        <span class="mb-2 d-flex justify-content-between">
-                            <b>Total Buy Quantity</b>
-                            <b class="totBid">0</b>
-                        </span>
-                    </div>
-                </div>
-                <div class="mt-2 pt-2 pb-2 bg-info text-light d-flex justify-content-between pl-3 pr-3 deliverystat">
-                </div>
+            <div class="row text-center d-flex align-items-center">
+                <b class="col"> M Cap (Cr.) </b>
+                <b class="col"> EPS </b>
+                <b class="col"> PE </b>
+                <b class="col"> IND PE </b>
+                <b class="col"> PB </b>
+                <b class="col"> IND PB </b>
+                <b class="col"> DIV. Yld. </b>
+                <b class="col"> Sec. DIV. Yld. </b>
             </div>
 
-            <div class="border rounded mt-3 mb-5">
-                <h1 class="text-light bg-info rounded-top pt-2 pb-2 m-0 lead text-center heading">Corporate Actions</h1>
-                <div class="table-responsive corpaction">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">Description</th>
-                                <th scope="col">Ex Date</th>
-                                <th scope="col">Record Date</th>
-                                <th scope="col">B.C. Start Date</th>
-                                <th scope="col">B.C. End Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="copractions"></tbody>
-                    </table>
-                </div>
+            <div class="mt-1 row text-center d-flex align-items-center">
+                <div class="col mcap"> 0 </div>
+                <div class="col eps"> 0 </div>
+                <div class="col pe"> 0 </div>
+                <div class="col indpe"> 0 </div>
+                <div class="col pb"> 0 </div>
+                <div class="col indpb"> 0 </div>
+                <div class="col divyld"> 0 </div>
+                <div class="col secdivyld"> 0 </div>
             </div>
 
-            <div class="screener-data">
+            <hr>
 
-                <div class="cashflowcont table-responsive border rounded mt-2 mb-2">
-                    <h3 class="lead text-light bg-info rounded-top m-0 p-2">Quaterly Result</h3>
-                    <table class="quater table table-hover"></table>
-                </div>
-
-                <div class="cashflowcont table-responsive border rounded mt-2 mb-2">
-                    <h3 class="lead text-light bg-info rounded-top m-0 p-2">Balance Sheet</h3>
-                    <table class="balanceSheet table table-hover"></table>
-                </div>
-
-                <div class="cashflowcont table-responsive border rounded mt-2 mb-2">
-                    <h3 class="lead text-light bg-info rounded-top m-0 p-2">Profit & Loss</h3>
-                    <table class="plStatement table table-hover"></table>
-                </div>
-
-                <div class="cashflowcont table-responsive border rounded mt-2 mb-2">
-                    <h3 class="lead text-light bg-info rounded-top m-0 p-2">Cash Flow</h3>
-                    <table class="cashflow table table-hover"></table>
-                </div>
-
+            <div class="row text-center d-flex align-items-center">
+                <b class="col"> 1M Return</b>
+                <b class="col"> 1Y Return </b>
             </div>
 
-            <div class="charts">
-
-                <div id="container-shareholding" class="mt-2 mb-2 border rounded" style="min-width: 310px"></div>
-                <div id="container-finance" class="mt-2 mb-2 border rounded" style="height: 400px; min-width: 310px">
-                </div>
-                <h1 class="historicalchartdata lead text-center"></h1>
-                <div id="container" style="height: 600px; min-width: 310px"></div>
+            <div class="mt-1 row text-center d-flex align-items-center">
+                <div class="col m1ret"> 0 </div>
+                <div class="col y1ret"> 0 </div>
             </div>
+
         </div>
 
-        <script src="./assets/common.js"></script>
-        <script src="./assets/symbol.js"></script>
-    </body>
+        <div class="charts">
+
+            <div id="container-shareholding" class="mt-2 mb-2 border rounded" style="min-width: 310px"></div>
+            <!-- <div id="container-finance" class="mt-2 mb-2 border rounded" style="height: 400px; min-width: 310px">
+            </div> -->
+            <!-- <h1 class="historicalchartdata lead text-center"></h1>
+            <div id="container" style="height: 600px; min-width: 310px"></div> -->
+        </div>
+        <!-- <div id="container-intra" class="mt-2 mb-2 border rounded" style="height: 400px; min-width: 310px"></div> -->
+
+
+        <!-- <div class="mt-3 mb-3 border border-info rounded">
+            <h1 class="border border-info bg-info pb-2 text-light lead text-center heading col-sm-12">Market
+                Depth
+            </h1>
+
+            <div class="row pl-3 pr-3">
+                <div class="col-sm-6">
+                    <span class="d-flex justify-content-between">
+                        <b>Ask Price</b>
+                        <b>Quantity</b>
+                    </span>
+                    <hr class="mt-0">
+                    <div class="buy"></div>
+                    <hr class="mt-0">
+                    <span class="d-flex justify-content-between">
+                        <b>Total Sell Quantity</b>
+                        <b class="totAsk">0</b>
+                    </span>
+                </div>
+                <div class="col-sm-6">
+                    <span class="d-flex justify-content-between">
+                        <b>Bid Price</b>
+                        <b>Quantity</b>
+                    </span>
+                    <hr class="mt-0">
+                    <div class="sell"></div>
+                    <hr class="mt-0">
+                    <span class="mb-2 d-flex justify-content-between">
+                        <b>Total Buy Quantity</b>
+                        <b class="totBid">0</b>
+                    </span>
+                </div>
+            </div>
+            <div class="mt-2 pt-2 pb-2 bg-info text-light d-flex justify-content-between pl-3 pr-3 deliverystat">
+            </div>
+        </div> -->
+
+        <!-- <div class="border rounded mt-3 mb-5">
+            <h1 class="text-light bg-info rounded-top pt-2 pb-2 m-0 lead text-center heading">Corporate Actions</h1>
+            <div class="table-responsive corpaction">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Description</th>
+                            <th scope="col">Ex Date</th>
+                            <th scope="col">Record Date</th>
+                            <th scope="col">B.C. Start Date</th>
+                            <th scope="col">B.C. End Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="copractions"></tbody>
+                </table>
+            </div>
+        </div> -->
+
+        <div class="screener-data">
+
+            <div class="cashflowcont table-responsive border rounded mt-2 mb-2">
+                <h3 class="lead text-light bg-info rounded-top m-0 p-2">Quaterly Result</h3>
+                <table class="quater table table-hover"></table>
+            </div>
+
+            <div class="cashflowcont table-responsive border rounded mt-2 mb-2">
+                <h3 class="lead text-light bg-info rounded-top m-0 p-2">Balance Sheet</h3>
+                <table class="balanceSheet table table-hover"></table>
+            </div>
+
+            <div class="cashflowcont table-responsive border rounded mt-2 mb-2">
+                <h3 class="lead text-light bg-info rounded-top m-0 p-2">Profit & Loss</h3>
+                <table class="plStatement table table-hover"></table>
+            </div>
+
+            <div class="cashflowcont table-responsive border rounded mt-2 mb-2">
+                <h3 class="lead text-light bg-info rounded-top m-0 p-2">Cash Flow</h3>
+                <table class="cashflow table table-hover"></table>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="./assets/common.js"></script>
+    <script src="./assets/symbol.js"></script>
+</body>
 
 </html>

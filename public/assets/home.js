@@ -1,62 +1,6 @@
 const gainers = document.querySelector('.gainers')
 const loosers = document.querySelector('.loosers')
 
-fetch('/gainers', fetchOption)
-    .then(res => res.json())
-    .then(data => {
-        data.NIFTY.data.map(scrips => {
-            let ltp = (scrips.ltp).toFixed(2)
-            let perChange = (scrips.perChange).toFixed(2)
-            let increase = (ltp - scrips.prev_price).toFixed(2)
-
-            createNameCard(scrips.symbol, ltp, perChange, increase, 'gainers')
-        })
-    })
-    .catch(err => console.log(err))
-
-fetch('/loosers', fetchOption)
-    .then(res => res.json())
-    .then(data => {
-        data.NIFTY.data.map(scrips => {
-            let ltp = (scrips.ltp).toFixed(2)
-            let perChange = (scrips.perChange).toFixed(2)
-            let increase = (ltp - scrips.prev_price).toFixed(2)
-
-            createNameCard(scrips.symbol, ltp, perChange, increase, 'loosers')
-        })
-    })
-    .catch(err => console.log(err))
-
-fetch('/activeByValue', fetchOption)
-    .then(res => res.json())
-    .then(data => {
-        data.data.map(scrips => {
-            let preClose = (scrips.previousClose).toFixed(2)
-            let ltp = ((scrips.closePrice) == 0 ? scrips.lastPrice : scrips.closePrice).toFixed(2)
-            let increase = (ltp - preClose).toFixed(2)
-            let perChange = ((increase / preClose) * 100).toFixed(2)
-            createNameCard(scrips.symbol, ltp, perChange, increase, 'value')
-        })
-    })
-    .catch(err => {
-        console.log(err)
-    })
-
-fetch('/activeByVolume', fetchOption)
-    .then(res => res.json())
-    .then(data => {
-        data.data.map(scrips => {
-            let preClose = (scrips.previousClose).toFixed(2)
-            let ltp = ((scrips.closePrice) == 0 ? scrips.lastPrice : scrips.closePrice).toFixed(2)
-            let increase = (ltp - preClose).toFixed(2)
-            let perChange = ((increase / preClose) * 100).toFixed(2)
-
-            createNameCard(scrips.symbol, ltp, perChange, increase, 'volume')
-        })
-    })
-    .catch(err => {
-        console.log(err)
-    })
 
 const createNameCard = async (symbol, ltp, perChange, increase, stat) => {
 

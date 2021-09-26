@@ -1,191 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Profile</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
 
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-            integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-        <link rel="stylesheet" href="./assets/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="./assets/styles.css">
 
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-            crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-            crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-            crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js"></script>
-    </head>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js"></script>
+</head>
 
-    <body>
+<body>
 
-        <div class="sticky-top nav">
-            <div class="container-fluid d-flex align-items-center">
-                <div class="brand">
-                    <h4>Stock View</h4>
-                </div>
-                <div class="menu flex-grow-1 ml-2">
-                    <ul class="d-flex m-0">
-                        <li class="nav-link"><a href="/">Home</a></li>
-                        <li class="nav-link"><a href="/watchlist">WatchList</a></li>
-                        <li class="nav-link"><a href="/tradebook">Trade Book</a></li>
-                        <li class="nav-link"><b class="MMI"></b></li>
-                    </ul>
-                </div>
+    <div class="sticky-top nav">
+        <div class="container-fluid d-flex align-items-center">
+            <div class="brand">
+                <h4>Stock View</h4>
+            </div>
+            <div class="menu flex-grow-1 ml-2">
+                <ul class="d-flex m-0">
+                    <li class="nav-link"><a href="/">Home</a></li>
+                    <li class="nav-link"><a href="/watchlist">WatchList</a></li>
+                    <!-- <li class="nav-link"><a href="/tradebook">Trade Book</a></li> -->
+                    <li class="nav-link"><b class="MMI"></b></li>
+                    <li class="nav-link">
+                        <button class="btn btn-md btn-outline-light" style="position:absolute;right:0;top:10%;"
+                            data-toggle="modal" data-target="#exampleModal">Add Trade</button>
+                    </li>
+                </ul>
             </div>
         </div>
+    </div>
 
-        <div class="container-fluid tradebook">
+    <div class="container-fluid tradebook">
 
-            <!-- Holdings Start Here -->
-            <div class="table-responsive border rounded mt-5">
-                <h3 class="p-2 m-0 bg-primary lead text-center text-light">Current Holdings</h3>
-                <table class="table table-hover">
-                    <thead>
-                        <tr class="text-center">
-                            <th>SYMBOL</th>
-                            <th>Avg. Price</th>
-                            <th>Buy Qty</th>
-                            <th>CMP</th>
-                            <th>P&L</th>
-                        </tr>
-                    </thead>
-                    <tbody class="holdingdata"></tbody>
-                </table>
-            </div>
-            <!-- End Of Holdings -->
+        <!-- Holdings Start Here -->
+        <div class="table-responsive border rounded mt-5">
+            <h3 class="p-2 m-0 bg-primary lead text-center text-light">Current Holdings</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr class="text-center">
+                        <th>SYMBOL</th>
+                        <th>Avg. Price</th>
+                        <th>Avl. Qty</th>
+                        <th>CMP</th>
+                        <th>P&L</th>
+                    </tr>
+                </thead>
+                <tbody class="holdingdata"></tbody>
+            </table>
+        </div>
+        <!-- End Of Holdings -->
 
-            <!-- PL Start Here -->
-            <div class="table-responsive border rounded mt-5">
-                <h3 class="p-2 m-0 bg-primary lead text-center text-light">Completed Trades</h3>
-                <table class="table table-hover">
-                    <thead>
-                        <tr class="text-center">
-                            <th>SYMBOL</th>
-                            <th>Avg. Buy Price</th>
-                            <th>Avg. Sell Price</th>
-                            <th>Sold Qty</th>
-                            <th>Profit / Loss</th>
-                            <th>CMP</th>
-                            <th>P&L wrt. CMP</th>
-                        </tr>
-                    </thead>
-                    <tbody class="pldata"></tbody>
-                </table>
-            </div>
-            <!-- End Of PL -->
+        <!-- PL Start Here -->
+        <div class="table-responsive border rounded mt-5">
+            <h3 class="p-2 m-0 bg-primary lead text-center text-light">Completed Trades</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr class="text-center">
+                        <th>SYMBOL</th>
+                        <th>Avg. Buy Price</th>
+                        <th>Avg. Sell Price</th>
+                        <th>Sold Qty</th>
+                        <th>Profit / Loss</th>
+                        <th>CMP</th>
+                        <th>P&L wrt. CMP</th>
+                    </tr>
+                </thead>
+                <tbody class="pldata"></tbody>
+            </table>
+        </div>
+        <!-- End Of PL -->
 
-            <!-- All Trades Start -->
-            <div class="table-responsive mt-5 border rounded trade-table">
-                <h3 class="p-2 m-0 bg-primary lead text-center text-light">All Trades</h3>
-                <table class="table table-hover">
-                    <thead>
-                        <tr class="text-center">
-                            <th>SYMBOL</th>
-                            <th>Date</th>
-                            <th>Price</th>
-                            <th>Qty</th>
-                            <th>Type</th>
-                            <th>Credit</th>
-                            <th>Debit</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="tradedata"></tbody>
-                </table>
-            </div>
-            <!-- All Trades End -->
+        <!-- All Trades Start -->
+        <div class="table-responsive mt-5 border rounded trade-table">
+            <h3 class="p-2 m-0 bg-primary lead text-center text-light">All Trades</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr class="text-center">
+                        <th>SYMBOL</th>
+                        <th>Date</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Type</th>
+                        <th>Credit</th>
+                        <th>Debit</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="tradedata"></tbody>
+            </table>
+        </div>
+        <!-- All Trades End -->
 
-            <!-- Transaction MODAL STRAT -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="lead"> Add Transactions</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
+        <!-- Transaction MODAL STRAT -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="lead"> Add Transactions</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
 
-                            <div class="symbolsearch mb-5">
-                                <input type="text" class="form-control symbsrch"
-                                    placeholder="Find Stocks by Company Name">
-                                <div class="searchcontainer">
-                                    <div class="suggestionresponse"></div>
-                                </div>
+                        <div class="symbolsearch mb-5">
+                            <input type="text" class="form-control symbsrch" placeholder="Find Stocks by Company Name">
+                            <div class="searchcontainer">
+                                <div class="suggestionresponse"></div>
                             </div>
-
-                            <div class="mb-2 input-group">
-                                <input type="datetime-local" class="text-center form-control" placeholder="Sold Date"
-                                    aria-label="Sold Date" aria-describedby="basic-addon2" id="buydate">
-                            </div>
-
-                            <div class="input-group mt-1 mb-1">
-                                <input type="number" class="form-control" placeholder="Quantity" aria-label="quantity"
-                                    aria-describedby="basic-addon2" id="buyqty">
-                                <input type="number" class="form-control" placeholder="Price" aria-label="Sold Price"
-                                    aria-describedby="basic-addon2" id="buyprice">
-                            </div>
-
                         </div>
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                            <button type="button" class="btn btn-success" onclick="addTrns()">BUY</button>
+
+                        <div class="mb-2 input-group">
+                            <input type="datetime-local" class="text-center form-control" placeholder="Sold Date"
+                                aria-label="Sold Date" aria-describedby="basic-addon2" id="buydate">
                         </div>
+
+                        <div class="input-group mt-1 mb-1">
+                            <input type="number" class="form-control" placeholder="Quantity" aria-label="quantity"
+                                aria-describedby="basic-addon2" id="buyqty">
+                            <input type="number" class="form-control" placeholder="Price" aria-label="Sold Price"
+                                aria-describedby="basic-addon2" id="buyprice">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                        <button type="button" class="btn btn-success" onclick="addTrns()">BUY</button>
                     </div>
                 </div>
             </div>
-            <!-- Transaction MODAL END -->
+        </div>
+        <!-- Transaction MODAL END -->
 
 
-            <!-- SELL ORDER MODAL STRAT -->
-            <div class="modal fade" id="sellordermodal" tabindex="-1" role="dialog" aria-labelledby="sellordermodal"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="lead symbolname"></h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+        <!-- SELL ORDER MODAL STRAT -->
+        <div class="modal fade" id="sellordermodal" tabindex="-1" role="dialog" aria-labelledby="sellordermodal"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="lead symbolname"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <h3 class="lead mb-3">Available Share : <span class="avlshare"></span></h3>
+
+                        <div class="mb-2 input-group">
+                            <input type="datetime-local" class="text-center form-control" placeholder="Sold Date"
+                                aria-label="Sold Date" aria-describedby="basic-addon2" id="solddate">
                         </div>
-                        <div class="modal-body">
-
-                            <h3 class="lead mb-3">Available Share : <span class="avlshare"></span></h3>
-
-                            <div class="mb-2 input-group">
-                                <input type="datetime-local" class="text-center form-control" placeholder="Sold Date"
-                                    aria-label="Sold Date" aria-describedby="basic-addon2" id="solddate">
-                            </div>
-                            <div class="input-group">
-                                <input type="number" class="form-control" placeholder="Quantity" aria-label="quantity"
-                                    aria-describedby="basic-addon2" id="soldqty">
-                                <input type="number" class="form-control" placeholder="Price" aria-label="Sold Price"
-                                    aria-describedby="basic-addon2" id="soldprice">
-                            </div>
-
-
+                        <div class="input-group">
+                            <input type="number" class="form-control" placeholder="Quantity" aria-label="quantity"
+                                aria-describedby="basic-addon2" id="soldqty">
+                            <input type="number" class="form-control" placeholder="Price" aria-label="Sold Price"
+                                aria-describedby="basic-addon2" id="soldprice">
                         </div>
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                            <button type="button" class="btn btn-danger" onclick="addSellTrns()">SELL</button>
-                        </div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                        <button type="button" class="btn btn-danger" onclick="addSellTrns()">SELL</button>
                     </div>
                 </div>
             </div>
-            <!-- SELL ORDER MODAL END -->
-
         </div>
+        <!-- SELL ORDER MODAL END -->
 
-        <script src="./assets/common.js"></script>
-        <script src="./assets/tradebook.js"></script>
-    </body>
+    </div>
+
+    <script src="./assets/common.js"></script>
+    <script src="./assets/tradebook.js"></script>
+</body>
 
 </html>

@@ -65,7 +65,7 @@ th{
 ul{list-style: none;}
 .nav-link a{text-decoration: none !important; color: #eee;}
 .nav-link a:hover{color: #f4f4f4;}
-.stockname{font-size: 40px;}
+.stockname{font-size: 30px;}
 .indexname{font-size: 25px;}
 .symbol-info * {font-size: 15px;}
 .symbol-info small {font-size: 9px;}
@@ -125,3 +125,4 @@ ul{list-style: none;}
 .screener-data h3 {font-size: 20px; text-align: center;font-weight: bold;}
 .screener-data button{all: unset;}
 .screener-data a{display: none;}
+.menu{font-size: 20px;position: relative;}
